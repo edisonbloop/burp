@@ -1,0 +1,31 @@
+@import "tailwindcss";
+
+@theme {
+  /* Warm parchment palette */
+  --color-parchment-50: #fdf8f0;
+  --color-parchment-100: #f9edda;
+  --color-parchment-200: #f0d9b0;
+  --color-parchment-300: #e3be82;
+  --color-parchment-400: #d29e52;
+  --color-parchment-500: #c4893a;
+  --color-parchment-600: #a96e28;
+  --color-parchment-700: #8a5420;
+  --color-parchment-800: #6b3e18;
+  --color-parchment-900: #4d2c11;
+  --color-parchment-950: #2a1708;
+
+  /* Typography */
+  --font-display: var(--font-playfair);
+  --font-sans: var(--font-geist-sans), system-ui, sans-serif;
+  --font-mono: var(--font-geist-mono);
+}
+
+:root {
+  --background: #faf6ef;
+  --foreground: #2d1f0e;
+}
+
+body {
+  background-color: var(--background);
+  color: var(--foreground);
+}
