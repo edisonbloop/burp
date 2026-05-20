@@ -16,61 +16,63 @@ export default async function StonesPage() {
         className="py-16 px-4 text-center"
         style={{
           background:
-            "radial-gradient(ellipse 100% 80% at 50% 0%, #f0d9b0 0%, #faf6ef 65%)",
+            "radial-gradient(ellipse 100% 80% at 50% 0%, var(--color-gold-wash) 0%, var(--color-vellum) 65%)",
         }}
       >
         <Link
-          href="/"
-          className="inline-flex items-center gap-1.5 text-xs font-medium text-[#a96e28] hover:text-[#8a5420] tracking-wide uppercase mb-8 transition-colors"
+          href="/100stones"
+          className="inline-flex items-center gap-1.5 text-xs font-semibold text-stone hover:text-ink tracking-widest uppercase mb-8 transition-colors duration-140"
+          style={{ fontFamily: "var(--font-accent)" }}
         >
-          ← Back to Home
+          ← Back to 100 Stones
         </Link>
 
         <div className="flex justify-center mb-5">
           <div
-            className="w-14 h-14 rounded-full flex items-center justify-center text-2xl"
+            className="w-12 h-12 rounded-full flex items-center justify-center text-xl"
             style={{
-              background: "linear-gradient(135deg, #f0d9b0, #e3be82)",
-              color: "#8a5420",
-              boxShadow: "0 4px 16px rgba(196,137,58,0.2)",
+              background: "linear-gradient(135deg, var(--color-gold-wash), var(--color-gold-soft))",
+              color: "var(--color-gold-deep)",
+              boxShadow: "0 4px 16px rgba(184,146,74,0.15)",
             }}
           >
-            ◉
+            ◎
           </div>
         </div>
 
         <h1
-          className="text-4xl sm:text-5xl font-bold text-[#2d1f0e] mb-3"
-          style={{ fontFamily: "var(--font-playfair)" }}
+          className="text-3.5xl sm:text-4xl font-bold text-ink mb-3"
+          style={{ fontFamily: "var(--font-display)" }}
         >
           The Wall of Remembrance
         </h1>
-        <p className="text-[#7a5a3a] max-w-md mx-auto leading-relaxed mb-6">
+        <p className="text-stone-mid text-xs max-w-md mx-auto leading-relaxed mb-6">
           Each stone is a testimony — one thing God did in someone during 100 days in His Word.
         </p>
 
         {/* Stone count stat */}
         {stones.length > 0 && (
-          <div className="inline-flex items-center gap-3">
-            <div className="h-px w-12 bg-gradient-to-r from-transparent to-[#e3be82]" />
+          <div className="inline-flex items-center gap-3 text-stone-light">
+            <div className="h-px w-12 bg-gradient-to-r from-transparent to-stone-edge" />
             <span
-              className="text-3xl font-bold text-[#c4893a]"
-              style={{ fontFamily: "var(--font-playfair)" }}
+              className="text-2xl font-light text-gold"
+              style={{ fontFamily: "var(--font-display)" }}
             >
               {stones.length}
             </span>
-            <span className="text-sm text-[#a96e28] font-medium">
+            <span
+              className="text-[10px] text-gold-deep font-semibold tracking-wider uppercase"
+              style={{ fontFamily: "var(--font-accent)" }}
+            >
               stone{stones.length === 1 ? "" : "s"} set
             </span>
-            <div className="h-px w-12 bg-gradient-to-l from-transparent to-[#e3be82]" />
+            <div className="h-px w-12 bg-gradient-to-l from-transparent to-stone-edge" />
           </div>
         )}
       </section>
 
       {/* Decorative divider */}
-      <div className="flex items-center gap-0 overflow-hidden h-[2px]">
-        <div className="flex-1 h-px" style={{ background: "linear-gradient(to right, #faf6ef, #e3be82)" }} />
-        <div className="flex-1 h-px" style={{ background: "linear-gradient(to left, #faf6ef, #e3be82)" }} />
+      <div className="flex items-center gap-0 overflow-hidden h-[1px] bg-stone-edge opacity-60">
       </div>
 
       {/* Stones */}
@@ -88,27 +90,27 @@ export default async function StonesPage() {
 
       {/* CTA footer */}
       <div
-        className="border-t border-[#e8d4b0] py-12 px-4 text-center"
-        style={{ background: "linear-gradient(to bottom, #fdf8f0, #faf6ef)" }}
+        className="border-t border-stone-edge py-12 px-4 text-center"
+        style={{ background: "linear-gradient(to bottom, var(--color-parchment-soft), var(--color-vellum))" }}
       >
         <p
-          className="text-sm font-semibold tracking-widest uppercase text-[#c4893a] mb-2"
+          className="text-[10px] font-bold tracking-widest uppercase text-gold-deep mb-2"
+          style={{ fontFamily: "var(--font-accent)" }}
         >
           Your stone belongs here
         </p>
         <p
-          className="text-2xl font-bold text-[#2d1f0e] mb-3"
-          style={{ fontFamily: "var(--font-playfair)" }}
+          className="text-2xl font-bold text-ink mb-3"
+          style={{ fontFamily: "var(--font-display)" }}
         >
           What did God do in you?
         </p>
-        <p className="text-sm text-[#7a5a3a] mb-6 max-w-sm mx-auto">
+        <p className="text-xs text-stone-mid mb-6 max-w-sm mx-auto leading-relaxed">
           Your remembrance matters. Add it to the memorial.
         </p>
         <Link
           href="/submit"
-          className="inline-block px-8 py-3.5 rounded-2xl font-semibold text-white transition-colors"
-          style={{ background: "linear-gradient(135deg, #c4893a, #a96e28)" }}
+          className="inline-block px-8 py-3.5 rounded-full bg-ink hover:bg-stone text-vellum font-semibold text-xs tracking-wide transition-colors duration-200"
         >
           Submit Your Stone
         </Link>
@@ -116,3 +118,4 @@ export default async function StonesPage() {
     </div>
   );
 }
+

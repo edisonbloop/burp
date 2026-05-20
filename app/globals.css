@@ -1,31 +1,66 @@
 @import "tailwindcss";
 
 @theme {
-  /* Warm parchment palette */
-  --color-parchment-50: #fdf8f0;
-  --color-parchment-100: #f9edda;
-  --color-parchment-200: #f0d9b0;
-  --color-parchment-300: #e3be82;
-  --color-parchment-400: #d29e52;
-  --color-parchment-500: #c4893a;
-  --color-parchment-600: #a96e28;
-  --color-parchment-700: #8a5420;
-  --color-parchment-800: #6b3e18;
-  --color-parchment-900: #4d2c11;
-  --color-parchment-950: #2a1708;
+  /* Brand Primitives */
+  --color-parchment: #F1ECE0;
+  --color-ink: #1A1714;
+  --color-stone: #6B5F50;
+  --color-gold: #B8924A;
+
+  /* Page Surfaces (Parchment Scale) */
+  --color-vellum: #FBF8F1;
+  --color-parchment-soft: #F7F3EA;
+  --color-parchment-deep: #E7DFCE;
+
+  /* Ink + Stone (Text & Structure) */
+  --color-stone-mid: #6B5F50;
+  --color-stone-light: #A89A85;
+  --color-stone-edge: #D6CCB8;
+
+  /* Gold Scale (Accent) */
+  --color-gold-deep: #8E6F33;
+  --color-gold-soft: #D9B978;
+  --color-gold-glow: #E8C9A0;
+  --color-gold-wash: #F5E9D2;
+
+  /* Status & Semantic (Earthen) */
+  --color-success-earthen: #5B7A4A;
+  --color-warning-earthen: #B8924A;
+  --color-danger-earthen: #9C3A2A;
+  --color-info-earthen: #4A6B7A;
 
   /* Typography */
-  --font-display: var(--font-playfair);
-  --font-sans: var(--font-geist-sans), system-ui, sans-serif;
-  --font-mono: var(--font-geist-mono);
+  --font-display: var(--font-cormorant), serif;
+  --font-sans: var(--font-inter), sans-serif;
+  --font-accent: var(--font-cinzel), serif;
 }
 
 :root {
-  --background: #faf6ef;
-  --foreground: #2d1f0e;
+  --background: #FBF8F1; /* Vellum */
+  --foreground: #1A1714; /* Ink */
 }
 
 body {
   background-color: var(--background);
   color: var(--foreground);
+  font-family: var(--font-sans);
 }
+
+/* Custom utilities */
+.dot-divider {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1.5rem;
+  color: var(--color-stone-light);
+  font-weight: bold;
+}
+
+.dot-divider::before,
+.dot-divider::after {
+  content: "·";
+  font-size: 2rem;
+  line-height: 0;
+  vertical-align: middle;
+}
+

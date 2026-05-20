@@ -4,6 +4,7 @@ import { useState, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import StoneCard from "./StoneCard";
 import StoneModal from "./StoneModal";
+import BackToTop from "./BackToTop";
 import EmptyState from "./EmptyState";
 import type { PublicStone } from "@/types/stones";
 
@@ -41,6 +42,7 @@ export default function StonesGrid({ stones }: StonesGridProps) {
     });
   }, [stones, search, activeWord]);
 
+  const isFiltering = !!search.trim() || !!activeWord;
   const gridKey = `${activeWord ?? "all"}-${search}`;
 
   return (
@@ -91,14 +93,14 @@ export default function StonesGrid({ stones }: StonesGridProps) {
       {/* Count */}
       <AnimatePresence mode="wait">
         <motion.p
-          key={filtered.length}
+          key={`${filtered.length}-${isFiltering}`}
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           className="text-xs font-medium tracking-widest uppercase text-[#c4b090] mb-6"
         >
-          {filtered.length === stones.length
-            ? `${stones.length} stone${stones.length === 1 ? "" : "s"} gathered`
-            : `${filtered.length} of ${stones.length} stones`}
+          {isFiltering
+            ? `${filtered.length} of ${stones.length} stones`
+            : `${stones.length} stone${stones.length === 1 ? "" : "s"} gathered`}
         </motion.p>
       </AnimatePresence>
 
@@ -107,27 +109,70 @@ export default function StonesGrid({ stones }: StonesGridProps) {
         <EmptyState
           title="No stones found"
           description={
-            search || activeWord
+            isFiltering
               ? "Try adjusting your search or filter."
               : "No stones have been approved yet. Check back soon."
           }
         />
       ) : (
-        <div key={gridKey} className="columns-1 sm:columns-2 lg:columns-3 gap-5">
-          {filtered.map((stone, i) => (
-            <StoneCard
-              key={stone.id}
-              stone={stone}
-              index={i}
-              onClick={() => setSelectedStone(stone)}
-            />
-          ))}
-        </div>
+        <>
+          <div key={gridKey} className="columns-1 sm:columns-2 lg:columns-3 gap-5">
+            {filtered.map((stone, i) => (
+              <StoneCard
+                key={stone.id}
+                stone={stone}
+                index={i}
+                onClick={() => setSelectedStone(stone)}
+              />
+            ))}
+          </div>
+
+          {/* End of wall */}
+          {!isFiltering && (
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 0.4 }}
+              className="mt-16 flex flex-col items-center gap-4 text-center"
+            >
+              <div className="flex items-center gap-4 w-full max-w-xs">
+                <div
+                  className="flex-1 h-px"
+                  style={{
+                    background:
+                      "linear-gradient(to right, transparent, #e3be82)",
+                  }}
+                />
+                <span className="text-[#c4893a] text-lg">◉</span>
+                <div
+                  className="flex-1 h-px"
+                  style={{
+                    background:
+                      "linear-gradient(to left, transparent, #e3be82)",
+                  }}
+                />
+              </div>
+              <p
+                className="text-sm text-[#7a5a3a] italic"
+                style={{ fontFamily: "var(--font-playfair)" }}
+              >
+                You have seen all {stones.length} stone
+                {stones.length === 1 ? "" : "s"}.
+              </p>
+              <p className="text-xs text-[#c4b090]">
+                &ldquo;…that this may be a sign among you.&rdquo; — Joshua 4:6
+              </p>
+            </motion.div>
+          )}
+        </>
       )}
+
       <StoneModal
         stone={selectedStone}
         onClose={() => setSelectedStone(null)}
       />
+
+      <BackToTop />
     </div>
   );
 }

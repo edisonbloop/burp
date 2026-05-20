@@ -1,0 +1,273 @@
+--- PAGE 1 ---
+20/05/2026, 13:19 BURP — Design System
+B U R P
+T H E B E R E A N U P P E R RO O M P L AT F O R M
+Design System
+Version 1.0 · 2026 · Foundations & UI kit
+https://507c8b5f-6b24-4646-b5d3-9f6661b15e5f.claudeusercontent.com/v1/design/projects/507c8b5f-6b24-4646-b5d3-9f6661b15e5f/serve/design-system-print… 1/16
+
+--- PAGE 2 ---
+20/05/2026, 13:19 BURP — Design System
+BURP B R A N D
+F O U N D A T I O N S
+A room to feast on Scripture — and to
+honestly say what you found.
+A faith-centered community for Christians who love God's Word, study it
+deeply, and gather to reflect honestly. We feast on Scripture daily, then come
+together to "burp" — sharing what stood out, what challenged us, what stirred
+us, what confused us.
+BRAND PILLARS
+Feast. Scripture as nourishment — slow, daily, satisfying.
+Reflect. The "burp" — honest, humble, sometimes unresolved.
+Question. Bereans verified what they were taught. We do too.
+Gather. Upper Room — small rooms, real people, presence over performance.
+Grow. Long arc. Old-world weight. Not built for the algorithm.
+BURP DESIGN SYSTEM · V1.0 02
+https://507c8b5f-6b24-4646-b5d3-9f6661b15e5f.claudeusercontent.com/v1/design/projects/507c8b5f-6b24-4646-b5d3-9f6661b15e5f/serve/design-system-print… 2/16
+
+--- PAGE 3 ---
+20/05/2026, 13:19 BURP — Design System
+BURP B R A N D · L O G O
+The mark
+The arch, the open book, the gold ripple. Stone-and-light, parchment, water —
+old materials drawn quietly.
+Horizontal lockup · primary
+Square stack · avatar / social
+ICON AT SCALE
+120 px 72 px 44 px 24 px
+BURP DESIGN SYSTEM · V1.0 03
+https://507c8b5f-6b24-4646-b5d3-9f6661b15e5f.claudeusercontent.com/v1/design/projects/507c8b5f-6b24-4646-b5d3-9f6661b15e5f/serve/design-system-print… 3/16
+
+--- PAGE 4 ---
+20/05/2026, 13:19 BURP — Design System
+BURP B R A N D · W O R D M A R K
+Wordmark & dot-rule
+Wide tracking is the brand. The dot-rule is the signature divider — never a
+button or card border.
+B U R P
+THE BEREAN UPPER ROOM PLATFORM
+DOT-RULE SIZES
+BURP DESIGN SYSTEM · V1.0 04
+https://507c8b5f-6b24-4646-b5d3-9f6661b15e5f.claudeusercontent.com/v1/design/projects/507c8b5f-6b24-4646-b5d3-9f6661b15e5f/serve/design-system-print… 4/16
+
+--- PAGE 5 ---
+20/05/2026, 13:19 BURP — Design System
+BURP T Y P E
+Three families, strict roles
+Cormorant Garamond for display. Inter for body. Cinzel for institutional accents
+— sparingly.
+B U R P
+DISPLAY Cormorant 300 · 0.32em
+Encounter God
+H1 Cormorant 400 · 40/44
+Study like the Bereans
+H2 Cormorant 400 · 30/36
+What you read today
+H3 Cormorant 500 · 22/28
+Share a reflection
+H4 Inter 600 · 17/22
+EYEBROW T H E B E R E A N U P P E R R O O M Cinzel 400 · 0.32em
+We feast on Scripture daily, then come together to share what
+LEAD Cormorant italic · 18
+stood out.
+Not shallow Bible talk. Not religious performance. A room for
+BODY Inter 400 · 14/22
+honest questions with humility.
+Three readers are in the same chapter today.
+SMALL Inter 400 · 12/18
+CAPTION Posted by Mara · 2h ago · John 14 Inter 400 · 11/16
+BURP DESIGN SYSTEM · V1.0 05
+https://507c8b5f-6b24-4646-b5d3-9f6661b15e5f.claudeusercontent.com/v1/design/projects/507c8b5f-6b24-4646-b5d3-9f6661b15e5f/serve/design-system-print… 5/16
+
+--- PAGE 6 ---
+20/05/2026, 13:19 BURP — Design System
+BURP T Y P E · I N U S E
+Type in use
+SCRIPTURE / BLOCKQUOTE
+These were more noble than those in Thessalonica, in that they received the word
+with all readiness of mind, and searched the scriptures daily, whether those things
+were so.
+— Acts 17:11, KJV
+PAIRING — EYEBROW + HEADING + BODY
+U P P E R R O O M
+A small room. Real people. Presence over performance.
+Five to twelve readers, one passage a week, conversations that don't pretend to have
+tidy endings.
+CINZEL ACCENTS — INSTITUTIONAL
+F E A S T · R E F L E C T · Q U E S T I O N · G R O W
+I N T E N T I O N A L N E T W O R K O F C H R I S T I A N S
+BURP DESIGN SYSTEM · V1.0 06
+https://507c8b5f-6b24-4646-b5d3-9f6661b15e5f.claudeusercontent.com/v1/design/projects/507c8b5f-6b24-4646-b5d3-9f6661b15e5f/serve/design-system-print… 6/16
+
+--- PAGE 7 ---
+20/05/2026, 13:19 BURP — Design System
+BURP C O L O R
+The four-note palette
+Parchment, Ink, Stone, Gold. That is the whole brand palette. No purple, no teal,
+no secondary brand color. Gold is scarce on purpose.
+BRAND PRIMITIVES
+Parchment Ink Stone Gold
+#F1ECE0 #1A1714 #6B5F50 #B8924A
+PARCHMENT SCALE — PAGE SURFACES
+Vellum Parchment soft Parchment Parchment deep
+#FBF8F1 #F7F3EA #F1ECE0 #E7DFCE
+INK + STONE — TEXT & STRUCTURE
+Ink Stone Stone mid Stone light Stone edge
+#1A1714 #3D362C #6B5F50 #A89A85 #D6CCB8
+GOLD SCALE — THE ONLY ACCENT
+Gold deep Gold Gold soft Gold glow Gold wash
+#8E6F33 #B8924A #D9B978 #E8C9A0 #F5E9D2
+https://507c8b5f-6b24-4646-b5d3-9f6661b15e5f.claudeusercontent.com/v1/design/projects/507c8b5f-6b24-4646-b5d3-9f6661b15e5f/serve/design-system-print… 7/16
+
+--- PAGE 8 ---
+20/05/2026, 13:19 BURP — Design System
+BURP DESIGN SYSTEM · V1.0 07
+https://507c8b5f-6b24-4646-b5d3-9f6661b15e5f.claudeusercontent.com/v1/design/projects/507c8b5f-6b24-4646-b5d3-9f6661b15e5f/serve/design-system-print… 8/16
+
+--- PAGE 9 ---
+20/05/2026, 13:19 BURP — Design System
+BURP C O L O R · A P P L I E D
+Status & semantic tokens
+STATUS — EARTHEN, NOT TAILWIND-BRIGHT
+Success · olive Warning · gold Danger · terracotta Info · slate-blue
+#5B7A4A #B8924A #9C3A2A #4A6B7A
+SEMANTIC FOREGROUND & BACKGROUND
+fg-primary on bg-page fg-on-inverse on bg-inverse
+fg-secondary — stone mid fg-secondary on inverse
+fg-tertiary — stone light accent — gold glow
+fg-accent — gold deep divider on dark
+BURP DESIGN SYSTEM · V1.0 08
+https://507c8b5f-6b24-4646-b5d3-9f6661b15e5f.claudeusercontent.com/v1/design/projects/507c8b5f-6b24-4646-b5d3-9f6661b15e5f/serve/design-system-print… 9/16
+
+--- PAGE 10 ---
+20/05/2026, 13:19 BURP — Design System
+BURP S P A C E & E L E V A T I O N
+Spacing, radii, elevation, motion
+SPACING — 4 PX GRID
+s-1 4 px
+s-2 8 px
+s-3 12 px
+s-4 16 px
+s-6 24 px
+s-8 32 px
+s-12 48 px
+s-16 64 px
+BORDER RADII
+ELEVATION — WARM-TINTED
+shadow-sm
+xs · 2 sm · 4 md · 8 lg · 12
+shadow-md
+pill shadow-lg
+arch
+shadow-glow
+MOTION — FADES AND GENTLE SLIDES. NEVER BOUNCE.
+dur-fast dur-base dur-slow
+140 ms 220 ms 360 ms
+Press feedback, focus rings Hover, color shifts Modal entrance, page-level
+BURP DESIGN SYSTEM · V1.0 09
+https://507c8b5f-6b24-4646-b5d3-9f6661b15e5f.claudeusercontent.com/v1/design/projects/507c8b5f-6b24-4646-b5d3-9f6661b15e5f/serve/design-system-pri… 10/16
+
+--- PAGE 11 ---
+20/05/2026, 13:19 BURP — Design System
+BURP C O M P O N E N T S
+Controls
+BUTTONS — PRIMARY (INK), GOLD (RARE), SECONDARY, GHOST
+ Share a reflection  Continue reading Cancel Skip Disabled
+Small Default Large
+TAGS — PILL SHAPE ONLY
+John 14 Featured Upper Room Greek word study Resolved Still wrestling
+FORM FIELDS — GOLD FOCUS RING (NOT SHOWN IN PRINT)
+EMAIL
+you@church.org
+TODAY'S REFLECTION
+What stood out? What didn't settle right?
+Visible to your Upper Room only.
+BURP DESIGN SYSTEM · V1.0 10
+https://507c8b5f-6b24-4646-b5d3-9f6661b15e5f.claudeusercontent.com/v1/design/projects/507c8b5f-6b24-4646-b5d3-9f6661b15e5f/serve/design-system-pri… 11/16
+
+--- PAGE 12 ---
+20/05/2026, 13:19 BURP — Design System
+BURP C O M P O N E N T S · C O N T E N T
+Surfaces
+AVATARS — PILL MONOGRAM IN GARAMOND
+M
+M M M J P
+Mara · in The Olive Press
+M
+ John 14 · 2h ago
+"I will not leave you comfortless" lands different when you read it the week after a funeral.
+ Save  4 reflections  Pray with
+ICONOGRAPHY — PHOSPHOR REGULAR · 1.5 PX STROKE
+     
+book-open chat-dots users-three question bookmark note-pencil
+     
+search user-circle gear-six bell pray share
+BURP DESIGN SYSTEM · V1.0 11
+https://507c8b5f-6b24-4646-b5d3-9f6661b15e5f.claudeusercontent.com/v1/design/projects/507c8b5f-6b24-4646-b5d3-9f6661b15e5f/serve/design-system-pri… 12/16
+
+--- PAGE 13 ---
+20/05/2026, 13:19 BURP — Design System
+BURP V O I C E
+Voice & content
+A thoughtful friend after a long conversation, not a pulpit. Plain prose. Short
+sentences. Occasional dry humor. Reverent without solemnity.
+YES / NO
+Surface Yes No
+Hero A room to feast on Scripture — and to honestly Transform your spiritual journey with bite-
+say what you found. sized Bible insights!
+Empty No reflections yet. Read something. Sit with it. Oops! Nothing here yet 😅
+Come back.
+Button Share a reflection SHARE NOW
+Toast Saved. Three readers are in the same chapter Success! 🎉
+today.
+Error We could not load that passage. Try again? Whoops, something went wrong!
+HARD RULES
+Three fonts only — Cormorant Garamond, Inter, Cinzel.
+Four colors only — Parchment, Ink, Stone, Gold. Gold is scarce.
+Wide tracking (0.18em–0.32em) on serif caps. Always.
+Dot-rule is the signature divider. Never a button or card border.
+Sentence case for headings and buttons. ALL CAPS only on the wordmark and Cinzel eyebrows.
+No emoji in product UI. No staged stock photography. No spring/bounce easing.
+BURP DESIGN SYSTEM · V1.0 12
+https://507c8b5f-6b24-4646-b5d3-9f6661b15e5f.claudeusercontent.com/v1/design/projects/507c8b5f-6b24-4646-b5d3-9f6661b15e5f/serve/design-system-pri… 13/16
+
+--- PAGE 14 ---
+20/05/2026, 13:19 BURP — Design System
+BURP U I K I T
+BURP Web — UI kit
+An interactive recreation of the platform — feed, scripture reader, reflection
+composer, and Upper Room. See . A separate
+ui_kits/burp-web/index.html
+print file ships every screen at ui_kits/burp-web/index-print.html .
+SCREENS
+PRIMITIVES (PRIMITIVES.JSX)
+Home feed — the burp wall
+Scripture reader — long-form passage view Button, Tag, Avatar, AvatarStack
+Reflection composer — modal, gold focus ring Field (input + textarea)
+Upper Room — a single small group DotRule, Eyebrow, Icon
+HOW TO USE THIS SYSTEM
+1. Link colors_and_type.css at the top of any page. Tokens are CSS custom properties — use them,
+do not override.
+2. Pull in fonts via Google Fonts (Inter) and the bundled TTFs (Cormorant Garamond, Cinzel).
+3. Compose UI by reaching for the primitives in . Lift them into prototypes as-is.
+ui_kits/burp-web/
+4. Read the Voice page before writing any new copy. Tone drift is the most common failure mode.
+CAVEATS & OPEN QUESTIONS
+Cormorant Garamond not supplied — EB Garamond bundled behind the alias.
+Inter pulled from Google Fonts at runtime.
+Phosphor Regular substituted as the icon set.
+No codebase or Figma supplied — the UI kit is a brand-DNA recreation, not a port.
+BURP DESIGN SYSTEM · V1.0 13
+https://507c8b5f-6b24-4646-b5d3-9f6661b15e5f.claudeusercontent.com/v1/design/projects/507c8b5f-6b24-4646-b5d3-9f6661b15e5f/serve/design-system-pri… 14/16
+
+--- PAGE 15 ---
+20/05/2026, 13:19 BURP — Design System
+F E A S T · R E F L E C T · Q U E S T I O N · G R O W
+B U R P
+T H E B E R E A N U P P E R RO O M P L AT F O R M
+End of document · v1.0
+https://507c8b5f-6b24-4646-b5d3-9f6661b15e5f.claudeusercontent.com/v1/design/projects/507c8b5f-6b24-4646-b5d3-9f6661b15e5f/serve/design-system-pri… 15/16
+
+--- PAGE 16 ---
+20/05/2026, 13:19 BURP — Design System
+https://507c8b5f-6b24-4646-b5d3-9f6661b15e5f.claudeusercontent.com/v1/design/projects/507c8b5f-6b24-4646-b5d3-9f6661b15e5f/serve/design-system-pri… 16/16

@@ -30,7 +30,7 @@ export default function SubmitPage() {
   if (!authenticated) {
     return (
       <div className="flex-1 flex flex-col">
-        <PageHeader title="Submit Your Stone" backHref="/" />
+        <PageHeader title="Submit Your Stone" backHref="/100stones" />
         <PasswordGate
           verifyEndpoint="/api/verify-submission"
           storageKey={STORAGE_KEY}
@@ -47,7 +47,7 @@ export default function SubmitPage() {
       <PageHeader
         title="Submit Your Stone"
         subtitle="What do you want to remember God did in you during these 100 days?"
-        backHref="/"
+        backHref="/100stones"
       />
 
       <div className="flex-1 py-10 px-4 sm:px-6">
