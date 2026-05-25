@@ -125,6 +125,41 @@ export async function adminDeleteDiscussion(
   }
 }
 
+// ── Transcribed Comments ───────────────────────────────────────────────────
+
+/**
+ * Admin-only: post a reflection on behalf of someone who shared it in the
+ * WhatsApp group or elsewhere but doesn't have a BURP account.
+ * Stores with user_id = null and attributed_to = their name.
+ */
+export async function adminPostTranscribedComment(
+  discussionId: string,
+  attributedTo: string,
+  content: string
+): Promise<{ error?: string }> {
+  try {
+    await requireAdminSession();
+    const cleanName = attributedTo.trim();
+    const cleanContent = content.trim();
+    if (!cleanName || !cleanContent) return { error: "Name and reflection are required" };
+
+    const { error } = await getSupabase()
+      .from("comments")
+      .insert({
+        discussion_id: discussionId,
+        user_id: null,
+        attributed_to: cleanName,
+        content: cleanContent,
+      });
+
+    if (error) return { error: error.message };
+    revalidatePath("/talk-it-over");
+    return {};
+  } catch (e) {
+    return { error: e instanceof Error ? e.message : "Failed" };
+  }
+}
+
 // ── Library Item Admin Actions ─────────────────────────────────────────────
 
 export async function adminUpdateLibraryApproval(

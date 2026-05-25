@@ -1,19 +1,50 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
+import { useEffect, useRef, useState } from "react";
+import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { getSupabaseBrowserClient } from "@/lib/supabase-client";
 
 interface Comment {
   id: string;
   content: string;
   created_at: string;
+  attributed_to?: string | null;
   profiles: { full_name: string | null } | null;
 }
 
 interface Profile {
   id: string;
   full_name: string | null;
+}
+
+function timeAgo(dateStr: string) {
+  const diff = Date.now() - new Date(dateStr).getTime();
+  const mins = Math.floor(diff / 60000);
+  const hours = Math.floor(diff / 3600000);
+  const days = Math.floor(diff / 86400000);
+  if (mins < 2) return "just now";
+  if (mins < 60) return `${mins}m ago`;
+  if (hours < 24) return `${hours}h ago`;
+  if (days === 1) return "yesterday";
+  if (days < 7) return `${days}d ago`;
+  return new Date(dateStr).toLocaleDateString("en-US", { month: "short", day: "numeric" });
+}
+
+export function Avatar({ name, size = "md" }: { name: string; size?: "sm" | "md" | "lg" }) {
+  const parts = name.trim().split(/\s+/).filter(Boolean);
+  const initials = parts.length >= 2
+    ? (parts[0][0] + parts[parts.length - 1][0]).toUpperCase()
+    : name.slice(0, 2).toUpperCase();
+  const sz = size === "sm" ? "w-7 h-7 text-[10px]" : size === "lg" ? "w-11 h-11 text-sm" : "w-9 h-9 text-xs";
+  return (
+    <div
+      className={`${sz} rounded-full bg-gold flex items-center justify-center text-vellum font-bold flex-shrink-0 select-none`}
+      style={{ fontFamily: "var(--font-accent)" }}
+    >
+      {initials || "?"}
+    </div>
+  );
 }
 
 export default function TalkComments({
@@ -23,22 +54,15 @@ export default function TalkComments({
   discussionId: string;
   initialComments: Comment[];
 }) {
-  const router = useRouter();
   const supabase = getSupabaseBrowserClient();
+  const pathname = usePathname();
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
 
   const [comments, setComments] = useState<Comment[]>(initialComments);
   const [user, setUser] = useState<{ id: string; email?: string } | null>(null);
   const [profile, setProfile] = useState<Profile | null>(null);
   const [newComment, setNewComment] = useState("");
-  const [isSubmitting, setIsSubmitting] = useState(false);
-
-  // Auth form
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [fullName, setFullName] = useState("");
-  const [isLoginView, setIsLoginView] = useState(true);
-  const [authError, setAuthError] = useState("");
-  const [authLoading, setAuthLoading] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
@@ -56,212 +80,134 @@ export default function TalkComments({
   }, [supabase]);
 
   const fetchProfile = async (userId: string) => {
-    const { data } = await supabase
-      .from("profiles")
-      .select("*")
-      .eq("id", userId)
-      .single();
+    const { data } = await supabase.from("profiles").select("*").eq("id", userId).single();
     if (data) setProfile(data as Profile);
-  };
-
-  const handleAuth = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setAuthLoading(true);
-    setAuthError("");
-
-    if (isLoginView) {
-      const { error } = await supabase.auth.signInWithPassword({ email, password });
-      if (error) setAuthError(error.message);
-    } else {
-      const { data, error } = await supabase.auth.signUp({
-        email,
-        password,
-        options: {
-          emailRedirectTo: `${window.location.origin}/talk-it-over/discussion/${discussionId}`,
-        },
-      });
-      if (error) {
-        setAuthError(error.message);
-      } else if (data.user) {
-        await supabase.from("profiles").insert({ id: data.user.id, full_name: fullName });
-        if (!data.session) router.push("/signin/check-email");
-      }
-    }
-    setAuthLoading(false);
-  };
-
-  const handleSignOut = async () => {
-    await supabase.auth.signOut();
   };
 
   const submitComment = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!newComment.trim() || !user || !profile) return;
-    setIsSubmitting(true);
+    setSubmitting(true);
     const { data, error } = await supabase
       .from("comments")
       .insert({ discussion_id: discussionId, user_id: user.id, content: newComment.trim() })
-      .select("*, profiles(full_name)")
+      .select("*, attributed_to, profiles(full_name)")
       .single();
     if (!error && data) {
-      setComments([...comments, data as Comment]);
+      setComments((prev) => [...prev, data as Comment]);
       setNewComment("");
+      textareaRef.current?.focus();
     }
-    setIsSubmitting(false);
+    setSubmitting(false);
   };
 
-  const initials = (name: string | null | undefined) =>
-    (name ?? "A")[0].toUpperCase();
+  const displayName = (c: Comment) =>
+    c.attributed_to ?? c.profiles?.full_name ?? "Anonymous";
 
   return (
-    <div className="mt-12 max-w-3xl mx-auto border-t border-stone-edge pt-10">
-      <h3
-        className="text-2xl font-bold text-ink mb-8"
-        style={{ fontFamily: "var(--font-display)" }}
-      >
-        Talk It Over
-      </h3>
-
-      {/* Comments list */}
-      <div className="space-y-4 mb-10">
-        {comments.length === 0 ? (
-          <p className="text-stone-mid italic text-sm">
-            No comments yet. Be the first to share your thoughts!
-          </p>
-        ) : (
-          comments.map((comment) => (
-            <div
-              key={comment.id}
-              className="bg-parchment-soft p-5 rounded-2xl border border-stone-edge"
-            >
-              <div className="flex items-center justify-between mb-3">
-                <div className="flex items-center gap-2.5">
-                  <div className="w-7 h-7 rounded-full bg-gold-wash flex items-center justify-center text-xs font-bold text-gold-deep flex-shrink-0">
-                    {initials(comment.profiles?.full_name)}
-                  </div>
-                  <span className="font-semibold text-gold-deep text-sm">
-                    {comment.profiles?.full_name ?? "Anonymous"}
-                  </span>
-                </div>
-                <span className="text-xs text-stone-light">
-                  {new Date(comment.created_at).toLocaleDateString("en-US", {
-                    month: "short",
-                    day: "numeric",
-                  })}
-                </span>
-              </div>
-              <p className="text-ink leading-relaxed whitespace-pre-wrap text-sm">
-                {comment.content}
-              </p>
-            </div>
-          ))
-        )}
+    <div>
+      {/* Reflection count divider */}
+      <div className="flex items-center gap-3 mb-6">
+        <div className="h-px flex-1 bg-stone-edge" />
+        <span
+          className="text-[10px] font-bold uppercase tracking-widest text-stone-light flex-shrink-0"
+          style={{ fontFamily: "var(--font-accent)" }}
+        >
+          {comments.length === 0
+            ? "No reflections yet"
+            : `${comments.length} ${comments.length === 1 ? "Reflection" : "Reflections"}`}
+        </span>
+        <div className="h-px flex-1 bg-stone-edge" />
       </div>
 
-      {/* Auth or comment form */}
+      {/* Comment thread */}
+      {comments.length > 0 && (
+        <div className="space-y-6 mb-8">
+          {comments.map((comment) => (
+            <div key={comment.id} className="flex gap-3">
+              <Avatar name={displayName(comment)} size="sm" />
+              <div className="flex-1 min-w-0">
+                <div className="flex items-baseline gap-2 flex-wrap mb-1">
+                  <span className="font-semibold text-ink text-sm leading-none">
+                    {displayName(comment)}
+                  </span>
+                  {comment.attributed_to && (
+                    <span
+                      className="text-[9px] font-bold uppercase tracking-widest text-stone-light bg-parchment-soft border border-stone-edge px-1.5 py-0.5 rounded-full"
+                      style={{ fontFamily: "var(--font-accent)" }}
+                    >
+                      group
+                    </span>
+                  )}
+                  <span className="text-xs text-stone-light ml-auto">
+                    {timeAgo(comment.created_at)}
+                  </span>
+                </div>
+                <p className="text-sm text-ink leading-relaxed whitespace-pre-wrap">
+                  {comment.content}
+                </p>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+
+      {/* Compose or sign-in prompt */}
       {!user ? (
-        <div className="bg-parchment-soft p-6 rounded-2xl border border-stone-edge">
-          <h4 className="text-base font-semibold text-ink mb-1">
-            {isLoginView ? "Sign in to join the discussion" : "Create an account"}
-          </h4>
-          <p className="text-sm text-stone-mid mb-5">
-            {isLoginView
-              ? "Your comment will appear alongside your name."
-              : "Quick setup — you'll be sharing in moments."}
-          </p>
-
-          {authError && (
-            <p className="text-sm text-red-700 bg-red-50 border border-red-200 rounded-xl px-4 py-3 mb-4">
-              {authError}
-            </p>
-          )}
-
-          <form onSubmit={handleAuth} className="space-y-3">
-            {!isLoginView && (
-              <input
-                type="text"
-                placeholder="Your full name"
-                required
-                value={fullName}
-                onChange={(e) => setFullName(e.target.value)}
-                className="w-full px-4 py-3 rounded-xl border border-stone-edge bg-vellum text-ink placeholder:text-stone-light focus:outline-none focus:ring-1 focus:ring-gold focus:border-gold transition text-sm"
-              />
-            )}
-            <input
-              type="email"
-              placeholder="Email address"
-              required
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              className="w-full px-4 py-3 rounded-xl border border-stone-edge bg-vellum text-ink placeholder:text-stone-light focus:outline-none focus:ring-1 focus:ring-gold focus:border-gold transition text-sm"
-            />
-            <input
-              type="password"
-              placeholder="Password"
-              required
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              className="w-full px-4 py-3 rounded-xl border border-stone-edge bg-vellum text-ink placeholder:text-stone-light focus:outline-none focus:ring-1 focus:ring-gold focus:border-gold transition text-sm"
-            />
-            <div className="flex flex-col sm:flex-row gap-3 items-center pt-1">
-              <button
-                type="submit"
-                disabled={authLoading}
-                className="px-6 py-3 rounded-xl bg-ink text-vellum font-semibold hover:bg-stone transition-colors w-full sm:w-auto disabled:opacity-60 text-sm"
-              >
-                {authLoading
-                  ? "Please wait…"
-                  : isLoginView
-                  ? "Sign In"
-                  : "Create Account"}
-              </button>
-              <button
-                type="button"
-                onClick={() => { setIsLoginView(!isLoginView); setAuthError(""); }}
-                className="text-sm text-stone-mid hover:text-gold-deep transition-colors"
-              >
-                {isLoginView
-                  ? "Need an account? Sign up"
-                  : "Already have an account? Sign in"}
-              </button>
+        <Link
+          href={`/signin?redirect=${encodeURIComponent(pathname)}`}
+          className="flex items-center justify-between w-full px-5 py-4 bg-parchment-soft border border-stone-edge rounded-2xl hover:border-gold-soft hover:bg-gold-wash transition-all group"
+        >
+          <div className="flex items-center gap-3">
+            <div className="w-8 h-8 rounded-full border-2 border-dashed border-stone-edge group-hover:border-gold-soft flex items-center justify-center transition-colors">
+              <span className="text-stone-light group-hover:text-gold text-sm transition-colors">+</span>
             </div>
-          </form>
-        </div>
-      ) : (
-        <div className="bg-parchment-soft p-6 rounded-2xl border border-stone-edge">
-          <div className="flex items-center justify-between mb-4">
-            <p className="text-sm text-stone-mid">
-              Commenting as{" "}
-              <span className="font-semibold text-gold-deep">
-                {profile?.full_name ?? user.email}
-              </span>
-            </p>
-            <button
-              onClick={handleSignOut}
-              className="text-xs text-stone-light hover:text-red-600 transition-colors"
-            >
-              Sign out
-            </button>
+            <span className="text-sm text-stone-mid group-hover:text-ink transition-colors">
+              Share your reflection…
+            </span>
           </div>
-          <form onSubmit={submitComment}>
-            <textarea
-              required
-              value={newComment}
-              onChange={(e) => setNewComment(e.target.value)}
-              placeholder="Share your thoughts or a reflection from today's reading…"
-              className="w-full px-4 py-4 rounded-xl border border-stone-edge bg-vellum text-ink min-h-[120px] focus:outline-none focus:ring-1 focus:ring-gold focus:border-gold resize-y mb-4 text-sm placeholder:text-stone-light transition"
-            />
-            <div className="flex justify-end">
-              <button
-                type="submit"
-                disabled={isSubmitting || !newComment.trim()}
-                className="px-6 py-3 rounded-xl bg-ink text-vellum font-semibold hover:bg-stone transition-colors disabled:opacity-50 text-sm"
-              >
-                {isSubmitting ? "Posting…" : "Post Comment"}
-              </button>
+          <span
+            className="text-[10px] font-bold uppercase tracking-widest text-gold"
+            style={{ fontFamily: "var(--font-accent)" }}
+          >
+            Sign In →
+          </span>
+        </Link>
+      ) : (
+        <form onSubmit={submitComment}>
+          <div className="flex gap-3 items-start">
+            <Avatar name={profile?.full_name ?? user.email ?? "?"} size="sm" />
+            <div className="flex-1">
+              <textarea
+                ref={textareaRef}
+                value={newComment}
+                onChange={(e) => setNewComment(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter" && (e.metaKey || e.ctrlKey)) {
+                    e.preventDefault();
+                    if (newComment.trim()) submitComment(e as unknown as React.FormEvent);
+                  }
+                }}
+                placeholder="Share your reflection…"
+                rows={3}
+                className="w-full px-4 py-3 rounded-2xl border border-stone-edge bg-parchment-soft text-ink placeholder:text-stone-light text-sm focus:outline-none focus:border-gold resize-none transition-colors leading-relaxed"
+              />
+              <div className="flex items-center justify-between mt-2 px-1">
+                <span className="text-xs text-stone-light">
+                  {profile?.full_name ?? ""}
+                </span>
+                <button
+                  type="submit"
+                  disabled={submitting || !newComment.trim()}
+                  className="px-5 py-2 rounded-full bg-ink text-vellum text-xs font-bold uppercase tracking-widest hover:bg-stone transition-colors disabled:opacity-40"
+                  style={{ fontFamily: "var(--font-accent)" }}
+                >
+                  {submitting ? "Sharing…" : "Share"}
+                </button>
+              </div>
             </div>
-          </form>
-        </div>
+          </div>
+        </form>
       )}
     </div>
   );

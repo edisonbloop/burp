@@ -5,7 +5,10 @@ import { useRouter } from "next/navigation";
 import {
   adminCreatePlan, adminUpdatePlan, adminDeletePlan,
   adminCreateDiscussion, adminUpdateDiscussion, adminDeleteDiscussion,
+  adminPostTranscribedComment,
 } from "@/lib/admin-talk-actions";
+import DiscussionExport from "@/components/DiscussionExport";
+import PlanExport from "@/components/PlanExport";
 
 interface Discussion {
   id: string;
@@ -71,31 +74,31 @@ function PlanForm({
 function DiscussionForm({
   initial, onSave, onCancel, saving,
 }: {
-  initial?: { day_number: number | null; title: string; content: string };
-  onSave: (day: number | null, title: string, content: string) => void;
+  initial?: { title: string; content: string };
+  onSave: (title: string, content: string) => void;
   onCancel: () => void;
   saving: boolean;
 }) {
-  const [day, setDay] = useState(initial?.day_number != null ? String(initial.day_number) : "");
-  const [title, setTitle] = useState(initial?.title ?? "");
+  const [name, setName] = useState(initial?.title ?? "");
   const [content, setContent] = useState(initial?.content ?? "");
 
   return (
     <div className="space-y-3 p-4 bg-vellum rounded-xl border border-stone-edge">
-      <div className="flex gap-3">
-        <div className="w-24 flex-shrink-0">
-          <label className="block text-xs font-bold tracking-widest uppercase text-stone mb-1.5" style={{ fontFamily: "var(--font-accent)" }}>Day #</label>
-          <input className={inputCls} type="number" min={1} placeholder="e.g. 12" value={day} onChange={(e) => setDay(e.target.value)} />
-        </div>
-        <div className="flex-1">
-          <label className="block text-xs font-bold tracking-widest uppercase text-stone mb-1.5" style={{ fontFamily: "var(--font-accent)" }}>
-            Title <span className="text-gold">*</span>
-          </label>
-          <input className={inputCls} placeholder="e.g. When God Seems Silent" value={title} onChange={(e) => setTitle(e.target.value)} />
-        </div>
+      <div>
+        <label className="block text-xs font-bold tracking-widest uppercase text-stone mb-1.5" style={{ fontFamily: "var(--font-accent)" }}>
+          Person&rsquo;s Name <span className="text-gold">*</span>
+        </label>
+        <input
+          className={inputCls}
+          placeholder="e.g. Natasha"
+          value={name}
+          onChange={(e) => setName(e.target.value)}
+        />
       </div>
       <div>
-        <label className="block text-xs font-bold tracking-widest uppercase text-stone mb-1.5" style={{ fontFamily: "var(--font-accent)" }}>Reading & Discussion Prompt</label>
+        <label className="block text-xs font-bold tracking-widest uppercase text-stone mb-1.5" style={{ fontFamily: "var(--font-accent)" }}>
+          Discussion <span className="text-gold">*</span>
+        </label>
         <textarea
           className={`${inputCls} resize-none`}
           rows={5}
@@ -103,17 +106,72 @@ function DiscussionForm({
           value={content}
           onChange={(e) => setContent(e.target.value)}
         />
-        <p className="text-xs text-stone-light mt-1">Include the scripture reference and the discussion question.</p>
       </div>
       <div className="flex gap-2">
         <button
-          onClick={() => title.trim() && onSave(day ? parseInt(day) : null, title, content)}
-          disabled={saving || !title.trim()}
+          onClick={() => name.trim() && content.trim() && onSave(name.trim(), content.trim())}
+          disabled={saving || !name.trim() || !content.trim()}
           className="px-4 py-2 rounded-xl bg-ink text-vellum text-sm font-semibold hover:bg-stone transition-colors disabled:opacity-50"
         >
           {saving ? "Saving…" : "Save Discussion"}
         </button>
         <button onClick={onCancel} className="px-4 py-2 rounded-xl border border-stone-edge text-sm text-stone-mid hover:border-gold hover:text-ink transition-colors">
+          Cancel
+        </button>
+      </div>
+    </div>
+  );
+}
+
+function TranscribeForm({
+  onSave, onCancel, saving,
+}: {
+  onSave: (name: string, content: string) => void;
+  onCancel: () => void;
+  saving: boolean;
+}) {
+  const [name, setName] = useState("");
+  const [content, setContent] = useState("");
+  return (
+    <div className="space-y-3 p-4 bg-gold-wash border border-gold-soft rounded-xl mt-2">
+      <p className="text-xs font-bold tracking-widest uppercase text-gold-deep" style={{ fontFamily: "var(--font-accent)" }}>
+        Transcribe a Group Reflection
+      </p>
+      <div>
+        <label className="block text-xs font-bold tracking-widest uppercase text-stone mb-1.5" style={{ fontFamily: "var(--font-accent)" }}>
+          Person&rsquo;s Name <span className="text-gold">*</span>
+        </label>
+        <input
+          className={inputCls}
+          placeholder="e.g. Adomaa"
+          value={name}
+          onChange={(e) => setName(e.target.value)}
+        />
+      </div>
+      <div>
+        <label className="block text-xs font-bold tracking-widest uppercase text-stone mb-1.5" style={{ fontFamily: "var(--font-accent)" }}>
+          What They Said <span className="text-gold">*</span>
+        </label>
+        <textarea
+          className={`${inputCls} resize-none`}
+          rows={4}
+          placeholder="Paste or type their reflection from the WhatsApp group…"
+          value={content}
+          onChange={(e) => setContent(e.target.value)}
+        />
+      </div>
+      <div className="flex gap-2">
+        <button
+          onClick={() => name.trim() && content.trim() && onSave(name, content)}
+          disabled={saving || !name.trim() || !content.trim()}
+          className="px-4 py-2 rounded-xl bg-ink text-vellum text-sm font-semibold hover:bg-stone transition-colors disabled:opacity-50"
+        >
+          {saving ? "Saving…" : "Add Reflection"}
+        </button>
+        <button
+          onClick={onCancel}
+          className="px-4 py-2 rounded-xl border border-stone-edge text-sm text-stone-mid hover:border-gold hover:text-ink transition-colors"
+        >
           Cancel
         </button>
       </div>
@@ -129,6 +187,7 @@ export default function AdminContentPanel({ plans: initialPlans }: { plans: Plan
   const [editingPlanId, setEditingPlanId] = useState<string | null>(null);
   const [showNewDiscForPlan, setShowNewDiscForPlan] = useState<string | null>(null);
   const [editingDiscId, setEditingDiscId] = useState<string | null>(null);
+  const [transcribingDiscId, setTranscribingDiscId] = useState<string | null>(null);
   const [error, setError] = useState("");
 
   function act(fn: () => Promise<{ error?: string }>, onDone?: () => void) {
@@ -207,6 +266,7 @@ export default function AdminContentPanel({ plans: initialPlans }: { plans: Plan
                     </span>
                   </div>
                   <div className="flex items-center gap-2 flex-shrink-0 ml-3" onClick={(e) => e.stopPropagation()}>
+                    <PlanExport planId={plan.id} planTitle={plan.title} />
                     <button
                       onClick={() => { setEditingPlanId(plan.id); setExpandedPlanId(plan.id); }}
                       className="text-sm px-4 py-2 rounded-lg border border-stone-edge text-stone-mid font-semibold hover:border-gold hover:text-gold-deep transition-colors"
@@ -237,7 +297,7 @@ export default function AdminContentPanel({ plans: initialPlans }: { plans: Plan
                     )}
                     {showNewDiscForPlan === plan.id && (
                       <DiscussionForm
-                        onSave={(d, t, c) => act(() => adminCreateDiscussion(plan.id, d, t, c), () => setShowNewDiscForPlan(null))}
+                        onSave={(t, c) => act(() => adminCreateDiscussion(plan.id, null, t, c), () => setShowNewDiscForPlan(null))}
                         onCancel={() => setShowNewDiscForPlan(null)}
                         saving={isPending}
                       />
@@ -249,34 +309,60 @@ export default function AdminContentPanel({ plans: initialPlans }: { plans: Plan
                       editingDiscId === disc.id ? (
                         <DiscussionForm
                           key={disc.id}
-                          initial={{ day_number: disc.day_number, title: disc.title, content: disc.content ?? "" }}
-                          onSave={(d, t, c) => act(() => adminUpdateDiscussion(disc.id, d, t, c), () => setEditingDiscId(null))}
+                          initial={{ title: disc.title, content: disc.content ?? "" }}
+                          onSave={(t, c) => act(() => adminUpdateDiscussion(disc.id, null, t, c), () => setEditingDiscId(null))}
                           onCancel={() => setEditingDiscId(null)}
                           saving={isPending}
                         />
                       ) : (
-                        <div key={disc.id} className="flex items-start justify-between gap-3 bg-white rounded-xl border border-stone-edge px-4 py-3">
-                          <div className="flex items-start gap-3 min-w-0">
-                            {disc.day_number != null && (
-                              <span className="flex-shrink-0 text-xs font-bold text-gold-deep bg-gold-wash px-3 py-1.5 rounded-full border border-gold-soft/50 whitespace-nowrap" style={{ fontFamily: "var(--font-accent)" }}>
-                                Day {disc.day_number}
-                              </span>
-                            )}
-                            <div className="min-w-0">
-                              <p className="text-base font-bold text-ink truncate" style={{ fontFamily: "var(--font-display)" }}>{disc.title}</p>
-                              {disc.content && (
-                                <p className="text-sm text-stone-mid mt-1 line-clamp-2">{disc.content}</p>
-                              )}
+                        <div key={disc.id} className="bg-white rounded-xl border border-stone-edge overflow-hidden">
+                          <div className="flex items-start justify-between gap-3 px-4 py-3">
+                            <div className="flex items-start gap-3 min-w-0">
+                              <div className="min-w-0">
+                                <p className="text-xs font-bold text-gold-deep uppercase tracking-wide mb-1" style={{ fontFamily: "var(--font-accent)" }}>
+                                  {disc.title}
+                                </p>
+                                {disc.content && (
+                                  <p className="text-sm text-ink line-clamp-2">{disc.content}</p>
+                                )}
+                              </div>
+                            </div>
+                            <div className="flex gap-2 flex-shrink-0 flex-wrap justify-end">
+                              <DiscussionExport
+                                discussionId={disc.id}
+                                discussionTitle={disc.title}
+                                discussionContent={disc.content ?? null}
+                                planTitle={plan.title}
+                              />
+                              <button
+                                onClick={() => setTranscribingDiscId(transcribingDiscId === disc.id ? null : disc.id)}
+                                className="text-sm px-3 py-1.5 rounded-lg border border-gold-soft text-gold-deep font-semibold hover:bg-gold-wash transition-colors"
+                                title="Add a reflection from the group"
+                              >
+                                ✦ Transcribe
+                              </button>
+                              <button onClick={() => setEditingDiscId(disc.id)} className="text-sm px-3 py-1.5 rounded-lg border border-stone-edge text-stone-mid font-semibold hover:border-gold hover:text-gold-deep transition-colors">
+                                Edit
+                              </button>
+                              <button onClick={() => { if (confirm(`Delete "${disc.title}"?`)) act(() => adminDeleteDiscussion(disc.id)); }} className="text-sm px-3 py-1.5 rounded-lg border border-red-200 text-red-600 font-semibold hover:bg-red-50 transition-colors">
+                                Delete
+                              </button>
                             </div>
                           </div>
-                          <div className="flex gap-2 flex-shrink-0">
-                            <button onClick={() => setEditingDiscId(disc.id)} className="text-sm px-3 py-1.5 rounded-lg border border-stone-edge text-stone-mid font-semibold hover:border-gold hover:text-gold-deep transition-colors">
-                              Edit
-                            </button>
-                            <button onClick={() => { if (confirm(`Delete "${disc.title}"?`)) act(() => adminDeleteDiscussion(disc.id)); }} className="text-sm px-3 py-1.5 rounded-lg border border-red-200 text-red-600 font-semibold hover:bg-red-50 transition-colors">
-                              Delete
-                            </button>
-                          </div>
+                          {transcribingDiscId === disc.id && (
+                            <div className="px-4 pb-4">
+                              <TranscribeForm
+                                onSave={(name, content) =>
+                                  act(
+                                    () => adminPostTranscribedComment(disc.id, name, content),
+                                    () => setTranscribingDiscId(null)
+                                  )
+                                }
+                                onCancel={() => setTranscribingDiscId(null)}
+                                saving={isPending}
+                              />
+                            </div>
+                          )}
                         </div>
                       )
                     )}
