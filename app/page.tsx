@@ -1,5 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
+import AuthMenu from "@/components/AuthMenu";
 
 export default function RedesignedLandingPage() {
   const pillars = [
@@ -61,12 +62,28 @@ export default function RedesignedLandingPage() {
               Library
             </Link>
             <Link
+              href="/sharehouse"
+              className="text-xs font-semibold tracking-widest text-stone uppercase hover:text-ink transition-colors duration-140"
+              style={{ fontFamily: "var(--font-accent)" }}
+            >
+              Sharehouse
+            </Link>
+            <Link
+              href="/attributes"
+              className="text-xs font-semibold tracking-widest text-stone uppercase hover:text-ink transition-colors duration-140"
+              style={{ fontFamily: "var(--font-accent)" }}
+            >
+              Attributes
+            </Link>
+            <Link
               href="/100stones"
               className="text-xs font-semibold tracking-widest text-stone uppercase hover:text-ink transition-colors duration-140"
               style={{ fontFamily: "var(--font-accent)" }}
             >
               100 Stones
             </Link>
+            {/* Auth — sign-in button or avatar dropdown */}
+            <AuthMenu />
           </nav>
         </div>
       </header>
@@ -262,7 +279,7 @@ export default function RedesignedLandingPage() {
             </div>
           </div>
 
-          <div className="grid md:grid-cols-3 gap-8">
+          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
             {/* Talk It Over Portal */}
             <div className="bg-vellum p-8 rounded-3xl border border-stone-edge hover:border-gold transition-all duration-220 flex flex-col justify-between">
               <div>
@@ -347,6 +364,34 @@ export default function RedesignedLandingPage() {
                 Explore the memorial <span className="text-sm font-sans">→</span>
               </Link>
             </div>
+
+            {/* Sharehouse Portal */}
+            <div className="bg-vellum p-8 rounded-3xl border border-stone-edge hover:border-gold transition-all duration-220 flex flex-col justify-between">
+              <div>
+                <span
+                  className="text-xs font-semibold tracking-widest text-gold uppercase block mb-3"
+                  style={{ fontFamily: "var(--font-accent)" }}
+                >
+                  COMMUNITY CARE
+                </span>
+                <h3
+                  className="text-2xl font-bold mb-4"
+                  style={{ fontFamily: "var(--font-display)" }}
+                >
+                  Sharehouse
+                </h3>
+                <p className="text-xs text-stone-mid leading-relaxed mb-6">
+                  Inspired by Acts 2:44-45, share tangible burdens openly or anonymously, and let the church body carry and meet these needs in mutual support.
+                </p>
+              </div>
+              <Link
+                href="/sharehouse"
+                className="inline-flex items-center gap-2 text-xs font-semibold uppercase text-gold-deep hover:text-gold transition-colors duration-140 tracking-wider"
+                style={{ fontFamily: "var(--font-accent)" }}
+              >
+                Enter the sharehouse <span className="text-sm font-sans">→</span>
+              </Link>
+            </div>
           </div>
         </div>
       </section>
@@ -394,6 +439,9 @@ export default function RedesignedLandingPage() {
             </Link>
             <Link href="/100stones" className="hover:text-ink transition-colors">
               100 Stones
+            </Link>
+            <Link href="/sharehouse" className="hover:text-ink transition-colors">
+              Sharehouse
             </Link>
             <Link href="/stones" className="hover:text-ink transition-colors">
               The Wall

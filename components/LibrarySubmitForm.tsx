@@ -80,6 +80,9 @@ export default function LibrarySubmitForm({
   const [topicError, setTopicError] = useState("");
   const [isAddingTopic, setIsAddingTopic] = useState(false);
 
+  const [sourceUrl, setSourceUrl] = useState("");
+  const [userId, setUserId] = useState<string | null>(null);
+
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState("");
   const [isSuccess, setIsSuccess] = useState(false);
@@ -97,6 +100,7 @@ export default function LibrarySubmitForm({
         .select("full_name")
         .eq("id", session.user.id)
         .single();
+      setUserId(session.user.id);
       const name = profile?.full_name || session.user.email || null;
       if (name) {
         setSignedInName(name);
@@ -195,6 +199,8 @@ export default function LibrarySubmitForm({
       author: author.trim() || undefined,
       topic,
       content: finalContent,
+      sourceUrl: sourceUrl.trim() || undefined,
+      userId: userId || undefined,
     });
     setIsSubmitting(false);
 
@@ -305,6 +311,33 @@ export default function LibrarySubmitForm({
           />
         </div>
       </div>
+
+      {/* Source URL — shown for non-video types */}
+      {!editor.isVideo && (
+        <div>
+          <label
+            htmlFor="submit-source-url"
+            className="block text-xs font-bold tracking-widest text-gold-deep uppercase mb-2"
+            style={{ fontFamily: "var(--font-accent)" }}
+          >
+            Original Source Link{" "}
+            <span className="text-stone-light font-normal normal-case tracking-normal">
+              (optional — if published elsewhere first)
+            </span>
+          </label>
+          <input
+            id="submit-source-url"
+            type="url"
+            value={sourceUrl}
+            onChange={(e) => setSourceUrl(e.target.value)}
+            placeholder="https://medium.com/your-article or your blog URL…"
+            className="w-full px-4 py-3 rounded-2xl border border-stone-edge bg-vellum text-ink text-sm font-medium placeholder:text-stone-light focus:outline-none focus:border-gold focus:ring-1 focus:ring-gold transition duration-140"
+          />
+          <p className="text-xs text-stone-light mt-1.5">
+            If this piece was first published on your blog, Substack, or another platform, paste the link here so readers can find the original.
+          </p>
+        </div>
+      )}
 
       {/* Title */}
       <div>

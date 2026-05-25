@@ -104,3 +104,28 @@ insert into public.topics (name) values
   ('Identity in Christ')
 on conflict (name) do nothing;
 
+-- --------------------------------------------------------
+-- BURP Sharehouse (Community Care Platform) Schema
+-- --------------------------------------------------------
+
+create table if not exists public.sharehouse_needs (
+  id uuid primary key default gen_random_uuid(),
+  title text not null,
+  description text not null,
+  category text not null, -- 'financial' | 'medical' | 'job' | 'education' | 'emotional' | 'practical' | 'other'
+  full_name text not null, -- real name of the submitter, stored for verification
+  anonymous boolean not null default false, -- if true, display name will be "Anonymous"
+  contact_info text not null, -- email, phone or messenger details
+  evidence_url text, -- optional link to backing document or verification materials
+  approved boolean not null default false, -- whether need is approved by admin to appear publicly
+  featured boolean not null default false, -- whether need is featured
+  status text not null default 'active', -- 'active' | 'met' | 'resolved'
+  update_testimony text, -- testimony/update added once need is met
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now()
+);
+
+-- Disable Row Level Security as with other tables — server-side queries handle access
+alter table public.sharehouse_needs disable row level security;
+
+

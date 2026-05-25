@@ -7,10 +7,16 @@ export interface LibraryItem {
   excerpt: string;
   content: string;
   author?: string | null;
-  topic: string; // Dynamic topic category string matching topics.name
+  topic: string;
   featured: boolean;
   approved: boolean;
   created_at: string;
+  /** Auth user who submitted — nullable for older items */
+  user_id?: string | null;
+  /** Link to original publication if the piece was published elsewhere first */
+  source_url?: string | null;
+  /** Page view count */
+  view_count?: number;
 }
 
 export interface Topic {
@@ -25,4 +31,6 @@ export interface LibraryItemFormData {
   content: string;
   author?: string;
   topic: string;
+  sourceUrl?: string;
+  userId?: string;
 }

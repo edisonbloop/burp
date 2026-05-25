@@ -176,8 +176,11 @@ export async function createLibraryItem(
       content,
       author,
       topic,
+      source_url: data.sourceUrl?.trim() || null,
+      user_id: data.userId || null,
       featured: false,
-      approved: false, // All submissions require admin approval before going public
+      approved: false,
+      view_count: 0,
     });
 
     if (error) return { error: error.message };

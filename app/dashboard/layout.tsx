@@ -19,8 +19,7 @@ export default function DashboardLayout({
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
       if (!session?.user) {
-        // Not logged in — send them to sign in
-        router.replace("/talk-it-over?signin=1");
+        router.replace("/signin?redirect=/dashboard");
         return;
       }
       supabase
@@ -42,31 +41,33 @@ export default function DashboardLayout({
 
   const navItems = [
     { name: "My Dashboard", href: "/dashboard" },
+    { name: "Content Library", href: "/library" },
     { name: "Talk It Over", href: "/talk-it-over" },
+    { name: "Attributes of God", href: "/attributes" },
   ];
 
   if (checking) {
     return (
-      <div className="flex h-screen items-center justify-center bg-[#faf6ef]">
-        <p className="text-[#c4b090] text-sm">Loading…</p>
+      <div className="flex h-screen items-center justify-center bg-vellum">
+        <p className="text-stone-light text-sm">Loading…</p>
       </div>
     );
   }
 
   return (
-    <div className="flex h-screen bg-[#faf6ef]">
+    <div className="flex h-screen bg-vellum">
       {/* Sidebar */}
-      <aside className="w-60 bg-white border-r border-[#e8d4b0] flex flex-col flex-shrink-0">
-        <div className="p-6 border-b border-[#e8d4b0]">
+      <aside className="w-64 bg-parchment-soft border-r border-stone-edge flex flex-col flex-shrink-0">
+        <div className="p-6 border-b border-stone-edge">
           <Link
             href="/"
-            className="text-2xl font-bold text-[#c4893a]"
-            style={{ fontFamily: "var(--font-playfair)" }}
+            className="text-2xl font-bold text-gold tracking-widest"
+            style={{ fontFamily: "var(--font-accent)" }}
           >
             BURP
           </Link>
-          <p className="text-xs text-[#a96e28] uppercase tracking-widest mt-1">
-            Talk It Over
+          <p className="text-xs text-gold-deep uppercase tracking-widest mt-1">
+            Personal Dashboard
           </p>
         </div>
 
@@ -74,16 +75,15 @@ export default function DashboardLayout({
           {navItems.map((item) => {
             const isActive =
               pathname === item.href ||
-              (item.href !== "/dashboard" &&
-                pathname.startsWith(item.href));
+              (item.href !== "/dashboard" && pathname.startsWith(item.href));
             return (
               <Link
                 key={item.name}
                 href={item.href}
                 className={`flex items-center px-4 py-3 rounded-xl font-medium transition-colors text-sm ${
                   isActive
-                    ? "bg-[#fdf8f0] text-[#c4893a] border border-[#e8d4b0]"
-                    : "text-[#7a5a3a] hover:bg-[#fdf8f0] hover:text-[#4d2c11]"
+                    ? "bg-gold-wash text-gold border border-gold-soft"
+                    : "text-stone-mid hover:bg-vellum hover:text-ink"
                 }`}
               >
                 {item.name}
@@ -92,10 +92,10 @@ export default function DashboardLayout({
           })}
         </nav>
 
-        <div className="p-4 border-t border-[#e8d4b0]">
-          <div className="bg-[#fdf8f0] px-4 py-3 rounded-xl border border-[#e8d4b0] mb-3">
-            <p className="text-xs text-[#7a5a3a]">Signed in as</p>
-            <p className="font-semibold text-[#2d1f0e] truncate text-sm">
+        <div className="p-4 border-t border-stone-edge">
+          <div className="bg-vellum px-4 py-3 rounded-xl border border-stone-edge mb-3">
+            <p className="text-xs text-stone-light">Signed in as</p>
+            <p className="font-semibold text-ink truncate text-sm mt-0.5">
               {profile?.full_name ?? "—"}
             </p>
           </div>
@@ -108,7 +108,7 @@ export default function DashboardLayout({
         </div>
       </aside>
 
-      {/* Main */}
+      {/* Main content */}
       <main className="flex-1 overflow-y-auto">{children}</main>
     </div>
   );

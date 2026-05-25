@@ -13,7 +13,6 @@ export default function AdminLogin() {
     e.preventDefault();
     setError("");
     setLoading(true);
-
     try {
       const res = await fetch("/api/verify-admin", {
         method: "POST",
@@ -21,12 +20,8 @@ export default function AdminLogin() {
         body: JSON.stringify({ password }),
       });
       const data = (await res.json()) as { success: boolean; message?: string };
-
-      if (data.success) {
-        router.refresh();
-      } else {
-        setError(data.message ?? "Incorrect password.");
-      }
+      if (data.success) router.refresh();
+      else setError(data.message ?? "Incorrect password.");
     } catch {
       setError("Something went wrong. Please try again.");
     } finally {
@@ -35,21 +30,22 @@ export default function AdminLogin() {
   }
 
   return (
-    <div className="flex-1 flex flex-col items-center justify-center px-4 py-20">
-      <div className="w-full max-w-md">
+    <div className="flex-1 flex flex-col items-center justify-center px-4 py-20 bg-vellum">
+      <div className="w-full max-w-sm">
+        {/* Icon */}
         <div className="flex justify-center mb-8">
-          <div className="w-14 h-14 rounded-full bg-[#f0d9b0] flex items-center justify-center text-xl text-[#a96e28]">
+          <div className="w-14 h-14 rounded-full bg-gold-wash border border-gold-soft flex items-center justify-center text-2xl text-gold-deep">
             ⚿
           </div>
         </div>
 
         <h1
-          className="text-2xl font-bold text-center text-[#2d1f0e] mb-2"
-          style={{ fontFamily: "var(--font-playfair)" }}
+          className="text-4xl font-bold text-center text-ink mb-2 tracking-tight"
+          style={{ fontFamily: "var(--font-display)" }}
         >
           Admin Access
         </h1>
-        <p className="text-center text-sm text-[#7a5a3a] mb-8">
+        <p className="text-center text-sm text-stone-mid mb-8">
           Enter the admin password to manage submissions.
         </p>
 
@@ -60,11 +56,11 @@ export default function AdminLogin() {
             onChange={(e) => setPassword(e.target.value)}
             placeholder="Admin password"
             required
-            className="w-full px-4 py-3 rounded-xl border border-[#e8d4b0] bg-white text-[#2d1f0e] placeholder-[#c4b090] focus:outline-none focus:ring-2 focus:ring-[#c4893a] focus:border-transparent transition"
+            className="w-full px-4 py-3 rounded-xl border border-stone-edge bg-parchment-soft text-ink placeholder:text-stone-light focus:outline-none focus:ring-1 focus:ring-gold focus:border-gold transition text-sm"
           />
 
           {error && (
-            <p className="text-sm text-red-600 bg-red-50 border border-red-200 rounded-lg px-3 py-2">
+            <p className="text-sm text-red-700 bg-red-50 border border-red-200 rounded-xl px-4 py-3">
               {error}
             </p>
           )}
@@ -72,7 +68,8 @@ export default function AdminLogin() {
           <button
             type="submit"
             disabled={loading}
-            className="w-full py-3 rounded-xl bg-[#2d1f0e] hover:bg-[#4d2c11] text-white font-semibold transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
+            className="w-full py-3 rounded-xl bg-ink hover:bg-stone text-vellum font-bold transition-colors disabled:opacity-60 disabled:cursor-not-allowed text-xs tracking-widest uppercase"
+            style={{ fontFamily: "var(--font-accent)" }}
           >
             {loading ? "Verifying…" : "Sign In"}
           </button>

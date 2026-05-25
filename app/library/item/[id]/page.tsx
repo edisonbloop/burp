@@ -2,6 +2,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { getLibraryItemById } from "@/lib/library-actions";
 import ShareButton from "@/components/ShareButton";
+import ViewTracker from "@/components/ViewTracker";
 import type { LibraryType } from "@/types/library";
 import type { Metadata } from "next";
 
@@ -124,6 +125,8 @@ export default async function ContentDetailPage({ params }: PageProps) {
 
   return (
     <main className="flex flex-col flex-1 min-h-screen bg-vellum text-ink">
+      {/* Silently track this page view */}
+      <ViewTracker itemId={id} />
       {/* Top Banner */}
       <div className="w-full bg-parchment-soft border-b border-stone-edge py-4 px-4 sm:px-6">
         <div className="max-w-4xl mx-auto flex items-center justify-between">
@@ -184,6 +187,21 @@ export default async function ContentDetailPage({ params }: PageProps) {
           >
             By {item.author || "Anonymous"}
           </p>
+
+          {/* Original source link (if available) */}
+          {item.source_url && (
+            <div className={`mb-6 ${item.type === "poems" ? "text-center" : "text-left"}`}>
+              <a
+                href={item.source_url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-1.5 text-xs font-bold tracking-widest text-gold uppercase hover:text-gold-deep transition-colors"
+                style={{ fontFamily: "var(--font-accent)" }}
+              >
+                ↗ Read Original Publication
+              </a>
+            </div>
+          )}
 
           {/* Signature Dot-Divider */}
           <div className="flex items-center justify-center gap-2 mb-10 text-stone-light">

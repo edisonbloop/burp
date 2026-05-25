@@ -84,7 +84,7 @@ export default function TalkComments({
         setAuthError(error.message);
       } else if (data.user) {
         await supabase.from("profiles").insert({ id: data.user.id, full_name: fullName });
-        if (!data.session) router.push("/talk-it-over/check-email");
+        if (!data.session) router.push("/signin/check-email");
       }
     }
     setAuthLoading(false);
