@@ -2,14 +2,17 @@
 
 import { useState, useRef, useEffect } from "react";
 import Link from "next/link";
-import { createLibraryItem, createTopic } from "@/lib/library-actions";
+import { createLibraryItem, createTopic, updateLibraryItem } from "@/lib/library-actions";
 import { getSupabaseBrowserClient } from "@/lib/supabase-client";
-import type { Topic, LibraryType } from "@/types/library";
+import RichTextEditor from "@/components/RichTextEditor";
+import type { Topic, LibraryType, LibraryItem } from "@/types/library";
 
 interface LibrarySubmitFormProps {
   initialTopics: Topic[];
   initialType?: string;
   initialTopic?: string;
+  /** Pass an existing item to activate edit mode */
+  editItem?: LibraryItem;
 }
 
 // Per-type editor config
@@ -64,15 +67,30 @@ export default function LibrarySubmitForm({
   initialTopics,
   initialType,
   initialTopic,
+  editItem,
 }: LibrarySubmitFormProps) {
-  const [type, setType] = useState<LibraryType>(
-    (initialType as LibraryType) || "poems"
+  const isEditing = !!editItem;
+
+  // For video items, content is stored as "url\n\ndescription" — split it out
+  const editVideoUrl = editItem?.type === "videos"
+    ? (editItem.content.split("\n")[0] ?? "")
+    : "";
+  const editVideoDesc = editItem?.type === "videos"
+    ? editItem.content.split("\n").slice(2).join("\n").trim()
+    : "";
+
+  const [type, setType] = useState<LibraryType>(() => {
+    // Use || not ?? so empty strings fall through to the default
+    const candidate = (editItem?.type || initialType || "poems") as LibraryType;
+    return TYPE_EDITOR[candidate] ? candidate : "poems";
+  });
+  const [title, setTitle] = useState(editItem?.title ?? "");
+  const [author, setAuthor] = useState(editItem?.author ?? "");
+  const [topic, setTopic] = useState(editItem?.topic ?? initialTopic ?? "");
+  const [content, setContent] = useState(
+    editItem?.type === "videos" ? editVideoUrl : (editItem?.content ?? "")
   );
-  const [title, setTitle] = useState("");
-  const [author, setAuthor] = useState("");
-  const [topic, setTopic] = useState(initialTopic || "");
-  const [content, setContent] = useState("");
-  const [videoDescription, setVideoDescription] = useState("");
+  const [videoDescription, setVideoDescription] = useState(editVideoDesc);
 
   const [topics, setTopics] = useState<Topic[]>(initialTopics);
   const [showNewTopicInput, setShowNewTopicInput] = useState(false);
@@ -80,7 +98,7 @@ export default function LibrarySubmitForm({
   const [topicError, setTopicError] = useState("");
   const [isAddingTopic, setIsAddingTopic] = useState(false);
 
-  const [sourceUrl, setSourceUrl] = useState("");
+  const [sourceUrl, setSourceUrl] = useState(editItem?.source_url ?? "");
   const [userId, setUserId] = useState<string | null>(null);
 
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -178,7 +196,8 @@ export default function LibrarySubmitForm({
 
     if (!title.trim()) { setSubmitError("Title is required"); return; }
     if (!topic) { setSubmitError("Please select or suggest a topic category"); return; }
-    if (!content.trim()) {
+    const isEmptyRich = content === "<p></p>" || content === "";
+    if (!content.trim() || isEmptyRich) {
       setSubmitError(editor.isVideo ? "YouTube link is required" : "Content is required");
       return;
     }
@@ -193,15 +212,24 @@ export default function LibrarySubmitForm({
       : content;
 
     setIsSubmitting(true);
-    const response = await createLibraryItem({
-      type,
-      title,
-      author: author.trim() || undefined,
-      topic,
-      content: finalContent,
-      sourceUrl: sourceUrl.trim() || undefined,
-      userId: userId || undefined,
-    });
+    const response = isEditing
+      ? await updateLibraryItem(editItem!.id, userId!, {
+          type,
+          title,
+          author: author.trim() || undefined,
+          topic,
+          content: finalContent,
+          sourceUrl: sourceUrl.trim() || undefined,
+        })
+      : await createLibraryItem({
+          type,
+          title,
+          author: author.trim() || undefined,
+          topic,
+          content: finalContent,
+          sourceUrl: sourceUrl.trim() || undefined,
+          userId: userId || undefined,
+        });
     setIsSubmitting(false);
 
     if (response.error) {
@@ -219,10 +247,12 @@ export default function LibrarySubmitForm({
           className="text-3xl font-bold text-ink mb-4"
           style={{ fontFamily: "var(--font-display)" }}
         >
-          {editor.isVideo ? "Video submitted!" : "Spiritual writing shared"}
+          {isEditing ? "Changes saved" : editor.isVideo ? "Video submitted!" : "Spiritual writing shared"}
         </h2>
         <p className="text-stone-mid text-xs leading-relaxed mb-8 max-w-md">
-          Your contribution has been received and is pending admin review before going live in the library.
+          {isEditing
+            ? "Your edits have been saved and are now pending admin review before they go live again."
+            : "Your contribution has been received and is pending admin review before going live in the library."}
         </p>
         <div className="flex items-center justify-center gap-1.5 mb-8 text-stone-light">
           <span className="w-1 h-1 rounded-full bg-current" />
@@ -230,20 +260,32 @@ export default function LibrarySubmitForm({
           <span className="w-1 h-1 rounded-full bg-current" />
         </div>
         <div className="flex flex-col sm:flex-row gap-4 w-full justify-center">
-          <button
-            onClick={() => { setTitle(""); setAuthor(""); setContent(""); setVideoDescription(""); setIsSuccess(false); }}
-            className="px-6 py-3 rounded-full border border-stone-edge text-stone hover:border-gold hover:text-ink font-semibold text-xs tracking-wider transition-all duration-140"
-            style={{ fontFamily: "var(--font-accent)" }}
-          >
-            Submit Another
-          </button>
-          <Link
-            href={`/library/type/${type}`}
-            className="px-6 py-3 rounded-full bg-ink hover:bg-stone text-vellum font-semibold text-xs tracking-wider transition-all duration-140 text-center"
-            style={{ fontFamily: "var(--font-accent)" }}
-          >
-            View Collection
-          </Link>
+          {isEditing ? (
+            <Link
+              href="/dashboard"
+              className="px-6 py-3 rounded-full bg-ink hover:bg-stone text-vellum font-semibold text-xs tracking-wider transition-all duration-140 text-center"
+              style={{ fontFamily: "var(--font-accent)" }}
+            >
+              Back to Dashboard
+            </Link>
+          ) : (
+            <>
+              <button
+                onClick={() => { setTitle(""); setAuthor(""); setContent(""); setVideoDescription(""); setIsSuccess(false); }}
+                className="px-6 py-3 rounded-full border border-stone-edge text-stone hover:border-gold hover:text-ink font-semibold text-xs tracking-wider transition-all duration-140"
+                style={{ fontFamily: "var(--font-accent)" }}
+              >
+                Submit Another
+              </button>
+              <Link
+                href={`/library/type/${type}`}
+                className="px-6 py-3 rounded-full bg-ink hover:bg-stone text-vellum font-semibold text-xs tracking-wider transition-all duration-140 text-center"
+                style={{ fontFamily: "var(--font-accent)" }}
+              >
+                View Collection
+              </Link>
+            </>
+          )}
         </div>
       </div>
     );
@@ -272,7 +314,8 @@ export default function LibrarySubmitForm({
             id="submit-type"
             value={type}
             onChange={(e) => handleTypeChange(e.target.value as LibraryType)}
-            className="w-full px-4 py-3 rounded-2xl border border-stone-edge bg-vellum text-ink text-sm font-medium focus:outline-none focus:border-gold focus:ring-1 focus:ring-gold transition duration-140 cursor-pointer"
+            disabled={isEditing}
+            className="w-full px-4 py-3 rounded-2xl border border-stone-edge bg-vellum text-ink text-sm font-medium focus:outline-none focus:border-gold focus:ring-1 focus:ring-gold transition duration-140 cursor-pointer disabled:opacity-60 disabled:cursor-default"
           >
             <option value="poems">Poem</option>
             <option value="write-ups">Write-Up / Reflection</option>
@@ -280,6 +323,9 @@ export default function LibrarySubmitForm({
             <option value="videos">Video (YouTube)</option>
             <option value="others">Other Material</option>
           </select>
+          {isEditing && (
+            <p className="text-[10px] text-stone-light mt-1">Content type can&rsquo;t be changed when editing.</p>
+          )}
         </div>
 
         <div>
@@ -444,7 +490,7 @@ export default function LibrarySubmitForm({
         )}
       </div>
 
-      {/* Content — video URL or textarea depending on type */}
+      {/* Content — video URL, rich text editor, or plain textarea depending on type */}
       <div>
         <div className="flex justify-between items-baseline mb-2">
           <label
@@ -454,7 +500,7 @@ export default function LibrarySubmitForm({
           >
             {editor.contentLabel} <span className="text-gold">*</span>
           </label>
-          {!editor.isVideo && (
+          {!editor.isVideo && type !== "write-ups" && type !== "long-messages" && (
             <span className="text-[10px] text-stone-light font-medium">
               {type === "poems" ? "Whitespace preserved" : "Double Enter = new paragraph"}
             </span>
@@ -493,14 +539,22 @@ export default function LibrarySubmitForm({
               />
             </div>
           </div>
+        ) : type === "write-ups" || type === "long-messages" ? (
+          /* Rich text editor for prose types */
+          <RichTextEditor
+            value={content}
+            onChange={setContent}
+            placeholder={editor.placeholder}
+            minHeight={type === "long-messages" ? "420px" : "280px"}
+          />
         ) : (
-          /* Text content: styled textarea with type-specific layout hints */
+          /* Plain textarea for poems and others */
           <>
             <textarea
               id="submit-content"
               value={content}
               onChange={(e) => setContent(e.target.value)}
-              rows={type === "long-messages" ? 18 : 12}
+              rows={12}
               placeholder={editor.placeholder}
               required
               className={`w-full px-6 py-5 rounded-3xl border border-stone-edge bg-vellum text-ink text-sm placeholder:text-stone-light/70 focus:outline-none focus:border-gold focus:ring-1 focus:ring-gold transition duration-140 resize-y min-h-[280px] ${
@@ -509,11 +563,7 @@ export default function LibrarySubmitForm({
               style={
                 type === "poems"
                   ? { fontFamily: "var(--font-display)", fontSize: "1rem", lineHeight: "2rem" }
-                  : {
-                      backgroundImage: "linear-gradient(rgba(107, 95, 80, 0.05) 1px, transparent 1px)",
-                      backgroundSize: "100% 2rem",
-                      lineHeight: "2rem",
-                    }
+                  : undefined
               }
             />
             <div className="flex justify-end mt-2 text-[10px] text-stone-light">
@@ -529,7 +579,9 @@ export default function LibrarySubmitForm({
         className="w-full py-4 px-6 rounded-full bg-ink hover:bg-stone text-vellum font-bold text-xs tracking-widest uppercase transition-all duration-140 disabled:opacity-60 disabled:cursor-not-allowed hover:shadow-md cursor-pointer"
         style={{ fontFamily: "var(--font-accent)" }}
       >
-        {isSubmitting ? "Submitting to the library..." : "Submit to Content Library"}
+        {isSubmitting
+        ? (isEditing ? "Saving changes…" : "Submitting to the library...")
+        : (isEditing ? "Save Changes" : "Submit to Content Library")}
       </button>
     </form>
   );

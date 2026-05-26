@@ -3,7 +3,7 @@
 import { useEditor, EditorContent } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
 import Placeholder from "@tiptap/extension-placeholder";
-import { useEffect } from "react";
+import { useCallback, useEffect } from "react";
 
 interface Props {
   value: string;
@@ -22,6 +22,7 @@ export default function RichTextEditor({
   minHeight = "200px",
 }: Props) {
   const editor = useEditor({
+    immediatelyRender: true,
     extensions: [
       StarterKit.configure({
         heading: { levels: [1, 2, 3] },
@@ -29,6 +30,14 @@ export default function RichTextEditor({
         bulletList: {},
         orderedList: {},
         blockquote: {},
+        code: false,
+        codeBlock: false,
+        strike: false,
+        // Configure Link through StarterKit (it bundles it in v3)
+        link: {
+          openOnClick: false,
+          HTMLAttributes: { rel: "noopener noreferrer", target: "_blank" },
+        },
       }),
       Placeholder.configure({ placeholder }),
     ],
@@ -51,10 +60,19 @@ export default function RichTextEditor({
     }
   }, [editor, value]);
 
-  if (!editor) return null;
+  const addLink = useCallback(() => {
+    if (!editor) return;
+    const prev = editor.getAttributes("link").href as string | undefined;
+    const url = window.prompt("Paste the URL for this link:", prev ?? "https://");
+    if (url === null) return;
+    if (url === "") {
+      editor.chain().focus().unsetLink().run();
+    } else {
+      editor.chain().focus().setLink({ href: url }).run();
+    }
+  }, [editor]);
 
-  const btn = (active: boolean) =>
-    `${TOOLBAR_BTN} ${active ? "bg-parchment-deep text-ink" : ""}`;
+  if (!editor) return null;
 
   return (
     <div className="tiptap-editor rounded-xl border border-stone-edge bg-vellum overflow-hidden focus-within:ring-1 focus-within:ring-gold focus-within:border-gold transition">
@@ -128,6 +146,17 @@ export default function RichTextEditor({
 
         <Divider />
 
+        {/* Link */}
+        <ToolbarButton
+          active={editor.isActive("link")}
+          onClick={addLink}
+          title="Insert / edit link"
+        >
+          <LinkIcon />
+        </ToolbarButton>
+
+        <Divider />
+
         {/* HR */}
         <ToolbarButton
           active={false}
@@ -182,9 +211,11 @@ function ToolbarButton({
       type="button"
       title={title}
       disabled={disabled}
-      onClick={onClick}
-      className={`p-1.5 rounded text-sm font-semibold text-stone-mid hover:bg-parchment-deep hover:text-ink transition-colors disabled:opacity-30 disabled:cursor-not-allowed ${
-        active ? "bg-parchment-deep text-ink" : ""
+      onMouseDown={(e) => { e.preventDefault(); onClick(); }}
+      className={`p-1.5 rounded text-sm font-semibold transition-colors disabled:opacity-30 disabled:cursor-not-allowed ${
+        active
+          ? "bg-gold-wash text-gold-deep border border-gold-soft"
+          : "text-stone-mid hover:bg-parchment-deep hover:text-ink border border-transparent"
       }`}
     >
       {children}
@@ -239,6 +270,15 @@ function OrderedIcon() {
   return (
     <svg className="w-4 h-4" viewBox="0 0 24 24" fill="currentColor">
       <path d="M3 17h2v.5H4v1h1v.5H3v1h3v-4H3v1zm1-9h1V4H3v1h1v3zm-1 3h1.8L3 13.1v.9h3v-1H4.2L6 10.9V10H3v1zm5-6v2h12V5H8zm0 14h12v-2H8v2zm0-6h12v-2H8v2z" />
+    </svg>
+  );
+}
+
+function LinkIcon() {
+  return (
+    <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/>
+      <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/>
     </svg>
   );
 }

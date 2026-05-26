@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import { getLibraryItemById } from "@/lib/library-actions";
 import ShareButton from "@/components/ShareButton";
 import ViewTracker from "@/components/ViewTracker";
+import EditItemButton from "@/components/EditItemButton";
 import type { LibraryType } from "@/types/library";
 import type { Metadata } from "next";
 
@@ -77,6 +78,9 @@ export default async function ContentDetailPage({ params }: PageProps) {
     ? item.content.split("\n").slice(2).join("\n").trim()
     : null;
 
+  // Detect whether the content is rich HTML (from Tiptap) or legacy plain text
+  const isRichHtml = (content: string) => content.trimStart().startsWith("<");
+
   // Type-specific content styling (not used for videos — handled separately)
   const contentStyle: Record<LibraryType, {
     wrapper: string;
@@ -118,10 +122,11 @@ export default async function ContentDetailPage({ params }: PageProps) {
 
   const cs = contentStyle[item.type];
 
-  // Split into paragraphs for prose types (double newline = paragraph break)
-  const paragraphs = cs.renderParagraphs
-    ? item.content.split(/\n\n+/).map((p) => p.trim()).filter(Boolean)
-    : null;
+  // Split into paragraphs for legacy plain-text prose types
+  const paragraphs =
+    cs.renderParagraphs && !isRichHtml(item.content)
+      ? item.content.split(/\n\n+/).map((p) => p.trim()).filter(Boolean)
+      : null;
 
   return (
     <main className="flex flex-col flex-1 min-h-screen bg-vellum text-ink">
@@ -137,7 +142,10 @@ export default async function ContentDetailPage({ params }: PageProps) {
           >
             ← Back to {categoryNames[item.type]}
           </Link>
-          <ShareButton />
+          <div className="flex items-center gap-4">
+            <EditItemButton itemId={id} itemUserId={item.user_id} />
+            <ShareButton />
+          </div>
         </div>
       </div>
 
@@ -234,8 +242,14 @@ export default async function ContentDetailPage({ params }: PageProps) {
                   <p className="mt-6 text-base leading-8 text-stone-mid">{videoDescription}</p>
                 )}
               </div>
+            ) : isRichHtml(item.content) ? (
+              // Rich HTML from Tiptap editor
+              <div
+                className={`${cs.wrapper} burp-prose text-stone-mid text-base leading-8`}
+                dangerouslySetInnerHTML={{ __html: item.content }}
+              />
             ) : paragraphs ? (
-              // Prose types: each double-newline block → <p>, single newlines → <br>
+              // Legacy plain-text prose: each double-newline block → <p>
               <div className={cs.text} style={cs.font ? { fontFamily: cs.font } : undefined}>
                 {paragraphs.map((para, i) => (
                   <p key={i} className={i > 0 ? "mt-6" : ""}>

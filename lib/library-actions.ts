@@ -188,7 +188,70 @@ export async function createLibraryItem(
     // Revalidate paths so browser views update instantly
     revalidatePath("/library");
     revalidatePath(`/library/type/${data.type}`);
-    
+
+    return {};
+  } catch (e) {
+    return { error: e instanceof Error ? e.message : "Something went wrong" };
+  }
+}
+
+/**
+ * Update an existing library item (owner only).
+ * Resets approved → false so the admin re-reviews any changes.
+ */
+export async function updateLibraryItem(
+  itemId: string,
+  userId: string,
+  data: Omit<LibraryItemFormData, "userId">
+): Promise<{ error?: string }> {
+  try {
+    const supabase = getSupabase();
+
+    // Verify ownership before touching anything
+    const { data: existing, error: fetchErr } = await supabase
+      .from("library_items")
+      .select("user_id, type")
+      .eq("id", itemId)
+      .single();
+
+    if (fetchErr || !existing) return { error: "Item not found." };
+    if (existing.user_id !== userId) return { error: "You don't have permission to edit this item." };
+
+    const title   = data.title.trim();
+    const content = data.content.trim();
+    const author  = data.author?.trim() || null;
+    const topic   = data.topic.trim();
+
+    if (!title || !content || !topic) {
+      return { error: "Title, content, and topic are required." };
+    }
+
+    // Regenerate excerpt — strip HTML tags for rich content
+    const plainText = content.replace(/<[^>]+>/g, " ").replace(/\s+/g, " ").trim();
+    const excerpt = plainText.length > 150
+      ? plainText.slice(0, 150).trim() + "…"
+      : plainText;
+
+    const { error } = await supabase
+      .from("library_items")
+      .update({
+        title,
+        excerpt,
+        content,
+        author,
+        topic,
+        source_url: data.sourceUrl?.trim() || null,
+        approved: false, // back to pending after any edit
+      })
+      .eq("id", itemId);
+
+    if (error) return { error: error.message };
+
+    revalidatePath("/library");
+    revalidatePath(`/library/type/${data.type}`);
+    revalidatePath(`/library/item/${itemId}`);
+    revalidatePath("/dashboard");
+
     return {};
   } catch (e) {
     return { error: e instanceof Error ? e.message : "Something went wrong" };

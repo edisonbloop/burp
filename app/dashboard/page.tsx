@@ -227,16 +227,25 @@ export default function DashboardPage() {
                   </a>
                 )}
 
-                {/* View link (only when approved) */}
-                {item.approved && (
+                {/* Actions */}
+                <div className="flex items-center gap-4 mt-auto">
+                  {item.approved && (
+                    <Link
+                      href={`/library/item/${item.id}`}
+                      className="text-xs font-bold text-gold hover:text-gold-deep transition-colors"
+                      style={{ fontFamily: "var(--font-accent)" }}
+                    >
+                      View piece →
+                    </Link>
+                  )}
                   <Link
-                    href={`/library/item/${item.id}`}
-                    className="text-xs font-bold text-gold hover:text-gold-deep transition-colors mt-auto"
+                    href={`/library/edit/${item.id}`}
+                    className="text-xs font-semibold text-stone-mid hover:text-ink transition-colors ml-auto"
                     style={{ fontFamily: "var(--font-accent)" }}
                   >
-                    View piece →
+                    Edit
                   </Link>
-                )}
+                </div>
               </div>
             ))}
           </div>

@@ -109,6 +109,14 @@ body {
 .burp-prose strong { font-weight: 700; color: var(--color-ink); }
 .burp-prose em { font-style: italic; }
 
+.burp-prose a {
+  color: var(--color-gold-deep);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  transition: color 0.15s;
+}
+.burp-prose a:hover { color: var(--color-gold); }
+
 .burp-prose blockquote {
   border-left: 3px solid var(--color-gold-soft);
   padding-left: 1.25rem;
@@ -160,6 +168,12 @@ body {
 .tiptap-editor .ProseMirror p:last-child { margin-bottom: 0; }
 .tiptap-editor .ProseMirror strong { font-weight: 700; }
 .tiptap-editor .ProseMirror em { font-style: italic; }
+.tiptap-editor .ProseMirror a {
+  color: var(--color-gold-deep);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  cursor: pointer;
+}
 .tiptap-editor .ProseMirror blockquote {
   border-left: 3px solid var(--color-gold-soft);
   padding-left: 1.25rem;

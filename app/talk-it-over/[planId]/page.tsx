@@ -1,23 +1,10 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { getDiscussionsForPlan, getPlan } from "@/lib/talk-actions";
-import { Avatar } from "@/components/TalkComments";
 import PostToFeed from "@/components/PostToFeed";
+import FeedPost from "@/components/FeedPost";
 
 export const revalidate = 0;
-
-function timeAgo(dateStr: string) {
-  const diff = Date.now() - new Date(dateStr).getTime();
-  const mins = Math.floor(diff / 60000);
-  const hours = Math.floor(diff / 3600000);
-  const days = Math.floor(diff / 86400000);
-  if (mins < 2) return "just now";
-  if (mins < 60) return `${mins}m`;
-  if (hours < 24) return `${hours}h`;
-  if (days === 1) return "yesterday";
-  if (days < 7) return `${days}d`;
-  return new Date(dateStr).toLocaleDateString("en-US", { month: "short", day: "numeric" });
-}
 
 export default async function PlanDiscussionsPage({
   params,
@@ -37,6 +24,8 @@ export default async function PlanDiscussionsPage({
     title: string;
     content?: string | null;
     created_at: string;
+    plan_id: string;
+    user_id?: string | null;
   };
 
   return (
@@ -73,41 +62,7 @@ export default async function PlanDiscussionsPage({
           </div>
         ) : (
           (discussions as Disc[]).map((disc) => (
-            <div key={disc.id} className="border-b border-stone-edge/60 last:border-0">
-              <div className="flex gap-3 px-4 py-5">
-                {/* Avatar */}
-                <Avatar name={disc.title || "?"} size="md" />
-
-                {/* Content */}
-                <div className="flex-1 min-w-0">
-                  {/* Name + timestamp */}
-                  <div className="flex items-baseline justify-between gap-2 mb-2">
-                    <span className="font-bold text-ink text-sm">
-                      {disc.title}
-                    </span>
-                    <span className="text-xs text-stone-light flex-shrink-0">
-                      {timeAgo(disc.created_at)}
-                    </span>
-                  </div>
-
-                  {/* Full content */}
-                  {disc.content && (
-                    <p className="text-sm text-ink leading-relaxed whitespace-pre-wrap mb-3">
-                      {disc.content}
-                    </p>
-                  )}
-
-                  {/* Reply link */}
-                  <Link
-                    href={`/talk-it-over/discussion/${disc.id}`}
-                    className="text-xs font-bold text-stone-light hover:text-gold transition-colors uppercase tracking-widest"
-                    style={{ fontFamily: "var(--font-accent)" }}
-                  >
-                    Reply →
-                  </Link>
-                </div>
-              </div>
-            </div>
+            <FeedPost key={disc.id} disc={disc} />
           ))
         )}
       </div>
