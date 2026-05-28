@@ -13,7 +13,7 @@ export default function DashboardLayout({
   const pathname = usePathname();
   const router = useRouter();
   const supabase = getSupabaseBrowserClient();
-  const [profile, setProfile] = useState<{ full_name?: string } | null>(null);
+  const [profile, setProfile] = useState<{ full_name?: string; avatar_url?: string | null } | null>(null);
   const [checking, setChecking] = useState(true);
 
   useEffect(() => {
@@ -41,6 +41,7 @@ export default function DashboardLayout({
 
   const navItems = [
     { name: "My Dashboard", href: "/dashboard" },
+    { name: "Edit Profile", href: "/dashboard/profile" },
     { name: "Content Library", href: "/library" },
     { name: "Talk It Over", href: "/talk-it-over" },
     { name: "Attributes of God", href: "/attributes" },
@@ -93,11 +94,36 @@ export default function DashboardLayout({
         </nav>
 
         <div className="p-4 border-t border-stone-edge">
-          <div className="bg-vellum px-4 py-3 rounded-xl border border-stone-edge mb-3">
-            <p className="text-xs text-stone-light">Signed in as</p>
-            <p className="font-semibold text-ink truncate text-sm mt-0.5">
-              {profile?.full_name ?? "—"}
-            </p>
+          <div className="bg-vellum px-4 py-3 rounded-xl border border-stone-edge mb-3 flex items-center gap-3">
+            {/* Avatar */}
+            <div className="w-8 h-8 rounded-full overflow-hidden flex-shrink-0 bg-gold flex items-center justify-center">
+              {profile?.avatar_url ? (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img
+                  src={profile.avatar_url}
+                  alt={profile.full_name ?? "Avatar"}
+                  className="w-full h-full object-cover"
+                />
+              ) : (
+                <span
+                  className="text-vellum text-[10px] font-bold"
+                  style={{ fontFamily: "var(--font-accent)" }}
+                >
+                  {profile?.full_name
+                    ? profile.full_name.trim().split(/\s+/).filter(Boolean)
+                        .reduce((acc: string, w: string, i: number, arr: string[]) =>
+                          i === 0 || i === arr.length - 1 ? acc + w[0].toUpperCase() : acc, "")
+                        .slice(0, 2)
+                    : "?"}
+                </span>
+              )}
+            </div>
+            <div className="min-w-0">
+              <p className="text-xs text-stone-light">Signed in as</p>
+              <p className="font-semibold text-ink truncate text-sm mt-0.5">
+                {profile?.full_name ?? "—"}
+              </p>
+            </div>
           </div>
           <button
             onClick={handleSignOut}

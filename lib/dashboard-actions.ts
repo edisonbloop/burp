@@ -49,6 +49,32 @@ export async function getUserComments(userId: string) {
   }
 }
 
+/** Update the current user's profile fields */
+export async function updateUserProfile(
+  userId: string,
+  data: {
+    full_name?: string;
+    role?: string;
+    bio?: string;
+    expertise?: string;
+    interests?: string;
+    links?: { label: string; url: string }[];
+    username?: string;
+  }
+): Promise<{ error?: string }> {
+  if (!userId) return { error: "Not signed in." };
+  try {
+    const supabase = getSupabase();
+    const { error } = await supabase
+      .from("profiles")
+      .upsert({ id: userId, ...data });
+    if (error) return { error: error.message };
+    return {};
+  } catch (e) {
+    return { error: e instanceof Error ? e.message : "Something went wrong" };
+  }
+}
+
 /** Increment the view_count for a library item — called client-side on page load */
 export async function incrementViewCount(itemId: string): Promise<void> {
   if (!itemId) return;

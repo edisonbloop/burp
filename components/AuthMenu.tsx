@@ -5,7 +5,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { getSupabaseBrowserClient } from "@/lib/supabase-client";
 
-type Profile = { full_name?: string | null };
+type Profile = { full_name?: string | null; avatar_url?: string | null };
 
 export default function AuthMenu() {
   const supabase = getSupabaseBrowserClient();
@@ -30,7 +30,7 @@ export default function AuthMenu() {
 
       const { data } = await supabase
         .from("profiles")
-        .select("full_name")
+        .select("full_name, avatar_url")
         .eq("id", session.user.id)
         .single();
 
@@ -110,10 +110,19 @@ export default function AuthMenu() {
         className="flex items-center gap-1.5 group focus:outline-none"
       >
         <span
-          className="w-8 h-8 rounded-full bg-gold flex items-center justify-center text-vellum text-[11px] font-bold ring-2 ring-transparent group-hover:ring-gold-soft transition-all duration-140"
+          className="w-8 h-8 rounded-full overflow-hidden bg-gold flex items-center justify-center text-vellum text-[11px] font-bold ring-2 ring-transparent group-hover:ring-gold-soft transition-all duration-140"
           style={{ fontFamily: "var(--font-accent)" }}
         >
-          {initials || "?"}
+          {profile.avatar_url ? (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img
+              src={profile.avatar_url}
+              alt={profile.full_name ?? "Avatar"}
+              className="w-full h-full object-cover"
+            />
+          ) : (
+            initials || "?"
+          )}
         </span>
         {/* Chevron */}
         <svg
