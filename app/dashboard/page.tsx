@@ -75,7 +75,7 @@ export default function DashboardPage() {
 
   if (loading) {
     return (
-      <div className="p-8 sm:p-12 max-w-5xl mx-auto">
+      <div className="p-4 sm:p-8 lg:p-12 max-w-5xl mx-auto">
         <div className="animate-pulse space-y-4">
           <div className="h-6 bg-parchment-soft rounded w-40" />
           <div className="h-10 bg-parchment-soft rounded w-72" />
@@ -93,7 +93,7 @@ export default function DashboardPage() {
   const firstName = userName ? userName.split(" ")[0] : null;
 
   return (
-    <div className="p-8 sm:p-12 max-w-5xl mx-auto">
+    <div className="p-4 sm:p-8 lg:p-12 max-w-5xl mx-auto">
       {/* ── Header ── */}
       <header className="mb-10">
         <p
@@ -103,7 +103,7 @@ export default function DashboardPage() {
           Welcome back
         </p>
         <h1
-          className="text-4xl sm:text-5xl font-bold text-ink mb-2 leading-tight"
+          className="text-3xl sm:text-4xl lg:text-5xl font-bold text-ink mb-2 leading-tight"
           style={{ fontFamily: "var(--font-display)" }}
         >
           {firstName ? `Hello, ${firstName}` : "Your Dashboard"}

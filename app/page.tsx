@@ -1,6 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
-import AuthMenu from "@/components/AuthMenu";
+import SiteNav from "@/components/SiteNav";
 
 export default function RedesignedLandingPage() {
   const pillars = [
@@ -33,60 +33,7 @@ export default function RedesignedLandingPage() {
 
   return (
     <main className="flex flex-col flex-1 min-h-screen bg-vellum text-ink">
-      {/* Brand Navigation Bar */}
-      <header className="border-b border-stone-edge bg-parchment-soft">
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 py-4 flex flex-col sm:flex-row items-center justify-between gap-4">
-          <Link href="/" className="flex items-center gap-3">
-            <Image
-              src="/logomain.png"
-              alt="BURP Logo"
-              width={160}
-              height={40}
-              priority
-              className="h-10 w-auto object-contain"
-            />
-          </Link>
-          <nav className="flex items-center gap-6">
-            <Link
-              href="/talk-it-over"
-              className="text-xs font-semibold tracking-widest text-stone uppercase hover:text-ink transition-colors duration-140"
-              style={{ fontFamily: "var(--font-accent)" }}
-            >
-              Talk It Over
-            </Link>
-            <Link
-              href="/library"
-              className="text-xs font-semibold tracking-widest text-stone uppercase hover:text-ink transition-colors duration-140"
-              style={{ fontFamily: "var(--font-accent)" }}
-            >
-              Library
-            </Link>
-            <Link
-              href="/sharehouse"
-              className="text-xs font-semibold tracking-widest text-stone uppercase hover:text-ink transition-colors duration-140"
-              style={{ fontFamily: "var(--font-accent)" }}
-            >
-              Sharehouse
-            </Link>
-            <Link
-              href="/attributes"
-              className="text-xs font-semibold tracking-widest text-stone uppercase hover:text-ink transition-colors duration-140"
-              style={{ fontFamily: "var(--font-accent)" }}
-            >
-              Attributes
-            </Link>
-            <Link
-              href="/100stones"
-              className="text-xs font-semibold tracking-widest text-stone uppercase hover:text-ink transition-colors duration-140"
-              style={{ fontFamily: "var(--font-accent)" }}
-            >
-              100 Stones
-            </Link>
-            {/* Auth — sign-in button or avatar dropdown */}
-            <AuthMenu />
-          </nav>
-        </div>
-      </header>
+      <SiteNav />
 
       {/* Hero Section */}
       <section

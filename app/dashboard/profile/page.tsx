@@ -178,7 +178,7 @@ export default function ProfilePage() {
 
   if (loading) {
     return (
-      <div className="p-8 sm:p-12 max-w-2xl mx-auto space-y-4 animate-pulse">
+      <div className="p-4 sm:p-8 lg:p-12 max-w-2xl mx-auto space-y-4 animate-pulse">
         <div className="h-6 bg-parchment-soft rounded w-40" />
         <div className="h-24 w-24 bg-parchment-soft rounded-full" />
         <div className="h-12 bg-parchment-soft rounded-2xl" />
@@ -188,7 +188,7 @@ export default function ProfilePage() {
   }
 
   return (
-    <div className="p-8 sm:p-12 max-w-2xl mx-auto">
+    <div className="p-4 sm:p-8 lg:p-12 max-w-2xl mx-auto">
       <header className="mb-10">
         <p className="text-xs font-bold tracking-widest uppercase text-gold mb-1" style={{ fontFamily: "var(--font-accent)" }}>
           My Account
