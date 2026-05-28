@@ -1,47 +1,7 @@
-"use client";
-
-import { useState, useEffect } from "react";
-import PasswordGate from "@/components/PasswordGate";
 import StoneForm from "@/components/StoneForm";
 import PageHeader from "@/components/PageHeader";
 
-const STORAGE_KEY = "stones_submission_access";
-
 export default function SubmitPage() {
-  const [authenticated, setAuthenticated] = useState(false);
-  const [checking, setChecking] = useState(true);
-
-  useEffect(() => {
-    const stored = localStorage.getItem(STORAGE_KEY);
-    if (stored === "true") {
-      setAuthenticated(true);
-    }
-    setChecking(false);
-  }, []);
-
-  if (checking) {
-    return (
-      <div className="flex-1 flex items-center justify-center">
-        <div className="text-[#c4b090] text-sm">Loading…</div>
-      </div>
-    );
-  }
-
-  if (!authenticated) {
-    return (
-      <div className="flex-1 flex flex-col">
-        <PageHeader title="Submit Your Stone" backHref="/100stones" />
-        <PasswordGate
-          verifyEndpoint="/api/verify-submission"
-          storageKey={STORAGE_KEY}
-          title="This is a sacred space"
-          description="Enter the event password to share your stone of remembrance with the community."
-          onSuccess={() => setAuthenticated(true)}
-        />
-      </div>
-    );
-  }
-
   return (
     <div className="flex-1 flex flex-col">
       <PageHeader
