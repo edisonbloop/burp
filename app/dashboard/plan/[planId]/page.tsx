@@ -1,9 +1,9 @@
 import Link from "next/link";
-import { getDiscussionsForPlan } from "@/lib/talk-actions";
+import { getDayDiscussionsForPlan } from "@/lib/talk-actions";
 
 export default async function DashboardPlanPage({ params }: { params: Promise<{ planId: string }> }) {
   const { planId } = await params;
-  const discussions = await getDiscussionsForPlan(planId);
+  const discussions = await getDayDiscussionsForPlan(planId);
 
   return (
     <div className="p-8 sm:p-12 max-w-4xl mx-auto">

@@ -28,16 +28,35 @@ export async function getPlan(planId: string) {
   return data;
 }
 
-export async function getDiscussionsForPlan(planId: string) {
+/** Numbered day-discussion threads (day_number IS NOT NULL), ordered by day */
+export async function getDayDiscussionsForPlan(planId: string) {
   const supabase = getSupabase();
   const { data, error } = await supabase
     .from("discussions")
     .select("*")
     .eq("plan_id", planId)
+    .not("day_number", "is", null)
     .order("day_number", { ascending: true });
 
   if (error) {
-    console.error("Error fetching discussions:", error);
+    console.error("Error fetching day discussions:", error);
+    return [];
+  }
+  return data || [];
+}
+
+/** Free-form feed posts (day_number IS NULL), newest first */
+export async function getFeedPostsForPlan(planId: string) {
+  const supabase = getSupabase();
+  const { data, error } = await supabase
+    .from("discussions")
+    .select("*")
+    .eq("plan_id", planId)
+    .is("day_number", null)
+    .order("created_at", { ascending: false });
+
+  if (error) {
+    console.error("Error fetching feed posts:", error);
     return [];
   }
   return data || [];

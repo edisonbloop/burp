@@ -168,12 +168,42 @@ export async function adminUpdateLibraryApproval(
 ): Promise<{ error?: string }> {
   try {
     await requireAdminSession();
-    const { error } = await getSupabase()
+    const supabase = getSupabase();
+
+    // Fetch item + author profile for the approval email
+    const { data: item } = approved
+      ? await supabase
+          .from("library_items")
+          .select("title, user_id")
+          .eq("id", id)
+          .single()
+      : { data: null };
+
+    const { error } = await supabase
       .from("library_items")
       .update({ approved })
       .eq("id", id);
     if (error) return { error: error.message };
     revalidatePath("/library");
+
+    // Email the author when their piece is approved
+    if (approved && item?.user_id) {
+      try {
+        const { sendApprovalEmail } = await import("@/lib/email");
+        const { data: profile } = await supabase
+          .from("profiles")
+          .select("full_name")
+          .eq("id", item.user_id)
+          .single();
+        const { data: authUser } = await supabase.auth.admin.getUserById(item.user_id);
+        const email = authUser?.user?.email;
+        if (email) {
+          const firstName = (profile?.full_name ?? "").split(" ")[0];
+          await sendApprovalEmail(email, firstName, item.title, id);
+        }
+      } catch { /* email failure should not block approval */ }
+    }
+
     return {};
   } catch (e) {
     return { error: e instanceof Error ? e.message : "Failed" };

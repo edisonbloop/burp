@@ -50,7 +50,6 @@ export default function PostToFeed({ planId }: { planId: string }) {
       plan_id: planId,
       title: name,
       content: trimmed,
-      day_number: null,
       user_id: userId,
     });
 

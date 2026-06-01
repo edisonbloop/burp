@@ -64,8 +64,18 @@ function SignInContent() {
             .from("profiles")
             .upsert({ id: data.user.id, full_name: fullName.trim() });
 
+          // Send welcome email via Resend (fire-and-forget)
+          fetch("/api/send-welcome", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              email,
+              firstName: fullName.trim().split(" ")[0],
+            }),
+          }).catch(() => { /* non-critical */ });
+
           if (!data.session) {
-            // Supabase sent a confirmation email
+            // Supabase sends the confirmation email via Resend SMTP
             router.push("/signin/check-email");
           } else {
             router.push(redirectTo);
