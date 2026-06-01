@@ -47,10 +47,11 @@ export default function DashboardLayout({
   };
 
   const navItems = [
-    { name: "My Dashboard", href: "/dashboard" },
-    { name: "Edit Profile", href: "/dashboard/profile" },
+    { name: "My Dashboard",    href: "/dashboard" },
+    { name: "Edit Profile",    href: "/dashboard/profile" },
     { name: "Content Library", href: "/library" },
-    { name: "Talk It Over", href: "/talk-it-over" },
+    { name: "Talk It Over",    href: "/talk-it-over" },
+    { name: "Community",       href: "/community" },
     { name: "Attributes of God", href: "/attributes" },
   ];
 
