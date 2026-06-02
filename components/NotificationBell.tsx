@@ -67,12 +67,19 @@ export default function NotificationBell() {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []); // run once on mount only
 
-  // Realtime — instant bell update when a new notification arrives
+  // Realtime — instant bell update when a new notification arrives.
+  // IMPORTANT: use a unique channel name on every effect run.
+  // Supabase reuses channel objects that share a name — if the effect
+  // re-runs and the old channel is still subscribed, calling .on() after
+  // .subscribe() throws "cannot add callbacks after subscribe()".
   useEffect(() => {
     if (!userId) return;
 
+    // Unique name guarantees a brand-new channel each time
+    const channelName = `notifs-${userId}-${Math.random().toString(36).slice(2)}`;
+
     const channel = supabase
-      .channel(`notifs:${userId}`)
+      .channel(channelName)
       .on(
         "postgres_changes",
         {
@@ -89,7 +96,7 @@ export default function NotificationBell() {
 
     return () => { supabase.removeChannel(channel); };
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [userId]); // only re-subscribe if userId changes
+  }, [userId]);
 
   // Close on outside click
   useEffect(() => {
