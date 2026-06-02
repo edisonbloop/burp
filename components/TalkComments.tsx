@@ -4,6 +4,8 @@ import { useEffect, useRef, useState, useCallback } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { getSupabaseBrowserClient } from "@/lib/supabase-client";
+import EmojiPicker from "@/components/EmojiPicker";
+import { notifyReply } from "@/lib/notification-actions";
 
 interface Comment {
   id: string;
@@ -48,6 +50,24 @@ export function Avatar({ name, size = "md" }: { name: string; size?: "sm" | "md"
   );
 }
 
+/** Insert text at the current cursor position in a textarea */
+function insertAtCursor(
+  textarea: HTMLTextAreaElement,
+  text: string,
+  currentValue: string,
+  setValue: (v: string) => void
+) {
+  const start = textarea.selectionStart ?? currentValue.length;
+  const end = textarea.selectionEnd ?? currentValue.length;
+  const next = currentValue.slice(0, start) + text + currentValue.slice(end);
+  setValue(next);
+  setTimeout(() => {
+    textarea.selectionStart = start + text.length;
+    textarea.selectionEnd = start + text.length;
+    textarea.focus();
+  }, 0);
+}
+
 export default function TalkComments({
   discussionId,
   initialComments,
@@ -89,15 +109,20 @@ export default function TalkComments({
     e.preventDefault();
     if (!newComment.trim() || !user || !profile) return;
     setSubmitting(true);
+
+    // Fix: only select columns that exist — attributed_to was causing 400 errors
     const { data, error } = await supabase
       .from("comments")
       .insert({ discussion_id: discussionId, user_id: user.id, content: newComment.trim() })
-      .select("*, attributed_to, profiles(full_name)")
+      .select("id, content, created_at, user_id, profiles(full_name)")
       .single();
+
     if (!error && data) {
-      setComments((prev) => [...prev, data as Comment]);
+      setComments((prev) => [...prev, data as unknown as Comment]);
       setNewComment("");
       textareaRef.current?.focus();
+      // Notify discussion owner (fire-and-forget)
+      notifyReply(discussionId, user.id, profile?.full_name ?? "Someone").catch(() => {});
     }
     setSubmitting(false);
   };
@@ -197,9 +222,20 @@ export default function TalkComments({
                 className="w-full px-4 py-3 rounded-2xl border border-stone-edge bg-parchment-soft text-ink placeholder:text-stone-light text-sm focus:outline-none focus:border-gold resize-none transition-colors leading-relaxed"
               />
               <div className="flex items-center justify-between mt-2 px-1">
-                <span className="text-xs text-stone-light">
-                  {profile?.full_name ?? ""}
-                </span>
+                <div className="flex items-center gap-2">
+                  <span className="text-xs text-stone-light">
+                    {profile?.full_name ?? ""}
+                  </span>
+                  <EmojiPicker
+                    onSelect={(emoji) => {
+                      if (textareaRef.current) {
+                        insertAtCursor(textareaRef.current, emoji, newComment, setNewComment);
+                      } else {
+                        setNewComment((v) => v + emoji);
+                      }
+                    }}
+                  />
+                </div>
                 <button
                   type="submit"
                   disabled={submitting || !newComment.trim()}
@@ -217,7 +253,7 @@ export default function TalkComments({
   );
 }
 
-// ── CommentRow — handles inline edit / delete for own comments ──────────────
+// ── CommentRow ──────────────────────────────────────────────────────────────
 function CommentRow({
   comment,
   isOwn,
@@ -232,12 +268,12 @@ function CommentRow({
   onDelete: (id: string) => Promise<void>;
 }) {
   const menuRef = useRef<HTMLDivElement>(null);
+  const editRef = useRef<HTMLTextAreaElement>(null);
   const [menuOpen, setMenuOpen] = useState(false);
   const [editing, setEditing] = useState(false);
   const [editContent, setEditContent] = useState(comment.content);
   const [saving, setSaving] = useState(false);
 
-  // Close menu on outside click
   useEffect(() => {
     if (!menuOpen) return;
     const handler = (e: MouseEvent) => {
@@ -260,7 +296,6 @@ function CommentRow({
     <div className="flex gap-3">
       <Avatar name={displayName} size="sm" />
       <div className="flex-1 min-w-0">
-        {/* Header row */}
         <div className="flex items-baseline gap-2 flex-wrap mb-1">
           <span className="font-semibold text-ink text-sm leading-none">{displayName}</span>
           {comment.attributed_to && (
@@ -302,10 +337,10 @@ function CommentRow({
           )}
         </div>
 
-        {/* Content or edit area */}
         {editing ? (
           <div className="space-y-2 mt-1">
             <textarea
+              ref={editRef}
               value={editContent}
               onChange={(e) => setEditContent(e.target.value)}
               onKeyDown={(e) => {
@@ -314,9 +349,18 @@ function CommentRow({
               }}
               autoFocus
               rows={3}
-              className="w-full px-3 py-2.5 rounded-xl border border-gold bg-parchment-soft text-ink text-sm focus:outline-none focus:ring-1 focus:ring-gold resize-none transition-colors leading-relaxed"
+              className="w-full px-3 py-2.5 rounded-xl border border-gold bg-parchment-soft text-ink text-sm focus:outline-none focus:ring-1 focus:ring-gold resize-none leading-relaxed"
             />
             <div className="flex items-center gap-2">
+              <EmojiPicker
+                onSelect={(emoji) => {
+                  if (editRef.current) {
+                    insertAtCursor(editRef.current, emoji, editContent, setEditContent);
+                  } else {
+                    setEditContent((v) => v + emoji);
+                  }
+                }}
+              />
               <button
                 onClick={handleSave}
                 disabled={saving || !editContent.trim()}

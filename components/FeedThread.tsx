@@ -1,0 +1,189 @@
+"use client";
+
+import { useState, useEffect, useRef } from "react";
+import { useRouter } from "next/navigation";
+import Link from "next/link";
+import { getSupabaseBrowserClient } from "@/lib/supabase-client";
+import { Avatar } from "@/components/TalkComments";
+
+interface Post {
+  id: string;
+  title: string;
+  content?: string | null;
+  created_at: string;
+  plan_id: string;
+  user_id?: string | null;
+  thread_id?: string | null;
+  thread_index?: number | null;
+}
+
+function timeAgo(dateStr: string) {
+  const diff = Date.now() - new Date(dateStr).getTime();
+  const mins = Math.floor(diff / 60000);
+  const hours = Math.floor(diff / 3600000);
+  const days = Math.floor(diff / 86400000);
+  if (mins < 2) return "just now";
+  if (mins < 60) return `${mins}m`;
+  if (hours < 24) return `${hours}h`;
+  if (days === 1) return "yesterday";
+  if (days < 7) return `${days}d`;
+  return new Date(dateStr).toLocaleDateString("en-US", { month: "short", day: "numeric" });
+}
+
+export default function FeedThread({ posts }: { posts: Post[] }) {
+  const supabase = getSupabaseBrowserClient();
+  const router = useRouter();
+  const [userId, setUserId] = useState<string | null>(null);
+  const [deletedIds, setDeletedIds] = useState<Set<string>>(new Set());
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const [editContents, setEditContents] = useState<Record<string, string>>({});
+  const [openMenuId, setOpenMenuId] = useState<string | null>(null);
+  const menuRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setUserId(session?.user?.id ?? null);
+    });
+  }, [supabase]);
+
+  useEffect(() => {
+    if (!openMenuId) return;
+    const handler = (e: MouseEvent) => {
+      if (menuRef.current && !menuRef.current.contains(e.target as Node))
+        setOpenMenuId(null);
+    };
+    document.addEventListener("mousedown", handler);
+    return () => document.removeEventListener("mousedown", handler);
+  }, [openMenuId]);
+
+  const visible = posts.filter((p) => !deletedIds.has(p.id));
+  if (!visible.length) return null;
+
+  const authorName = visible[0].title || "?";
+
+  const handleDelete = async (postId: string) => {
+    if (!confirm("Delete this post from the thread?")) return;
+    await supabase.from("discussions").delete().eq("id", postId).eq("user_id", userId!);
+    setDeletedIds((prev) => new Set([...prev, postId]));
+    router.refresh();
+  };
+
+  const handleSave = async (postId: string) => {
+    const content = editContents[postId]?.trim();
+    if (!content) return;
+    await supabase.from("discussions").update({ content }).eq("id", postId).eq("user_id", userId!);
+    setEditingId(null);
+    router.refresh();
+  };
+
+  return (
+    <div className="border-b border-stone-edge/60 last:border-0 px-4 py-4">
+      {/* Thread header */}
+      <div className="flex items-center gap-2 mb-3">
+        <Avatar name={authorName} size="md" />
+        <div>
+          <span className="font-bold text-ink text-sm">{authorName}</span>
+          <span className="text-xs text-stone-light ml-2">{timeAgo(visible[0].created_at)}</span>
+        </div>
+        <span
+          className="ml-auto text-[9px] font-bold uppercase tracking-widest text-gold-deep bg-gold-wash border border-gold-soft px-2 py-0.5 rounded-full flex-shrink-0"
+          style={{ fontFamily: "var(--font-accent)" }}
+        >
+          Thread · {visible.length}
+        </span>
+      </div>
+
+      {/* Thread posts connected with line */}
+      <div className="ml-4 pl-4 border-l-2 border-stone-edge space-y-3">
+        {visible.map((post, i) => {
+          const isOwn = !!(userId && post.user_id && userId === post.user_id);
+          const isEditing = editingId === post.id;
+
+          return (
+            <div key={post.id} className="relative group">
+              {isEditing ? (
+                <div className="space-y-2">
+                  <textarea
+                    value={editContents[post.id] ?? post.content ?? ""}
+                    onChange={(e) =>
+                      setEditContents((prev) => ({ ...prev, [post.id]: e.target.value }))
+                    }
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter" && (e.metaKey || e.ctrlKey)) handleSave(post.id);
+                      if (e.key === "Escape") setEditingId(null);
+                    }}
+                    autoFocus
+                    rows={3}
+                    className="w-full px-4 py-3 rounded-2xl border border-gold bg-parchment-soft text-ink text-sm focus:outline-none focus:ring-1 focus:ring-gold resize-none leading-relaxed"
+                  />
+                  <div className="flex gap-2">
+                    <button
+                      onClick={() => handleSave(post.id)}
+                      className="px-4 py-1.5 rounded-full bg-ink text-vellum text-xs font-bold uppercase tracking-widest hover:bg-stone transition-colors"
+                      style={{ fontFamily: "var(--font-accent)" }}
+                    >
+                      Save
+                    </button>
+                    <button
+                      onClick={() => setEditingId(null)}
+                      className="px-4 py-1.5 rounded-full border border-stone-edge text-stone-mid text-xs font-semibold hover:border-gold hover:text-ink transition-colors"
+                    >
+                      Cancel
+                    </button>
+                  </div>
+                </div>
+              ) : (
+                <div className="flex items-start justify-between gap-2">
+                  <p className="text-sm text-ink leading-relaxed whitespace-pre-wrap flex-1">
+                    {post.content}
+                  </p>
+                  {isOwn && (
+                    <div className="relative flex-shrink-0 opacity-0 group-hover:opacity-100 transition-opacity" ref={openMenuId === post.id ? menuRef : null}>
+                      <button
+                        onClick={() => setOpenMenuId(openMenuId === post.id ? null : post.id)}
+                        className="w-6 h-6 flex items-center justify-center rounded-full text-stone-light hover:text-ink hover:bg-parchment-soft transition-colors text-base leading-none"
+                      >
+                        ···
+                      </button>
+                      {openMenuId === post.id && (
+                        <div className="absolute right-0 top-full mt-1 bg-white border border-stone-edge rounded-xl shadow-lg z-20 py-1 min-w-[120px]">
+                          <button
+                            onClick={() => {
+                              setEditContents((prev) => ({ ...prev, [post.id]: post.content ?? "" }));
+                              setEditingId(post.id);
+                              setOpenMenuId(null);
+                            }}
+                            className="w-full text-left px-4 py-2 text-sm text-ink hover:bg-parchment-soft transition-colors"
+                          >
+                            Edit
+                          </button>
+                          <button
+                            onClick={() => { setOpenMenuId(null); handleDelete(post.id); }}
+                            className="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50 transition-colors"
+                          >
+                            Delete
+                          </button>
+                        </div>
+                      )}
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {/* Reply link on last post — always links to the first post so the full thread loads */}
+              {i === visible.length - 1 && !isEditing && (
+                <Link
+                  href={`/talk-it-over/discussion/${visible[0].id}`}
+                  className="mt-2 text-xs font-bold text-stone-light hover:text-gold transition-colors uppercase tracking-widest inline-block"
+                  style={{ fontFamily: "var(--font-accent)" }}
+                >
+                  Reply to thread →
+                </Link>
+              )}
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
+}

@@ -190,6 +190,7 @@ export async function adminUpdateLibraryApproval(
     if (approved && item?.user_id) {
       try {
         const { sendApprovalEmail } = await import("@/lib/email");
+        const { notifyItemApproved } = await import("@/lib/notification-actions");
         const { data: profile } = await supabase
           .from("profiles")
           .select("full_name")
@@ -197,6 +198,9 @@ export async function adminUpdateLibraryApproval(
           .single();
         const { data: authUser } = await supabase.auth.admin.getUserById(item.user_id);
         const email = authUser?.user?.email;
+        // In-app notification
+        await notifyItemApproved(item.user_id, item.title, id);
+        // Email notification
         if (email) {
           const firstName = (profile?.full_name ?? "").split(" ")[0];
           await sendApprovalEmail(email, firstName, item.title, id);

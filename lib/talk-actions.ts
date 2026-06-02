@@ -28,6 +28,18 @@ export async function getPlan(planId: string) {
   return data;
 }
 
+/** All posts that share a thread_id, ordered by thread_index */
+export async function getThreadPosts(threadId: string) {
+  const supabase = getSupabase();
+  const { data, error } = await supabase
+    .from("discussions")
+    .select("*")
+    .eq("thread_id", threadId)
+    .order("thread_index", { ascending: true });
+  if (error) return [];
+  return data || [];
+}
+
 /** Numbered day-discussion threads (day_number IS NOT NULL), ordered by day */
 export async function getDayDiscussionsForPlan(planId: string) {
   const supabase = getSupabase();

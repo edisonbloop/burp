@@ -5,6 +5,7 @@ import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 import AuthMenu from "@/components/AuthMenu";
+import NotificationBell from "@/components/NotificationBell";
 
 const links = [
   { href: "/talk-it-over", label: "Talk It Over" },
@@ -50,11 +51,13 @@ export default function SiteNav() {
               {label}
             </Link>
           ))}
+          <NotificationBell />
           <AuthMenu />
         </nav>
 
-        {/* Mobile right side: auth + hamburger */}
-        <div className="flex items-center gap-3 md:hidden">
+        {/* Mobile right side: bell + auth + hamburger */}
+        <div className="flex items-center gap-2 md:hidden">
+          <NotificationBell />
           <AuthMenu />
           <button
             onClick={() => setOpen(o => !o)}
