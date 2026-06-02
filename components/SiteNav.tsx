@@ -5,7 +5,13 @@ import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 import AuthMenu from "@/components/AuthMenu";
-import NotificationBell from "@/components/NotificationBell";
+import dynamic from "next/dynamic";
+
+// ssr: false — bell uses Supabase auth + Realtime which only works in the browser
+const NotificationBell = dynamic(() => import("@/components/NotificationBell"), {
+  ssr: false,
+  loading: () => <div className="w-8 h-8" />, // stable placeholder so layout doesn't shift
+});
 
 const links = [
   { href: "/talk-it-over", label: "Talk It Over" },

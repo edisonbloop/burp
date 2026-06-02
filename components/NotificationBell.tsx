@@ -1,15 +1,10 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { getSupabaseBrowserClient } from "@/lib/supabase-client";
-import {
-  getNotifications,
-  markNotificationRead,
-  markAllNotificationsRead,
-  type AppNotification,
-} from "@/lib/notification-actions";
+import type { AppNotification } from "@/lib/notification-actions";
+import { markNotificationRead, markAllNotificationsRead } from "@/lib/notification-actions";
 
 function timeAgo(dateStr: string) {
   const diff = Date.now() - new Date(dateStr).getTime();
@@ -25,18 +20,18 @@ function timeAgo(dateStr: string) {
 }
 
 function typeIcon(type: string) {
-  switch (type) {
-    case "reply":    return "💬";
-    case "approved": return "✅";
-    case "mention":  return "👋";
-    default:         return "🔔";
-  }
+  if (type === "reply")    return "💬";
+  if (type === "approved") return "✅";
+  return "🔔";
 }
 
 export default function NotificationBell() {
-  const supabase = getSupabaseBrowserClient();
   const router = useRouter();
   const dropRef = useRef<HTMLDivElement>(null);
+
+  // Stable supabase reference — never changes after mount
+  const supabaseRef = useRef(getSupabaseBrowserClient());
+  const supabase = supabaseRef.current;
 
   const [userId, setUserId] = useState<string | null>(null);
   const [notifs, setNotifs] = useState<AppNotification[]>([]);
@@ -45,17 +40,32 @@ export default function NotificationBell() {
 
   const unread = notifs.filter((n) => !n.read).length;
 
-  // Auth + initial fetch
+  // Auth + initial fetch — direct Supabase query (no server action proxy)
   useEffect(() => {
+    let cancelled = false;
+
     supabase.auth.getSession().then(async ({ data: { session } }) => {
-      if (!session?.user) return;
-      setUserId(session.user.id);
+      if (!session?.user || cancelled) return;
+      const uid = session.user.id;
+      setUserId(uid);
       setLoading(true);
-      const data = await getNotifications(session.user.id);
-      setNotifs(data);
-      setLoading(false);
+
+      const { data } = await supabase
+        .from("notifications")
+        .select("*")
+        .eq("user_id", uid)
+        .order("created_at", { ascending: false })
+        .limit(20);
+
+      if (!cancelled) {
+        setNotifs((data ?? []) as AppNotification[]);
+        setLoading(false);
+      }
     });
-  }, [supabase]);
+
+    return () => { cancelled = true; };
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []); // run once on mount only
 
   // Realtime — instant bell update when a new notification arrives
   useEffect(() => {
@@ -78,7 +88,8 @@ export default function NotificationBell() {
       .subscribe();
 
     return () => { supabase.removeChannel(channel); };
-  }, [supabase, userId]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [userId]); // only re-subscribe if userId changes
 
   // Close on outside click
   useEffect(() => {
@@ -89,8 +100,6 @@ export default function NotificationBell() {
     document.addEventListener("mousedown", handler);
     return () => document.removeEventListener("mousedown", handler);
   }, [open]);
-
-  const handleOpen = () => setOpen((o) => !o);
 
   const handleClick = async (notif: AppNotification) => {
     setOpen(false);
@@ -107,14 +116,14 @@ export default function NotificationBell() {
     setNotifs((prev) => prev.map((n) => ({ ...n, read: true })));
   };
 
-  // Don't render anything if not signed in
+  // Only render once signed in
   if (!userId) return null;
 
   return (
     <div className="relative" ref={dropRef}>
       {/* Bell button */}
       <button
-        onClick={handleOpen}
+        onClick={() => setOpen((o) => !o)}
         aria-label={`Notifications${unread > 0 ? ` (${unread} unread)` : ""}`}
         className="relative w-8 h-8 flex items-center justify-center rounded-full text-stone-mid hover:text-ink hover:bg-parchment-deep transition-colors"
       >
@@ -122,7 +131,6 @@ export default function NotificationBell() {
           <path d="M10 2a6 6 0 0 0-6 6c0 3.5-1.5 5-1.5 5h15s-1.5-1.5-1.5-5a6 6 0 0 0-6-6z" />
           <path d="M11.73 17a2 2 0 0 1-3.46 0" />
         </svg>
-        {/* Unread badge */}
         {unread > 0 && (
           <span className="absolute -top-0.5 -right-0.5 min-w-[16px] h-4 px-1 bg-gold rounded-full flex items-center justify-center text-[9px] font-bold text-vellum leading-none">
             {unread > 9 ? "9+" : unread}
@@ -133,12 +141,8 @@ export default function NotificationBell() {
       {/* Dropdown */}
       {open && (
         <div className="absolute right-0 top-full mt-2.5 w-80 sm:w-96 bg-parchment-soft border border-stone-edge rounded-2xl shadow-xl z-50 overflow-hidden">
-          {/* Header */}
           <div className="flex items-center justify-between px-4 py-3 border-b border-stone-edge">
-            <h3
-              className="text-sm font-bold text-ink"
-              style={{ fontFamily: "var(--font-display)" }}
-            >
+            <h3 className="text-sm font-bold text-ink" style={{ fontFamily: "var(--font-display)" }}>
               Notifications
             </h3>
             {unread > 0 && (
@@ -152,7 +156,6 @@ export default function NotificationBell() {
             )}
           </div>
 
-          {/* List */}
           <div className="max-h-[420px] overflow-y-auto">
             {loading && (
               <div className="py-10 text-center">
@@ -178,18 +181,13 @@ export default function NotificationBell() {
                   !notif.read ? "bg-gold-wash/40" : ""
                 }`}
               >
-                {/* Icon */}
                 <span className="text-xl flex-shrink-0 mt-0.5">{typeIcon(notif.type)}</span>
-
-                {/* Content */}
                 <div className="flex-1 min-w-0">
                   <p className={`text-sm leading-snug ${!notif.read ? "font-semibold text-ink" : "text-stone-mid"}`}>
                     {notif.message}
                   </p>
                   <p className="text-[10px] text-stone-light mt-1">{timeAgo(notif.created_at)}</p>
                 </div>
-
-                {/* Unread dot */}
                 {!notif.read && (
                   <div className="w-2 h-2 rounded-full bg-gold flex-shrink-0 mt-1.5" />
                 )}
