@@ -2,6 +2,8 @@ import Link from "next/link";
 import type { Metadata } from "next";
 import SiteNav from "@/components/SiteNav";
 import { BIBLE_CHARACTERS } from "@/lib/bible-characters";
+import { BIBLE_QUOTES } from "@/lib/bible-quotes";
+import { TRUE_FALSE_STATEMENTS } from "@/lib/bible-true-false";
 
 export const metadata: Metadata = {
   title: "Bible Games — BURP",
@@ -17,11 +19,36 @@ const AVAILABLE = [
     description: "Four emoji clues are all you get. Can you name the Bible character?",
     stat: `${BIBLE_CHARACTERS.length}`,
     statLabel: "characters",
-    difficulty: "Easy–Hard",
     color: "bg-gold-wash",
     border: "border-gold-soft",
     titleColor: "text-gold-deep",
     badgeColor: "bg-gold text-vellum",
+  },
+  {
+    href: "/games/who-said-it",
+    emoji: "💬",
+    title: "Who Said It?",
+    tagline: "Famous quotes. Real speakers.",
+    description: "A Bible quote appears. Four names to choose from. One is right — are you sure which?",
+    stat: `${BIBLE_QUOTES.length}`,
+    statLabel: "quotes",
+    color: "bg-parchment-soft",
+    border: "border-stone-edge",
+    titleColor: "text-ink",
+    badgeColor: "bg-ink text-vellum",
+  },
+  {
+    href: "/games/true-or-false",
+    emoji: "⚡",
+    title: "True or False",
+    tagline: "Fast-fire. Timer ticking.",
+    description: "Bible statements flash up. Is it TRUE or FALSE? You have 12 seconds. Some will surprise you.",
+    stat: `${TRUE_FALSE_STATEMENTS.length}`,
+    statLabel: "statements",
+    color: "bg-[#fff8f0]",
+    border: "border-orange-200",
+    titleColor: "text-orange-900",
+    badgeColor: "bg-orange-500 text-white",
   },
 ];
 
@@ -32,14 +59,14 @@ const COMING_SOON = [
     description: "Fill in the missing word from famous Scripture passages.",
   },
   {
-    emoji: "🗺️",
-    title: "Bible Books in Order",
-    description: "Arrange the books of the Bible in the correct sequence.",
+    emoji: "🔗",
+    title: "Bible Connections",
+    description: "Group 16 Bible items into 4 hidden categories. Think carefully.",
   },
   {
     emoji: "⏱️",
     title: "Speed Round",
-    description: "30 seconds. As many Bible facts as you can name.",
+    description: "60 seconds. As many Bible facts as you can answer.",
   },
 ];
 
@@ -83,7 +110,7 @@ export default function GamesPage() {
         </p>
 
         <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
-          {AVAILABLE.map(({ href, emoji, title, tagline, description, stat, statLabel, difficulty, color, border, titleColor, badgeColor }) => (
+          {AVAILABLE.map(({ href, emoji, title, tagline, description, stat, statLabel, color, border, titleColor, badgeColor }) => (
             <Link
               key={title}
               href={href}
