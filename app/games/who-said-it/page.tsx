@@ -105,6 +105,19 @@ export default function WhoSaidItPage() {
     setPhase("playing"); setScore(0); setStreak(0);
   };
 
+  useEffect(() => {
+    if (phase !== "finished" || total === 0) return;
+    const key = "burp_game_whosaidit";
+    const prev = JSON.parse(localStorage.getItem(key) ?? "{}");
+    const pct = Math.round((score / total) * 100);
+    localStorage.setItem(key, JSON.stringify({
+      bestPct: Math.max(pct, prev.bestPct ?? 0),
+      bestStreak: Math.max(bestStreak, prev.bestStreak ?? 0),
+      gamesPlayed: (prev.gamesPlayed ?? 0) + 1,
+      lastPlayed: new Date().toISOString(),
+    }));
+  }, [phase, score, total, bestStreak]);
+
   // ── Finished ─────────────────────────────────────────────────────────────
   if (phase === "finished") {
     const pct = Math.round((score / total) * 100);

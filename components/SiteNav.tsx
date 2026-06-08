@@ -20,6 +20,7 @@ const links = [
   { href: "/sharehouse",   label: "Sharehouse"   },
   { href: "/attributes",   label: "Attributes"   },
   { href: "/100stones",    label: "100 Stones"   },
+  { href: "/games",        label: "Games"        },
 ];
 
 export default function SiteNav() {

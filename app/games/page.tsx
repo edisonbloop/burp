@@ -4,6 +4,7 @@ import SiteNav from "@/components/SiteNav";
 import { BIBLE_CHARACTERS } from "@/lib/bible-characters";
 import { BIBLE_QUOTES } from "@/lib/bible-quotes";
 import { TRUE_FALSE_STATEMENTS } from "@/lib/bible-true-false";
+import { formatDailyDate, getToday } from "@/lib/daily-challenge";
 
 export const metadata: Metadata = {
   title: "Bible Games — BURP",
@@ -71,6 +72,7 @@ const COMING_SOON = [
 ];
 
 export default function GamesPage() {
+  const today = getToday();
   return (
     <div className="min-h-screen flex flex-col bg-vellum">
       <SiteNav />
@@ -100,13 +102,55 @@ export default function GamesPage() {
         </p>
       </section>
 
-      {/* ── Available games ── */}
-      <section className="max-w-5xl mx-auto px-6 pt-12 pb-4 w-full">
+      {/* ── Daily Challenge ── */}
+      <section className="max-w-5xl mx-auto px-6 pt-10 pb-2 w-full">
         <p
           className="text-[10px] font-bold tracking-[0.4em] uppercase text-stone-light mb-5"
           style={{ fontFamily: "var(--font-accent)" }}
         >
-          Play Now
+          Today&rsquo;s Challenge
+        </p>
+        <Link
+          href="/games/daily"
+          className="group flex flex-col sm:flex-row sm:items-center gap-6 bg-ink text-vellum rounded-3xl px-8 py-7 hover:bg-stone transition-colors mb-10"
+        >
+          <div className="flex-shrink-0 text-6xl">📅</div>
+          <div className="flex-1 min-w-0">
+            <div className="flex items-center gap-3 mb-1">
+              <span
+                className="text-[9px] font-bold uppercase tracking-widest px-2.5 py-1 rounded-full bg-gold text-vellum"
+                style={{ fontFamily: "var(--font-accent)" }}
+              >
+                Daily
+              </span>
+              <span className="text-xs text-vellum/60 font-medium">{formatDailyDate(today)}</span>
+            </div>
+            <h2
+              className="text-2xl font-bold text-vellum mb-1 leading-snug"
+              style={{ fontFamily: "var(--font-display)" }}
+            >
+              Daily Bible Challenge
+            </h2>
+            <p className="text-sm text-vellum/70 leading-relaxed">
+              5 questions. Same for everyone. New puzzle every day at midnight.
+            </p>
+          </div>
+          <span
+            className="text-xs font-bold text-gold uppercase tracking-widest group-hover:translate-x-1 transition-transform flex-shrink-0"
+            style={{ fontFamily: "var(--font-accent)" }}
+          >
+            Play Today →
+          </span>
+        </Link>
+      </section>
+
+      {/* ── Available games ── */}
+      <section className="max-w-5xl mx-auto px-6 pt-2 pb-4 w-full">
+        <p
+          className="text-[10px] font-bold tracking-[0.4em] uppercase text-stone-light mb-5"
+          style={{ fontFamily: "var(--font-accent)" }}
+        >
+          Play Anytime
         </p>
 
         <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-5">

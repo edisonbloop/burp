@@ -6,6 +6,7 @@ import { getSupabaseBrowserClient } from "@/lib/supabase-client";
 import { getUserLibraryItems, getUserComments } from "@/lib/dashboard-actions";
 import { getReadingPlans } from "@/lib/talk-actions";
 import type { LibraryItem } from "@/types/library";
+import { getDailyKey, getToday, formatDailyDate, type DailyResult } from "@/lib/daily-challenge";
 
 type Comment = {
   id: string;
@@ -23,6 +24,9 @@ type Comment = {
 
 type Plan = { id: string; title: string; description?: string };
 
+type GameStat = { bestPct: number; bestStreak: number; gamesPlayed: number; lastPlayed?: string };
+type GameStats = { guess: GameStat; whosaidit: GameStat; trueorfalse: GameStat };
+
 const TYPE_LABELS: Record<string, string> = {
   poems: "Poem",
   "write-ups": "Write-Up",
@@ -38,6 +42,21 @@ export default function DashboardPage() {
   const [comments, setComments] = useState<Comment[]>([]);
   const [plans, setPlans] = useState<Plan[]>([]);
   const [loading, setLoading] = useState(true);
+  const [gameStats, setGameStats] = useState<GameStats | null>(null);
+  const [dailyResult, setDailyResult] = useState<DailyResult | null>(null);
+  const [today] = useState(() => getToday());
+
+  useEffect(() => {
+    const read = (key: string): GameStat =>
+      JSON.parse(localStorage.getItem(key) ?? "{}") as GameStat;
+    setGameStats({
+      guess:        read("burp_game_guess"),
+      whosaidit:    read("burp_game_whosaidit"),
+      trueorfalse:  read("burp_game_trueorfalse"),
+    });
+    const stored = localStorage.getItem(getDailyKey(today));
+    if (stored) setDailyResult(JSON.parse(stored) as DailyResult);
+  }, [today]);
 
   useEffect(() => {
     supabase.auth.getSession().then(async ({ data: { session } }) => {
@@ -137,6 +156,128 @@ export default function DashboardPage() {
           </div>
         ))}
       </div>
+
+      {/* ── Games ── */}
+      {gameStats && (
+        <section className="mb-12">
+          <div className="flex items-center justify-between mb-5">
+            <h2
+              className="text-2xl font-bold text-ink"
+              style={{ fontFamily: "var(--font-display)" }}
+            >
+              My Games
+            </h2>
+            <Link
+              href="/games"
+              className="text-xs font-bold tracking-widest text-gold uppercase hover:text-gold-deep transition-colors"
+              style={{ fontFamily: "var(--font-accent)" }}
+            >
+              Play →
+            </Link>
+          </div>
+
+          {(() => {
+            const rows = [
+              { key: "guess",        label: "Guess the Character", emoji: "🎭", stat: gameStats.guess        },
+              { key: "whosaidit",    label: "Who Said It?",        emoji: "💬", stat: gameStats.whosaidit    },
+              { key: "trueorfalse",  label: "True or False",       emoji: "⚡", stat: gameStats.trueorfalse  },
+            ];
+            const totalPlayed = rows.reduce((s, r) => s + (r.stat.gamesPlayed ?? 0), 0);
+            const overallBestStreak = rows.reduce((s, r) => Math.max(s, r.stat.bestStreak ?? 0), 0);
+
+            if (totalPlayed === 0) {
+              return (
+                <div className="bg-parchment-soft border border-stone-edge rounded-2xl p-8 text-center">
+                  <p className="text-stone-mid">You haven&rsquo;t played any games yet.</p>
+                  <Link
+                    href="/games"
+                    className="text-sm text-gold font-semibold mt-3 inline-block hover:underline"
+                  >
+                    Start playing →
+                  </Link>
+                </div>
+              );
+            }
+
+            return (
+              <div className="space-y-3">
+                {/* Daily challenge card */}
+                {dailyResult?.completed ? (
+                  <div className="flex items-center justify-between bg-[#f0f7eb] border border-[#b5d99a] rounded-2xl px-5 py-4">
+                    <div className="flex items-center gap-3">
+                      <span className="text-2xl">📅</span>
+                      <div>
+                        <p className="text-xs font-bold text-[#4a7a30] uppercase tracking-widest" style={{ fontFamily: "var(--font-accent)" }}>
+                          Daily Challenge — {formatDailyDate(today)}
+                        </p>
+                        <p className="text-sm font-semibold text-ink mt-0.5">
+                          Completed ✓ &nbsp;{dailyResult.score}/{dailyResult.total} correct
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                ) : (
+                  <Link
+                    href="/games/daily"
+                    className="flex items-center justify-between bg-ink text-vellum rounded-2xl px-5 py-4 hover:bg-stone transition-colors group"
+                  >
+                    <div className="flex items-center gap-3">
+                      <span className="text-2xl">📅</span>
+                      <div>
+                        <p className="text-xs font-bold text-gold uppercase tracking-widest" style={{ fontFamily: "var(--font-accent)" }}>
+                          Daily Challenge — {formatDailyDate(today)}
+                        </p>
+                        <p className="text-sm font-semibold text-vellum/80 mt-0.5">Not played yet</p>
+                      </div>
+                    </div>
+                    <span className="text-xs font-bold text-gold uppercase tracking-widest group-hover:translate-x-1 transition-transform" style={{ fontFamily: "var(--font-accent)" }}>
+                      Play →
+                    </span>
+                  </Link>
+                )}
+
+                {/* Summary bar */}
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-4">
+                  {[
+                    { value: totalPlayed,                                    label: "Games Played" },
+                    { value: overallBestStreak > 0 ? `${overallBestStreak} 🔥` : "—", label: "Best Streak"  },
+                  ].map(({ value, label }) => (
+                    <div key={label} className="bg-parchment-soft border border-stone-edge rounded-2xl p-5">
+                      <p className="text-4xl font-bold text-ink leading-none" style={{ fontFamily: "var(--font-display)" }}>
+                        {value}
+                      </p>
+                      <p className="text-xs text-stone-light uppercase tracking-wider mt-2">{label}</p>
+                    </div>
+                  ))}
+                </div>
+
+                {/* Per-game cards */}
+                <div className="grid gap-4 sm:grid-cols-3">
+                  {rows.map(({ key, label, emoji, stat }) => (
+                    <div key={key} className="bg-parchment-soft border border-stone-edge rounded-2xl p-5">
+                      <div className="flex items-center gap-2 mb-3">
+                        <span className="text-2xl">{emoji}</span>
+                        <p className="text-sm font-bold text-ink" style={{ fontFamily: "var(--font-display)" }}>{label}</p>
+                      </div>
+                      {stat.gamesPlayed > 0 ? (
+                        <div className="flex items-center gap-4 text-sm text-stone-mid">
+                          <span>Best <span className="font-bold text-ink">{stat.bestPct ?? 0}%</span></span>
+                          {(stat.bestStreak ?? 0) > 0 && (
+                            <span>Streak <span className="font-bold text-gold-deep">{stat.bestStreak} 🔥</span></span>
+                          )}
+                          <span className="ml-auto text-xs text-stone-light">{stat.gamesPlayed}×</span>
+                        </div>
+                      ) : (
+                        <p className="text-xs text-stone-light">Not played yet</p>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              </div>
+            );
+          })()}
+        </section>
+      )}
 
       {/* ── My Submissions ── */}
       <section className="mb-12">
