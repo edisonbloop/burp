@@ -369,7 +369,6 @@ function RichTextSection({
   label?: string;
   placeholder?: string;
 }) {
-  const RichTextEditor = dynamic(() => import("@/components/RichTextEditor"), { ssr: false });
   return (
     <div>
       <label className="block text-xs font-bold tracking-widest uppercase text-stone mb-1.5" style={{ fontFamily: "var(--font-accent)" }}>

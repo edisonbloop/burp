@@ -55,7 +55,7 @@ export default function RichTextEditor({
 
   // Sync external value changes (e.g. form reset)
   useEffect(() => {
-    if (editor && value === "") {
+    if (editor && !editor.isDestroyed && value === "") {
       editor.commands.clearContent();
     }
   }, [editor, value]);

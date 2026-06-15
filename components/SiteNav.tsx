@@ -16,7 +16,6 @@ const NotificationBell = dynamic(() => import("@/components/NotificationBell"), 
 const links = [
   { href: "/talk-it-over", label: "Talk It Over" },
   { href: "/library",      label: "Library"      },
-  { href: "/community",    label: "Community"    },
   { href: "/sharehouse",   label: "Sharehouse"   },
   { href: "/attributes",   label: "Attributes"   },
   { href: "/100stones",    label: "100 Stones"   },
