@@ -48,6 +48,34 @@ export async function adminGetReferences() {
   }
 }
 
+export async function adminUpdateAttribute(
+  id: string,
+  fields: {
+    name: string;
+    description: string;
+    content: string;
+    passageBook?: string;
+  }
+): Promise<{ error?: string }> {
+  try {
+    const supabase = getSupabase();
+    const { error } = await supabase
+      .from("god_attributes")
+      .update({
+        name: fields.name.trim(),
+        description: fields.description.trim() || null,
+        content: fields.content || null,
+        passage_book: fields.passageBook?.trim() || null,
+      })
+      .eq("id", id);
+    if (error) return { error: error.message };
+    revalidateAll();
+    return {};
+  } catch (e) {
+    return { error: e instanceof Error ? e.message : "Something went wrong." };
+  }
+}
+
 export async function adminUpdateAttributeApproval(
   id: string,
   approved: boolean

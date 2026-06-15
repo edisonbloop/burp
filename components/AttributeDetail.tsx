@@ -116,15 +116,7 @@ export default function AttributeDetail({
       )}
 
       {/* References */}
-      {refs.length === 0 ? (
-        <div className="text-center py-16 text-stone-mid">
-          <p className="text-4xl mb-3">📖</p>
-          <p className="text-lg" style={{ fontFamily: "var(--font-display)" }}>
-            No scripture references yet.
-          </p>
-          <p className="text-sm mt-1">Be the first to add one below.</p>
-        </div>
-      ) : filteredRefs.length === 0 ? (
+      {refs.length === 0 ? null : filteredRefs.length === 0 ? (
         <p className="text-center text-stone-mid py-8 text-sm">
           No references from {selectedBook}.
         </p>
@@ -149,7 +141,7 @@ export default function AttributeDetail({
       )}
 
       {/* Add Reference section */}
-      <div className="mt-14 border-t border-stone-edge pt-10">
+      <div className="mt-8 border-t border-stone-edge pt-8">
         {submitted && (
           <div className="mb-6 rounded-2xl bg-green-50 border border-green-200 px-5 py-4 text-sm text-green-800">
             ✓ Your reference was submitted and will appear after review. Thank you!

@@ -4,16 +4,18 @@ import { useState, useTransition } from "react";
 import dynamic from "next/dynamic";
 import { useRouter } from "next/navigation";
 import {
+  adminUpdateAttribute,
   adminUpdateAttributeApproval,
   adminUpdateAttributeFeatured,
   adminDeleteAttribute,
   adminUpdateReferenceApproval,
   adminDeleteReference,
 } from "@/lib/admin-attribute-actions";
-import { formatCitation, formatPassage } from "@/types/attributes";
+import { formatCitation, formatPassage, BIBLE_BOOKS } from "@/types/attributes";
 import type { GodAttribute, AttributeReference } from "@/types/attributes";
 
 const RichTextContent = dynamic(() => import("@/components/RichTextContent"), { ssr: false });
+const RichTextEditor = dynamic(() => import("@/components/RichTextEditor"), { ssr: false });
 
 interface AttributeWithRefs extends GodAttribute {
   references: AttributeReference[];
@@ -112,6 +114,7 @@ function AttributesView({
   const [filter, setFilter] = useState<"all" | "pending" | "approved">("pending");
   const [search, setSearch] = useState("");
   const [expanded, setExpanded] = useState<string | null>(null);
+  const [editing, setEditing] = useState<string | null>(null);
 
   const pending = attributes.filter((a) => !a.approved).length;
 
@@ -288,6 +291,16 @@ function AttributesView({
                     </button>
                     <button
                       onClick={() => {
+                        setExpanded(attr.id);
+                        setEditing(editing === attr.id ? null : attr.id);
+                      }}
+                      disabled={isPending}
+                      className="text-sm px-4 py-2 rounded-lg border border-stone-edge text-stone-mid hover:border-gold hover:text-ink font-bold transition-colors disabled:opacity-50"
+                    >
+                      Edit
+                    </button>
+                    <button
+                      onClick={() => {
                         if (
                           confirm(
                             `Delete "${attr.name}" and all its references? This cannot be undone.`
@@ -303,52 +316,55 @@ function AttributesView({
                   </div>
                 </div>
 
-                {/* Expanded: nested references */}
+                {/* Expanded panel */}
                 {isExpanded && (
                   <div className="border-t border-stone-edge/50 bg-parchment-soft px-5 py-4 space-y-3">
-                    {attr.description && (
-                      <p className="text-base text-stone-mid italic">{attr.description}</p>
-                    )}
-                    {attr.content && (
-                      <div className="bg-white rounded-xl border border-stone-edge px-5 py-4">
-                        <p
-                          className="text-xs font-bold tracking-widest uppercase text-gold-deep mb-3"
-                          style={{ fontFamily: "var(--font-accent)" }}
-                        >
-                          Full Reflection
-                        </p>
-                        <RichTextContent html={attr.content} />
-                      </div>
-                    )}
-                    {attr.references && attr.references.length > 0 ? (
-                      <div className="space-y-2">
-                        <p
-                          className="text-xs font-bold tracking-widest uppercase text-stone"
-                          style={{ fontFamily: "var(--font-accent)" }}
-                        >
-                          Scripture References
-                        </p>
-                        {attr.references.map((ref) => (
-                          <NestedRefRow
-                            key={ref.id}
-                            ref_={ref}
-                            isPending={isPending}
-                            act={act}
-                          />
-                        ))}
-                      </div>
+                    {editing === attr.id ? (
+                      <AttributeEditForm
+                        attr={attr}
+                        isPending={isPending}
+                        act={act}
+                        onDone={() => setEditing(null)}
+                      />
                     ) : (
-                      <p className="text-sm text-stone-light">No references submitted yet.</p>
+                      <>
+                        {attr.description && (
+                          <p className="text-base text-stone-mid italic">{attr.description}</p>
+                        )}
+                        {attr.content && (
+                          <div className="bg-white rounded-xl border border-stone-edge px-5 py-4">
+                            <RichTextContent html={attr.content} />
+                          </div>
+                        )}
+                        {attr.references && attr.references.length > 0 ? (
+                          <div className="space-y-2">
+                            <p
+                              className="text-xs font-bold tracking-widest uppercase text-stone"
+                              style={{ fontFamily: "var(--font-accent)" }}
+                            >
+                              Scripture References
+                            </p>
+                            {attr.references.map((ref) => (
+                              <NestedRefRow
+                                key={ref.id}
+                                ref_={ref}
+                                isPending={isPending}
+                                act={act}
+                              />
+                            ))}
+                          </div>
+                        ) : null}
+                        <p className="text-sm text-stone-light">
+                          Submitted{" "}
+                          {new Date(attr.created_at).toLocaleDateString("en-US", {
+                            year: "numeric",
+                            month: "long",
+                            day: "numeric",
+                          })}
+                          {attr.submitted_by && ` by ${attr.submitted_by}`}
+                        </p>
+                      </>
                     )}
-                    <p className="text-sm text-stone-light">
-                      Submitted{" "}
-                      {new Date(attr.created_at).toLocaleDateString("en-US", {
-                        year: "numeric",
-                        month: "long",
-                        day: "numeric",
-                      })}
-                      {attr.submitted_by && ` by ${attr.submitted_by}`}
-                    </p>
                   </div>
                 )}
               </div>
@@ -356,6 +372,104 @@ function AttributesView({
           })}
         </div>
       )}
+    </div>
+  );
+}
+
+const inputCls =
+  "w-full px-3 py-2 rounded-xl border border-stone-edge bg-white text-ink placeholder:text-stone-light focus:outline-none focus:ring-1 focus:ring-gold focus:border-gold transition text-sm";
+
+function AttributeEditForm({
+  attr,
+  isPending,
+  act,
+  onDone,
+}: {
+  attr: AttributeWithRefs;
+  isPending: boolean;
+  act: (fn: () => Promise<{ error?: string }>) => void;
+  onDone: () => void;
+}) {
+  const [name, setName] = useState(attr.name);
+  const [description, setDescription] = useState(attr.description ?? "");
+  const [content, setContent] = useState(attr.content ?? "");
+  const [passageBook, setPassageBook] = useState(attr.passage_book ?? "");
+
+  function handleSave() {
+    act(async () => {
+      const result = await adminUpdateAttribute(attr.id, {
+        name,
+        description,
+        content,
+        passageBook: attr.entry_type === "book" ? passageBook : undefined,
+      });
+      if (!result.error) onDone();
+      return result;
+    });
+  }
+
+  return (
+    <div className="space-y-4">
+      <p
+        className="text-xs font-bold tracking-widest uppercase text-gold-deep"
+        style={{ fontFamily: "var(--font-accent)" }}
+      >
+        Editing
+      </p>
+
+      {attr.entry_type === "book" && (
+        <div>
+          <label className="block text-xs font-semibold text-stone mb-1">Bible Book</label>
+          <select className={inputCls} value={passageBook} onChange={(e) => setPassageBook(e.target.value)}>
+            <option value="">Select a book…</option>
+            <optgroup label="Old Testament">
+              {BIBLE_BOOKS.slice(0, 39).map((b) => <option key={b} value={b}>{b}</option>)}
+            </optgroup>
+            <optgroup label="New Testament">
+              {BIBLE_BOOKS.slice(39).map((b) => <option key={b} value={b}>{b}</option>)}
+            </optgroup>
+          </select>
+        </div>
+      )}
+
+      <div>
+        <label className="block text-xs font-semibold text-stone mb-1">
+          {attr.entry_type === "book" ? "Study Title" : "Attribute Name"}
+        </label>
+        <input className={inputCls} value={name} onChange={(e) => setName(e.target.value)} />
+      </div>
+
+      <div>
+        <label className="block text-xs font-semibold text-stone mb-1">Short Summary</label>
+        <input
+          className={inputCls}
+          value={description}
+          onChange={(e) => setDescription(e.target.value)}
+          placeholder="Shown on the card"
+        />
+      </div>
+
+      <div>
+        <label className="block text-xs font-semibold text-stone mb-1">Full Reflection</label>
+        <RichTextEditor value={content} onChange={setContent} minHeight="200px" />
+      </div>
+
+      <div className="flex gap-2 pt-1">
+        <button
+          onClick={handleSave}
+          disabled={isPending || !name.trim()}
+          className="px-5 py-2 rounded-xl bg-ink text-vellum text-sm font-bold hover:bg-stone transition-colors disabled:opacity-50"
+        >
+          {isPending ? "Saving…" : "Save Changes"}
+        </button>
+        <button
+          onClick={onDone}
+          disabled={isPending}
+          className="px-5 py-2 rounded-xl border border-stone-edge text-stone-mid text-sm font-semibold hover:border-gold hover:text-ink transition-colors"
+        >
+          Cancel
+        </button>
+      </div>
     </div>
   );
 }

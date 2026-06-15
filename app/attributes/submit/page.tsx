@@ -7,6 +7,7 @@ import { submitAttribute } from "@/lib/attribute-actions";
 import { BIBLE_BOOKS } from "@/types/attributes";
 import PageHeader from "@/components/PageHeader";
 
+
 const RichTextEditor = dynamic(() => import("@/components/RichTextEditor"), { ssr: false });
 
 const inputCls =
@@ -46,7 +47,6 @@ export default function SubmitAttributePage() {
   const [description, setDescription] = useState("");
   const [content, setContent] = useState("");
   const [submittedBy, setSubmittedBy] = useState("");
-
   // Book-study fields
   const [passageBook, setPassageBook] = useState("");
 

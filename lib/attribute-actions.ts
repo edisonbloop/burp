@@ -78,7 +78,6 @@ export async function submitAttribute(params: {
       return { error: "Please select a Bible book." };
     }
 
-    // Auto-generate name for book studies if no custom title given
     const name = params.name.trim() || params.passageBook?.trim() || "";
 
     const { error } = await supabase.from("god_attributes").insert({
