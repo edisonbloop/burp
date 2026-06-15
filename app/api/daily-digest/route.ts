@@ -14,12 +14,12 @@ export async function GET(req: NextRequest) {
   try {
     const supabase = getSupabase();
 
-    // ── This week's window ──────────────────────────────────────────────────
+    // -- This week's window --------------------------------------------------
     const now      = new Date();
     const yesterday = new Date(now.getTime() - 24 * 60 * 60 * 1000);
     const since    = yesterday.toISOString();
 
-    // ── Pull stats in parallel ──────────────────────────────────────────────
+    // -- Pull stats in parallel ----------------------------------------------
     const [
       { count: postCount },
       { count: commentCount },
@@ -65,7 +65,7 @@ export async function GET(req: NextRequest) {
       return NextResponse.json({ skipped: true, reason: "Nothing new this week" });
     }
 
-    // ── Pick a snippet from the top post ────────────────────────────────────
+    // -- Pick a snippet from the top post ------------------------------------
     let snippet = "";
     if (topPosts && topPosts.length > 0) {
       const raw = topPosts[0].content ?? "";
@@ -76,7 +76,7 @@ export async function GET(req: NextRequest) {
       }
     }
 
-    // ── Compose the tweet ───────────────────────────────────────────────────
+    // -- Compose the tweet ---------------------------------------------------
     const lines: string[] = [];
 
     lines.push("Today in the Upper Room 📖");

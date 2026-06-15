@@ -12,7 +12,7 @@ const RichTextEditor = dynamic(() => import("@/components/RichTextEditor"), { ss
 const inputCls =
   "w-full px-3 py-2.5 rounded-xl border border-stone-edge bg-vellum text-ink placeholder:text-stone-light focus:outline-none focus:ring-1 focus:ring-gold focus:border-gold transition text-sm";
 
-type EntryType = "attribute" | "chapter";
+type EntryType = "attribute" | "book";
 
 const TYPE_OPTIONS: {
   id: EntryType;
@@ -29,11 +29,11 @@ const TYPE_OPTIONS: {
     example: "e.g. Omniscient · Holy · Faithful · Merciful",
   },
   {
-    id: "chapter",
+    id: "book",
     icon: "📖",
-    label: "Chapter Study",
-    sublabel: "What a Bible passage reveals about God",
-    example: "e.g. Genesis 1 · Isaiah 40 · Job 38–39 · Romans 8",
+    label: "Book Study",
+    sublabel: "What a Bible book reveals about God",
+    example: "e.g. Genesis · Job · Isaiah · Romans · Revelation",
   },
 ];
 
@@ -47,10 +47,8 @@ export default function SubmitAttributePage() {
   const [content, setContent] = useState("");
   const [submittedBy, setSubmittedBy] = useState("");
 
-  // Chapter-study fields
+  // Book-study fields
   const [passageBook, setPassageBook] = useState("");
-  const [passageChapter, setPassageChapter] = useState("");
-  const [passageChapterEnd, setPassageChapterEnd] = useState("");
 
   const [error, setError] = useState("");
   const [success, setSuccess] = useState(false);
@@ -61,8 +59,6 @@ export default function SubmitAttributePage() {
     setContent("");
     setSubmittedBy("");
     setPassageBook("");
-    setPassageChapter("");
-    setPassageChapterEnd("");
     setError("");
   }
 
@@ -76,8 +72,6 @@ export default function SubmitAttributePage() {
         content,
         submittedBy,
         passageBook: passageBook || undefined,
-        passageChapter: passageChapter ? parseInt(passageChapter) : null,
-        passageChapterEnd: passageChapterEnd ? parseInt(passageChapterEnd) : null,
       });
       if (result.error) {
         setError(result.error);
@@ -103,7 +97,7 @@ export default function SubmitAttributePage() {
             Thank you!
           </h2>
           <p className="text-base text-stone-mid max-w-md mb-8">
-            Your {entryType === "chapter" ? "chapter study" : "attribute"} has been submitted and
+            Your {entryType === "book" ? "book study" : "attribute"} has been submitted and
             will appear after review. We appreciate your contribution to knowing God more deeply.
           </p>
           <div className="flex flex-wrap gap-3 justify-center">
@@ -181,7 +175,7 @@ export default function SubmitAttributePage() {
           })}
         </div>
 
-        {/* ── ATTRIBUTE fields ──────────────────────────────────── */}
+        {/* -- ATTRIBUTE fields ------------------------------------ */}
         {entryType === "attribute" && (
           <div className="space-y-5">
             <div>
@@ -214,57 +208,33 @@ export default function SubmitAttributePage() {
           </div>
         )}
 
-        {/* ── CHAPTER STUDY fields ──────────────────────────────── */}
-        {entryType === "chapter" && (
+        {/* -- BOOK STUDY fields ----------------------------------- */}
+        {entryType === "book" && (
           <div className="space-y-5">
-            {/* Passage */}
+            {/* Book selector */}
             <div>
               <label className="block text-xs font-bold tracking-widest uppercase text-stone mb-1.5" style={{ fontFamily: "var(--font-accent)" }}>
-                Bible Passage <span className="text-gold">*</span>
+                Bible Book <span className="text-gold">*</span>
               </label>
-              <div className="grid grid-cols-3 gap-2">
-                <div className="col-span-3 sm:col-span-1">
-                  <select
-                    className={inputCls}
-                    value={passageBook}
-                    onChange={(e) => setPassageBook(e.target.value)}
-                  >
-                    <option value="">Book…</option>
-                    <optgroup label="Old Testament">
-                      {BIBLE_BOOKS.slice(0, 39).map((b) => (
-                        <option key={b} value={b}>{b}</option>
-                      ))}
-                    </optgroup>
-                    <optgroup label="New Testament">
-                      {BIBLE_BOOKS.slice(39).map((b) => (
-                        <option key={b} value={b}>{b}</option>
-                      ))}
-                    </optgroup>
-                  </select>
-                </div>
-                <div>
-                  <input
-                    className={inputCls}
-                    type="number"
-                    min={1}
-                    placeholder="Chapter"
-                    value={passageChapter}
-                    onChange={(e) => setPassageChapter(e.target.value)}
-                  />
-                </div>
-                <div>
-                  <input
-                    className={inputCls}
-                    type="number"
-                    min={1}
-                    placeholder="To ch. (optional)"
-                    value={passageChapterEnd}
-                    onChange={(e) => setPassageChapterEnd(e.target.value)}
-                  />
-                </div>
-              </div>
+              <select
+                className={inputCls}
+                value={passageBook}
+                onChange={(e) => setPassageBook(e.target.value)}
+              >
+                <option value="">Select a book…</option>
+                <optgroup label="Old Testament">
+                  {BIBLE_BOOKS.slice(0, 39).map((b) => (
+                    <option key={b} value={b}>{b}</option>
+                  ))}
+                </optgroup>
+                <optgroup label="New Testament">
+                  {BIBLE_BOOKS.slice(39).map((b) => (
+                    <option key={b} value={b}>{b}</option>
+                  ))}
+                </optgroup>
+              </select>
               <p className="text-xs text-stone-light mt-1">
-                Select a book and optionally a chapter or chapter range (e.g. Job 38–39).
+                Which book of the Bible does this study draw from?
               </p>
             </div>
 
@@ -273,15 +243,15 @@ export default function SubmitAttributePage() {
               <label className="block text-xs font-bold tracking-widest uppercase text-stone mb-1.5" style={{ fontFamily: "var(--font-accent)" }}>
                 Study Title{" "}
                 <span className="text-stone-light font-normal normal-case tracking-normal">
-                  (optional — auto-filled from passage)
+                  (optional — defaults to the book name)
                 </span>
               </label>
               <input
                 className={inputCls}
                 placeholder={
                   passageBook
-                    ? `e.g. ${passageBook}${passageChapter ? ` ${passageChapter}` : ""} — God's Power on Display`
-                    : "e.g. Genesis 1 — God as Creator"
+                    ? `e.g. ${passageBook} — God's Power on Display`
+                    : "e.g. Genesis — God as Creator"
                 }
                 value={name}
                 onChange={(e) => setName(e.target.value)}
@@ -296,7 +266,7 @@ export default function SubmitAttributePage() {
               </label>
               <input
                 className={inputCls}
-                placeholder="e.g. Genesis 1 reveals God as the all-powerful, intentional Creator who brings order from nothing."
+                placeholder="e.g. Genesis reveals God as the all-powerful, intentional Creator who brings order from nothing."
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}
               />
@@ -305,8 +275,8 @@ export default function SubmitAttributePage() {
             <RichTextSection
               content={content}
               onChange={setContent}
-              label="Full Chapter Reflection"
-              placeholder="Explore what this passage reveals about God — His character, His ways, what stands out to you. You can mention multiple attributes…"
+              label="Full Book Reflection"
+              placeholder="Explore what this book reveals about God — His character, His ways, what stands out to you. You can mention multiple attributes…"
             />
           </div>
         )}
@@ -341,8 +311,8 @@ export default function SubmitAttributePage() {
             >
               {isPending
                 ? "Submitting…"
-                : entryType === "chapter"
-                ? "Submit Chapter Study"
+                : entryType === "book"
+                ? "Submit Book Study"
                 : "Submit Attribute"}
             </button>
             <Link

@@ -42,7 +42,7 @@ function fmtDate(d: string) {
   });
 }
 
-// ── Palette ────────────────────────────────────────────────────────────────
+// -- Palette ----------------------------------------------------------------
 const P = {
   bg:      "#f5efe3",
   card:    "#fdf8f0",
@@ -168,7 +168,7 @@ export default function PlanExport({ planId, planTitle }: Props) {
         </button>
       </div>
 
-      {/* ── Off-screen export template ────────────────────────────────────── */}
+      {/* -- Off-screen export template -------------------------------------- */}
       <div style={{ position: "fixed", left: -9999, top: 0, pointerEvents: "none", zIndex: -1 }}>
         <div
           ref={exportRef}

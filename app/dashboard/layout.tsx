@@ -71,7 +71,7 @@ export default function DashboardLayout({
     );
   }
 
-  // ── Shared sidebar contents ────────────────────────────────────────────────
+  // -- Shared sidebar contents ------------------------------------------------
   const SidebarContents = () => (
     <>
       {/* Logo */}
@@ -162,12 +162,12 @@ export default function DashboardLayout({
   return (
     <div className="flex h-screen bg-vellum overflow-hidden">
 
-      {/* ── Desktop sidebar (always visible ≥ md) ──────────────────────────── */}
+      {/* -- Desktop sidebar (always visible ≥ md) ---------------------------- */}
       <aside className="hidden md:flex w-64 bg-parchment-soft border-r border-stone-edge flex-col flex-shrink-0">
         <SidebarContents />
       </aside>
 
-      {/* ── Mobile drawer backdrop ──────────────────────────────────────────── */}
+      {/* -- Mobile drawer backdrop -------------------------------------------- */}
       {drawerOpen && (
         <div
           className="fixed inset-0 z-40 bg-ink/40 md:hidden"
@@ -176,7 +176,7 @@ export default function DashboardLayout({
         />
       )}
 
-      {/* ── Mobile drawer panel ─────────────────────────────────────────────── */}
+      {/* -- Mobile drawer panel ----------------------------------------------- */}
       <aside
         ref={drawerRef}
         className={`fixed inset-y-0 left-0 z-50 w-72 bg-parchment-soft border-r border-stone-edge flex flex-col md:hidden
@@ -186,7 +186,7 @@ export default function DashboardLayout({
         <SidebarContents />
       </aside>
 
-      {/* ── Right side: mobile top bar + scrollable content ─────────────────── */}
+      {/* -- Right side: mobile top bar + scrollable content ------------------- */}
       <div className="flex flex-col flex-1 min-w-0 overflow-hidden">
 
         {/* Mobile top bar */}

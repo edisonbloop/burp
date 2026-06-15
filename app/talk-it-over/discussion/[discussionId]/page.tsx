@@ -72,7 +72,7 @@ export default async function DiscussionPage({
 
       <div className="max-w-xl mx-auto px-4">
 
-        {/* ── Single post ─────────────────────────────────────────────────── */}
+        {/* -- Single post --------------------------------------------------- */}
         {!isThread && (
           <div className="py-5 border-b border-stone-edge">
             <div className="flex gap-3">
@@ -94,7 +94,7 @@ export default async function DiscussionPage({
           </div>
         )}
 
-        {/* ── Thread — connected posts ─────────────────────────────────────── */}
+        {/* -- Thread — connected posts --------------------------------------- */}
         {isThread && (
           <div className="py-5 border-b border-stone-edge">
             {/* Author row */}

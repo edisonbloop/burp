@@ -8,7 +8,7 @@ import { getSupabaseBrowserClient } from "@/lib/supabase-client";
 
 type Mode = "signin" | "signup";
 
-/* ── Inner component (uses useSearchParams — must be inside <Suspense>) ── */
+/* -- Inner component (uses useSearchParams — must be inside <Suspense>) -- */
 function SignInContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -243,7 +243,7 @@ function SignInContent() {
   );
 }
 
-/* ── Page export — wraps content in Suspense for useSearchParams ── */
+/* -- Page export — wraps content in Suspense for useSearchParams -- */
 export default function SignInPage() {
   return (
     <Suspense>

@@ -52,13 +52,13 @@ export default async function AttributePage({ params }: Props) {
         <div className="flex items-center justify-center gap-2 flex-wrap mb-4">
           <span
             className={`text-xs font-bold tracking-widest uppercase px-3 py-1 rounded-full border ${
-              attribute.entry_type === "chapter"
+              attribute.entry_type === "book"
                 ? "bg-parchment-soft text-stone border-stone-edge"
                 : "bg-gold-wash text-gold-deep border-gold-soft"
             }`}
             style={{ fontFamily: "var(--font-accent)" }}
           >
-            {attribute.entry_type === "chapter" ? "Chapter Study" : "Attribute"}
+            {attribute.entry_type === "book" ? "Book Study" : "Attribute"}
           </span>
           {attribute.featured && (
             <span
@@ -71,7 +71,7 @@ export default async function AttributePage({ params }: Props) {
         </div>
 
         {/* For chapter studies: show passage above the title */}
-        {attribute.entry_type === "chapter" && attribute.passage_book && (
+        {attribute.entry_type === "book" && attribute.passage_book && (
           <p
             className="text-sm font-bold tracking-widest uppercase text-gold-deep mb-2"
             style={{ fontFamily: "var(--font-accent)" }}

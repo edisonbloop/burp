@@ -6,7 +6,7 @@ const resend = new Resend(process.env.RESEND_API_KEY);
 
 const FROM = "BURP <noreply@updates.burp.ink>";
 
-// ── Welcome email ─────────────────────────────────────────────────────────
+// -- Welcome email ---------------------------------------------------------
 export async function sendWelcomeEmail(to: string, firstName: string) {
   return resend.emails.send({
     from: FROM,
@@ -36,7 +36,7 @@ export async function sendWelcomeEmail(to: string, firstName: string) {
   });
 }
 
-// ── Library item approved ─────────────────────────────────────────────────
+// -- Library item approved -------------------------------------------------
 export async function sendApprovalEmail(to: string, firstName: string, itemTitle: string, itemId: string) {
   return resend.emails.send({
     from: FROM,
@@ -61,7 +61,7 @@ export async function sendApprovalEmail(to: string, firstName: string, itemTitle
   });
 }
 
-// ── Shared HTML template ──────────────────────────────────────────────────
+// -- Shared HTML template --------------------------------------------------
 function emailHtml({ preheader, body }: { preheader: string; body: string }) {
   return `<!DOCTYPE html>
 <html lang="en">

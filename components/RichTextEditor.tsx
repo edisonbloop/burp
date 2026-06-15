@@ -227,7 +227,7 @@ function Divider() {
   return <span className="w-px h-5 bg-stone-edge mx-1 self-center" />;
 }
 
-// ── Inline SVG icons ─────────────────────────────────────────
+// -- Inline SVG icons -----------------------------------------
 
 function BoldIcon() {
   return (

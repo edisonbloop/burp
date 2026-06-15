@@ -86,7 +86,7 @@ export default function AuthMenu() {
     return <div className="h-8 w-8 rounded-full bg-stone-edge animate-pulse" />;
   }
 
-  /* ── Not signed in ─────────────────────────────── */
+  /* -- Not signed in ------------------------------- */
   if (!profile) {
     return (
       <Link
@@ -99,7 +99,7 @@ export default function AuthMenu() {
     );
   }
 
-  /* ── Signed in ─────────────────────────────────── */
+  /* -- Signed in ----------------------------------- */
   return (
     <div className="relative" ref={menuRef}>
       {/* Avatar trigger */}

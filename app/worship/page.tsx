@@ -21,10 +21,10 @@ export default function WorshipPage() {
   return (
     <div className="min-h-screen flex flex-col">
 
-      {/* ── Site nav ────────────────────────────────────────────────────────── */}
+      {/* -- Site nav ---------------------------------------------------------- */}
       <SiteNav />
 
-      {/* ── Hero ────────────────────────────────────────────────────────────── */}
+      {/* -- Hero -------------------------------------------------------------- */}
       <section
         className={`${DARK} relative flex flex-col items-center justify-center text-center px-6 py-28 sm:py-36 md:py-44 min-h-[85vh] sm:min-h-screen overflow-hidden`}
       >
@@ -83,7 +83,7 @@ export default function WorshipPage() {
         </div>
       </section>
 
-      {/* ── Vision pull quote ───────────────────────────────────────────────── */}
+      {/* -- Vision pull quote ------------------------------------------------- */}
       <section className="bg-vellum px-6 py-20 sm:py-28">
         <div className="max-w-3xl mx-auto text-center">
           <span
@@ -117,7 +117,7 @@ export default function WorshipPage() {
         </div>
       </section>
 
-      {/* ── Vision visual breakout ─────────────────────────────────────────── */}
+      {/* -- Vision visual breakout ------------------------------------------- */}
       <section className="relative h-[300px] sm:h-[450px] md:h-[600px] w-full overflow-hidden bg-black border-t border-b border-white/5">
         <Image
           src="/images/worship/worship_group.png"
@@ -141,7 +141,7 @@ export default function WorshipPage() {
         </div>
       </section>
 
-      {/* ── Programme ───────────────────────────────────────────────────────── */}
+      {/* -- Programme --------------------------------------------------------- */}
       <section className={`${DARK_MID} px-6 py-20 sm:py-28`}>
         <div className="max-w-4xl mx-auto">
           <p
@@ -220,7 +220,7 @@ export default function WorshipPage() {
         </div>
       </section>
 
-      {/* ── Ethos ───────────────────────────────────────────────────────────── */}
+      {/* -- Ethos ------------------------------------------------------------- */}
       <section className="bg-parchment-soft px-6 py-20 sm:py-28">
         <div className="max-w-4xl mx-auto">
           <p
@@ -278,7 +278,7 @@ export default function WorshipPage() {
         </div>
       </section>
 
-      {/* ── Details ─────────────────────────────────────────────────────────── */}
+      {/* -- Details ----------------------------------------------------------- */}
       <section className="bg-vellum px-6 py-20 sm:py-28">
         <div className="max-w-3xl mx-auto">
           <p
@@ -351,7 +351,7 @@ export default function WorshipPage() {
         </div>
       </section>
 
-      {/* ── Atmosphere ──────────────────────────────────────────────────────── */}
+      {/* -- Atmosphere -------------------------------------------------------- */}
       <section className={`${DARK} px-6 py-20 sm:py-28 md:py-36 overflow-hidden`}>
         <div className="max-w-5xl mx-auto grid lg:grid-cols-12 gap-12 lg:gap-16 items-center">
           
@@ -456,7 +456,7 @@ export default function WorshipPage() {
         </div>
       </section>
 
-      {/* ── Closing ─────────────────────────────────────────────────────────── */}
+      {/* -- Closing ----------------------------------------------------------- */}
       <section className={`${DARK_MID} border-t border-white/5 px-6 py-24 sm:py-32`}>
         <div className="max-w-2xl mx-auto text-center space-y-8">
           <p
@@ -477,7 +477,7 @@ export default function WorshipPage() {
         </div>
       </section>
 
-      {/* ── Footer ──────────────────────────────────────────────────────────── */}
+      {/* -- Footer ------------------------------------------------------------ */}
       <footer
         className={`${DARK} border-t border-white/5 px-6 py-10 flex flex-col sm:flex-row items-center justify-between gap-4`}
       >

@@ -113,7 +113,7 @@ export default function DashboardPage() {
 
   return (
     <div className="p-4 sm:p-8 lg:p-12 max-w-5xl mx-auto">
-      {/* ── Header ── */}
+      {/* -- Header -- */}
       <header className="mb-10">
         <p
           className="text-xs font-bold tracking-widest uppercase text-gold mb-1"
@@ -132,7 +132,7 @@ export default function DashboardPage() {
         </p>
       </header>
 
-      {/* ── Stats row ── */}
+      {/* -- Stats row -- */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-12">
         {[
           { value: libraryItems.length, label: "Submissions" },
@@ -157,7 +157,7 @@ export default function DashboardPage() {
         ))}
       </div>
 
-      {/* ── Games ── */}
+      {/* -- Games -- */}
       {gameStats && (
         <section className="mb-12">
           <div className="flex items-center justify-between mb-5">
@@ -279,7 +279,7 @@ export default function DashboardPage() {
         </section>
       )}
 
-      {/* ── My Submissions ── */}
+      {/* -- My Submissions -- */}
       <section className="mb-12">
         <div className="flex items-center justify-between mb-5">
           <h2
@@ -393,7 +393,7 @@ export default function DashboardPage() {
         )}
       </section>
 
-      {/* ── My Reflections ── */}
+      {/* -- My Reflections -- */}
       <section className="mb-12">
         <h2
           className="text-2xl font-bold text-ink mb-5"
@@ -462,7 +462,7 @@ export default function DashboardPage() {
         )}
       </section>
 
-      {/* ── Reading Plans ── */}
+      {/* -- Reading Plans -- */}
       <section>
         <h2
           className="text-2xl font-bold text-ink mb-5"

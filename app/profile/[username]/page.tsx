@@ -99,7 +99,7 @@ export default async function PublicProfilePage({
 
       <main className="max-w-2xl mx-auto px-6 py-14">
 
-        {/* ── Avatar + name ─────────────────────────────────────────────── */}
+        {/* -- Avatar + name ----------------------------------------------- */}
         <div className="flex flex-col items-center text-center mb-12">
           <div className="w-24 h-24 rounded-full overflow-hidden ring-4 ring-parchment-soft shadow-md mb-5 flex-shrink-0">
             {profile.avatar_url ? (
@@ -135,7 +135,7 @@ export default async function PublicProfilePage({
           )}
         </div>
 
-        {/* ── Bio ──────────────────────────────────────────────────────── */}
+        {/* -- Bio -------------------------------------------------------- */}
         {profile.bio && (
           <section className="mb-10">
             <p className="text-base text-stone-mid leading-relaxed text-center max-w-lg mx-auto">
@@ -144,7 +144,7 @@ export default async function PublicProfilePage({
           </section>
         )}
 
-        {/* ── Expertise + Interests ─────────────────────────────────────── */}
+        {/* -- Expertise + Interests --------------------------------------- */}
         {(expertiseItems.length > 0 || interestItems.length > 0) && (
           <section className="mb-10 grid sm:grid-cols-2 gap-6">
             {expertiseItems.length > 0 && (
@@ -191,7 +191,7 @@ export default async function PublicProfilePage({
           </section>
         )}
 
-        {/* ── Links ────────────────────────────────────────────────────── */}
+        {/* -- Links ------------------------------------------------------ */}
         {links.length > 0 && (
           <section className="mb-10">
             <h2
@@ -242,7 +242,7 @@ export default async function PublicProfilePage({
           </section>
         )}
 
-        {/* ── Footer callout ────────────────────────────────────────────── */}
+        {/* -- Footer callout ---------------------------------------------- */}
         <div className="border-t border-stone-edge pt-10 text-center">
           <p className="text-xs text-stone-light mb-3">Part of the BURP community</p>
           <Link

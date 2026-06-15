@@ -12,7 +12,7 @@ export default async function AttributesPage() {
   const rest = attributes.filter((a) => !a.featured);
 
   const namedAttrs = attributes.filter((a) => a.entry_type === "attribute");
-  const chapterStudies = attributes.filter((a) => a.entry_type === "chapter");
+  const bookStudies = attributes.filter((a) => a.entry_type === "book");
 
   return (
     <div className="flex-1 flex flex-col bg-vellum min-h-screen">
@@ -94,15 +94,15 @@ export default async function AttributesPage() {
           </section>
         )}
 
-        {/* Chapter Studies */}
-        {chapterStudies.filter((a) => !a.featured).length > 0 && (
+        {/* Book Studies */}
+        {bookStudies.filter((a) => !a.featured).length > 0 && (
           <section className="mb-12">
             <SectionHeader
-              label="Chapter Studies"
+              label="Book Studies"
               desc="Reflections on Bible passages and what they reveal about God."
             />
             <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
-              {chapterStudies.filter((a) => !a.featured).map((attr) => (
+              {bookStudies.filter((a) => !a.featured).map((attr) => (
                 <AttributeCard key={attr.id} attr={attr} />
               ))}
             </div>
@@ -119,7 +119,7 @@ export default async function AttributesPage() {
               Something missing?
             </p>
             <p className="text-base text-stone-mid mb-6">
-              Add a named attribute or a chapter study you&apos;ve been sitting with.
+              Add a named attribute or a book study you&apos;ve been sitting with.
             </p>
             <Link
               href="/attributes/submit"
@@ -149,8 +149,8 @@ function SectionHeader({ label, desc }: { label: string; desc?: string }) {
 }
 
 function AttributeCard({ attr, highlighted }: { attr: GodAttribute; highlighted?: boolean }) {
-  const isChapter = attr.entry_type === "chapter";
-  const passage = isChapter ? formatPassage(attr) : null;
+  const isBook = attr.entry_type === "book";
+  const passage = isBook ? formatPassage(attr) : null;
 
   return (
     <Link
@@ -165,13 +165,13 @@ function AttributeCard({ attr, highlighted }: { attr: GodAttribute; highlighted?
         {/* Type badge */}
         <span
           className={`text-[10px] font-bold tracking-widest uppercase px-2.5 py-1 rounded-full border ${
-            isChapter
+            isBook
               ? "bg-parchment-soft text-stone border-stone-edge"
               : "bg-gold-wash text-gold-deep border-gold-soft/50"
           }`}
           style={{ fontFamily: "var(--font-accent)" }}
         >
-          {isChapter ? "Chapter Study" : "Attribute"}
+          {isBook ? "Book Study" : "Attribute"}
         </span>
         {highlighted && (
           <span
@@ -184,7 +184,7 @@ function AttributeCard({ attr, highlighted }: { attr: GodAttribute; highlighted?
       </div>
 
       {/* For chapter studies: show passage prominently above title */}
-      {isChapter && passage && (
+      {isBook && passage && (
         <p
           className="text-xs font-bold tracking-widest uppercase text-gold-deep mb-1"
           style={{ fontFamily: "var(--font-accent)" }}
@@ -207,7 +207,7 @@ function AttributeCard({ attr, highlighted }: { attr: GodAttribute; highlighted?
       )}
 
       <p className="text-xs text-gold-deep mt-4 font-semibold group-hover:underline">
-        {isChapter ? "Read study →" : "Explore scriptures →"}
+        {isBook ? "Read book study →" : "Explore scriptures →"}
       </p>
     </Link>
   );

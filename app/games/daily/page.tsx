@@ -112,7 +112,7 @@ export default function DailyChallengePage() {
     setPhase("playing");
   };
 
-  // ── Already completed today ───────────────────────────────────────────────
+  // -- Already completed today -----------------------------------------------
   if (phase === "already_done" && prevResult) {
     const pct   = Math.round((prevResult.score / prevResult.total) * 100);
     const medal = pct === 100 ? "🏆" : pct >= 80 ? "🥇" : pct >= 60 ? "🥈" : "📖";
@@ -158,7 +158,7 @@ export default function DailyChallengePage() {
     );
   }
 
-  // ── Finished (just completed) ─────────────────────────────────────────────
+  // -- Finished (just completed) ---------------------------------------------
   if (phase === "finished") {
     const pct   = Math.round((score / DAILY_TOTAL) * 100);
     const medal = pct === 100 ? "🏆" : pct >= 80 ? "🥇" : pct >= 60 ? "🥈" : "📖";
@@ -214,7 +214,7 @@ export default function DailyChallengePage() {
     );
   }
 
-  // ── Loading ───────────────────────────────────────────────────────────────
+  // -- Loading ---------------------------------------------------------------
   if (phase === "loading" || !current) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-vellum">
@@ -228,7 +228,7 @@ export default function DailyChallengePage() {
   const isCorrect   = (opt: string) => phase === "answered" && opt === current.speaker;
   const isWrongPick = (opt: string) => phase === "answered" && opt === picked && opt !== current.speaker;
 
-  // ── Playing ───────────────────────────────────────────────────────────────
+  // -- Playing ---------------------------------------------------------------
   return (
     <div className="min-h-screen flex flex-col bg-vellum">
       <SiteNav />

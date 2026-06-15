@@ -97,9 +97,9 @@ export default function AdminAttributesPanel({ attributes, references }: Props) 
   );
 }
 
-/* ──────────────────────────────────────────────────────────── */
+/* ------------------------------------------------------------ */
 /* Attributes sub-view                                         */
-/* ──────────────────────────────────────────────────────────── */
+/* ------------------------------------------------------------ */
 function AttributesView({
   attributes,
   isPending,
@@ -205,8 +205,8 @@ function AttributesView({
                       ▶
                     </span>
                     <div className="min-w-0">
-                      {/* Passage label for chapter studies */}
-                      {attr.entry_type === "chapter" && attr.passage_book && (
+                      {/* Book label for book studies */}
+                      {attr.entry_type === "book" && attr.passage_book && (
                         <p
                           className="text-xs font-bold tracking-widest uppercase text-gold-deep mb-0.5"
                           style={{ fontFamily: "var(--font-accent)" }}
@@ -223,13 +223,13 @@ function AttributesView({
                       <div className="flex items-center gap-2 mt-1 flex-wrap">
                         <span
                           className={`text-xs font-bold tracking-widest uppercase px-2 py-0.5 rounded-full border ${
-                            attr.entry_type === "chapter"
+                            attr.entry_type === "book"
                               ? "bg-parchment-soft text-stone border-stone-edge"
                               : "bg-gold-wash text-gold-deep border-gold-soft/50"
                           }`}
                           style={{ fontFamily: "var(--font-accent)" }}
                         >
-                          {attr.entry_type === "chapter" ? "Chapter Study" : "Attribute"}
+                          {attr.entry_type === "book" ? "Book Study" : "Attribute"}
                         </span>
                         {!attr.approved && (
                           <span className="text-xs font-bold text-amber-700 bg-amber-100 px-2 py-0.5 rounded-full">
@@ -429,9 +429,9 @@ function NestedRefRow({
   );
 }
 
-/* ──────────────────────────────────────────────────────────── */
+/* ------------------------------------------------------------ */
 /* References sub-view (flat list across all attributes)       */
-/* ──────────────────────────────────────────────────────────── */
+/* ------------------------------------------------------------ */
 function ReferencesView({
   references,
   isPending,

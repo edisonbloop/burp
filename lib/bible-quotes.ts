@@ -23,7 +23,7 @@ export const SPEAKER_POOL = [
 
 export const BIBLE_QUOTES: BibleQuote[] = [
 
-  // ── EASY ─────────────────────────────────────────────────────────────────
+  // -- EASY -----------------------------------------------------------------
   {
     quote: "I am the way, the truth and the life. No one comes to the Father except through me.",
     speaker: "Jesus",
@@ -223,7 +223,7 @@ export const BIBLE_QUOTES: BibleQuote[] = [
     difficulty: "easy",
   },
 
-  // ── MEDIUM ────────────────────────────────────────────────────────────────
+  // -- MEDIUM ----------------------------------------------------------------
   {
     quote: "Though he slay me, yet will I hope in him.",
     speaker: "Job",
@@ -465,7 +465,7 @@ export const BIBLE_QUOTES: BibleQuote[] = [
     difficulty: "medium",
   },
 
-  // ── HARD ──────────────────────────────────────────────────────────────────
+  // -- HARD ------------------------------------------------------------------
   {
     quote: "I have made a covenant with my eyes not to look lustfully at a young woman.",
     speaker: "Job",

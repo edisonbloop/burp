@@ -12,7 +12,7 @@ export interface BibleCharacter {
 
 export const BIBLE_CHARACTERS: BibleCharacter[] = [
 
-  // ── EASY ─────────────────────────────────────────────────────────────────
+  // -- EASY -----------------------------------------------------------------
   {
     name: "Noah",
     emojis: ["🌊", "🚢", "🕊️", "🌈"],
@@ -77,7 +77,7 @@ export const BIBLE_CHARACTERS: BibleCharacter[] = [
     difficulty: "easy",
   },
 
-  // ── MEDIUM ────────────────────────────────────────────────────────────────
+  // -- MEDIUM ----------------------------------------------------------------
   {
     name: "Esther",
     emojis: ["👑", "🏰", "🍷", "🎭"],
@@ -160,7 +160,7 @@ export const BIBLE_CHARACTERS: BibleCharacter[] = [
     difficulty: "medium",
   },
 
-  // ── HARD ──────────────────────────────────────────────────────────────────
+  // -- HARD ------------------------------------------------------------------
   {
     name: "Job",
     emojis: ["😭", "🤕", "⚡", "🙌"],

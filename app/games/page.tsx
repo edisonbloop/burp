@@ -77,7 +77,7 @@ export default function GamesPage() {
     <div className="min-h-screen flex flex-col bg-vellum">
       <SiteNav />
 
-      {/* ── Hero ── */}
+      {/* -- Hero -- */}
       <section className="bg-parchment-soft border-b-2 border-gold-soft px-6 py-14 sm:py-20 text-center">
         <div className="inline-flex items-center gap-2 bg-gold-wash border border-gold-soft rounded-full px-4 py-1.5 mb-6">
           <span className="text-sm">🎮</span>
@@ -102,7 +102,7 @@ export default function GamesPage() {
         </p>
       </section>
 
-      {/* ── Daily Challenge ── */}
+      {/* -- Daily Challenge -- */}
       <section className="max-w-5xl mx-auto px-6 pt-10 pb-2 w-full">
         <p
           className="text-[10px] font-bold tracking-[0.4em] uppercase text-stone-light mb-5"
@@ -144,7 +144,7 @@ export default function GamesPage() {
         </Link>
       </section>
 
-      {/* ── Available games ── */}
+      {/* -- Available games -- */}
       <section className="max-w-5xl mx-auto px-6 pt-2 pb-4 w-full">
         <p
           className="text-[10px] font-bold tracking-[0.4em] uppercase text-stone-light mb-5"
@@ -249,7 +249,7 @@ export default function GamesPage() {
         </div>
       </section>
 
-      {/* ── Fun stat banner ── */}
+      {/* -- Fun stat banner -- */}
       <section className="max-w-5xl mx-auto px-6 py-10 w-full">
         <div className="bg-parchment-soft border border-stone-edge rounded-3xl px-8 py-7 grid grid-cols-3 divide-x divide-stone-edge text-center">
           {[

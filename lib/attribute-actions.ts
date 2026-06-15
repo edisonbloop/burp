@@ -59,40 +59,27 @@ export async function getAttribute(
   return { ...attr, references: refs ?? [] };
 }
 
-/** Community submission: propose a new attribute or chapter study */
+/** Community submission: propose a new attribute or book study */
 export async function submitAttribute(params: {
-  entryType: "attribute" | "chapter";
+  entryType: "attribute" | "book";
   name: string;
   description: string;
   content: string;
   submittedBy: string;
-  // Chapter-study fields
   passageBook?: string;
-  passageChapter?: number | null;
-  passageChapterEnd?: number | null;
 }): Promise<{ error?: string }> {
   try {
     const supabase = getSupabase();
 
-    // For attributes, name is required. For chapters, passage_book is required.
     if (params.entryType === "attribute" && !params.name.trim()) {
       return { error: "Attribute name is required." };
     }
-    if (params.entryType === "chapter" && !params.passageBook) {
+    if (params.entryType === "book" && !params.passageBook) {
       return { error: "Please select a Bible book." };
     }
 
-    // Auto-generate name for chapter studies if no custom title given
-    let name = params.name.trim();
-    if (params.entryType === "chapter" && !name && params.passageBook) {
-      name = params.passageBook;
-      if (params.passageChapter) {
-        name += ` ${params.passageChapter}`;
-        if (params.passageChapterEnd && params.passageChapterEnd !== params.passageChapter) {
-          name += `–${params.passageChapterEnd}`;
-        }
-      }
-    }
+    // Auto-generate name for book studies if no custom title given
+    const name = params.name.trim() || params.passageBook?.trim() || "";
 
     const { error } = await supabase.from("god_attributes").insert({
       entry_type: params.entryType,
@@ -100,8 +87,8 @@ export async function submitAttribute(params: {
       description: params.description.trim() || null,
       content: params.content || null,
       passage_book: params.passageBook?.trim() || null,
-      passage_chapter: params.passageChapter ?? null,
-      passage_chapter_end: params.passageChapterEnd ?? null,
+      passage_chapter: null,
+      passage_chapter_end: null,
       submitted_by: params.submittedBy.trim() || null,
       approved: false,
       featured: false,

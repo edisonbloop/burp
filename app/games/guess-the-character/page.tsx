@@ -7,7 +7,7 @@ import SiteNav from "@/components/SiteNav";
 
 type Phase = "playing" | "wrong" | "correct" | "revealed" | "finished";
 
-// ── Difficulty config ─────────────────────────────────────────────────────
+// -- Difficulty config -----------------------------------------------------
 const DIFF_CONFIG: Record<Difficulty, {
   label: string;
   color: string;       // badge bg + text
@@ -19,7 +19,7 @@ const DIFF_CONFIG: Record<Difficulty, {
   hard:   { label: "Hard",   color: "bg-red-50 text-red-700 border border-red-200",         ring: "focus:border-red-400 focus:ring-red-400",       inputBorder: "border-stone-edge" },
 };
 
-// ── Web Audio sound effects ────────────────────────────────────────────────
+// -- Web Audio sound effects ------------------------------------------------
 function playCorrect() {
   try {
     const ctx = new AudioContext();
@@ -54,7 +54,7 @@ function playWrong() {
   } catch { /* blocked */ }
 }
 
-// ── Result icon ────────────────────────────────────────────────────────────
+// -- Result icon ------------------------------------------------------------
 function ResultIcon({ phase }: { phase: Phase }) {
   if (phase !== "correct" && phase !== "wrong") return null;
   const ok = phase === "correct";
@@ -147,7 +147,7 @@ export default function GuessTheCharacterPage() {
     }));
   }, [phase, score, total, bestStreak]);
 
-  // ── Finished ─────────────────────────────────────────────────────────────
+  // -- Finished -------------------------------------------------------------
   if (phase === "finished") {
     const pct = Math.round((score / total) * 100);
     const medal = pct === 100 ? "🏆" : pct >= 80 ? "🥇" : pct >= 60 ? "🥈" : pct >= 40 ? "🥉" : "📖";

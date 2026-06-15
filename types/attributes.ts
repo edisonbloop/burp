@@ -1,8 +1,8 @@
-export type AttributeEntryType = "attribute" | "chapter";
+export type AttributeEntryType = "attribute" | "book";
 
 export interface GodAttribute {
   id: string;
-  /** "attribute" = named attribute (e.g. Omniscient); "chapter" = passage study (e.g. Genesis 1) */
+  /** "attribute" = named attribute (e.g. Omniscient); "book" = book study (e.g. Genesis) */
   entry_type: AttributeEntryType;
   /** Attribute name OR custom study title */
   name: string;
@@ -10,11 +10,11 @@ export interface GodAttribute {
   description: string | null;
   /** Long-form rich text (HTML) — theological exposition */
   content: string | null;
-  /** For chapter studies: the Bible book */
+  /** For book studies: the Bible book (e.g. "Genesis") */
   passage_book: string | null;
-  /** For chapter studies: starting chapter */
+  /** Unused — kept for DB compatibility */
   passage_chapter: number | null;
-  /** For chapter studies: ending chapter (for ranges like Job 38–39) */
+  /** Unused — kept for DB compatibility */
   passage_chapter_end: number | null;
   approved: boolean;
   featured: boolean;
@@ -23,17 +23,9 @@ export interface GodAttribute {
   references?: AttributeReference[];
 }
 
-/** Format a chapter study's passage label, e.g. "Genesis 1" or "Job 38–39" */
-export function formatPassage(attr: Pick<GodAttribute, "passage_book" | "passage_chapter" | "passage_chapter_end">): string {
-  if (!attr.passage_book) return "";
-  let s = attr.passage_book;
-  if (attr.passage_chapter) {
-    s += ` ${attr.passage_chapter}`;
-    if (attr.passage_chapter_end && attr.passage_chapter_end !== attr.passage_chapter) {
-      s += `–${attr.passage_chapter_end}`;
-    }
-  }
-  return s;
+/** Format a book study's label — just the book name. */
+export function formatPassage(attr: Pick<GodAttribute, "passage_book">): string {
+  return attr.passage_book ?? "";
 }
 
 export interface AttributeReference {

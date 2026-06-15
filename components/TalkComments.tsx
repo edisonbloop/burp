@@ -253,7 +253,7 @@ export default function TalkComments({
   );
 }
 
-// ── CommentRow ──────────────────────────────────────────────────────────────
+// -- CommentRow --------------------------------------------------------------
 function CommentRow({
   comment,
   isOwn,

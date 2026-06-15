@@ -7,7 +7,7 @@ export interface TrueFalseStatement {
 
 export const TRUE_FALSE_STATEMENTS: TrueFalseStatement[] = [
 
-  // ── EASY ─────────────────────────────────────────────────────────────────
+  // -- EASY -----------------------------------------------------------------
   { statement: "Jesus was born in Bethlehem.", answer: true, explanation: "Luke 2:4–7 — Joseph and Mary travelled from Nazareth to Bethlehem, where Jesus was born.", difficulty: "easy" },
   { statement: "Moses parted the Red Sea.", answer: true, explanation: "Exodus 14:21 — Moses stretched out his hand and the LORD drove the sea back.", difficulty: "easy" },
   { statement: "David killed Goliath with a sword.", answer: false, explanation: "1 Samuel 17:49–50 — David used a sling and a stone. He took Goliath's sword only after he fell.", difficulty: "easy" },
@@ -40,7 +40,7 @@ export const TRUE_FALSE_STATEMENTS: TrueFalseStatement[] = [
   { statement: "Jesus turned water into wine at a wedding.", answer: true, explanation: "John 2:1–11 — The wedding at Cana, where Jesus turned six stone jars of water into wine.", difficulty: "easy" },
   { statement: "Paul's name before his conversion was Saul.", answer: true, explanation: "Acts 9 — He was known as Saul of Tarsus before his encounter with the risen Jesus on the Damascus road.", difficulty: "easy" },
 
-  // ── MEDIUM ────────────────────────────────────────────────────────────────
+  // -- MEDIUM ----------------------------------------------------------------
   { statement: "The book of Esther never mentions God.", answer: true, explanation: "The book of Esther is one of only two books in the Bible (along with Song of Songs) that never explicitly mentions God.", difficulty: "medium" },
   { statement: "Methuselah is the oldest person recorded in the Bible, living 969 years.", answer: true, explanation: "Genesis 5:27 — 'Altogether, Methuselah lived a total of 969 years, and then he died.'", difficulty: "medium" },
   { statement: "The disciples were first called Christians in Jerusalem.", answer: false, explanation: "Acts 11:26 — 'The disciples were called Christians first at Antioch,' not Jerusalem.", difficulty: "medium" },
@@ -72,7 +72,7 @@ export const TRUE_FALSE_STATEMENTS: TrueFalseStatement[] = [
   { statement: "The city of Jericho's walls fell after the Israelites marched around it for 7 days.", answer: true, explanation: "Joshua 6 — They marched around once daily for six days, then seven times on the seventh day, and the walls collapsed.", difficulty: "medium" },
   { statement: "Ananias and Sapphira were struck dead for lying to the Holy Spirit.", answer: true, explanation: "Acts 5:1–11 — Both husband and wife separately lied about the price they received for land, and both fell down dead.", difficulty: "medium" },
 
-  // ── HARD ──────────────────────────────────────────────────────────────────
+  // -- HARD ------------------------------------------------------------------
   { statement: "The word 'Easter' appears in the King James Bible.", answer: true, explanation: "Acts 12:4 (KJV) — 'Intending after Easter to bring him forth to the people.' Modern translations use 'Passover', which is more accurate.", difficulty: "hard" },
   { statement: "The Bible tells us exactly how many wise men visited Jesus.", answer: false, explanation: "Matthew 2 mentions 'Magi from the East' and three gifts (gold, frankincense, myrrh) — but never states how many men came.", difficulty: "hard" },
   { statement: "The Bible mentions unicorns.", answer: true, explanation: "The King James Bible uses 'unicorn' nine times to translate the Hebrew 're'em' — now believed to be a wild ox or aurochs.", difficulty: "hard" },

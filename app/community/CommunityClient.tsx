@@ -58,7 +58,7 @@ export default function CommunityClient({ members }: Props) {
 
   return (
     <>
-      {/* ── Header ── */}
+      {/* -- Header -- */}
       <section className="border-b border-stone-edge bg-parchment-soft px-6 py-12 sm:py-16">
         <div className="max-w-4xl mx-auto">
           <p
@@ -101,7 +101,7 @@ export default function CommunityClient({ members }: Props) {
         </div>
       </section>
 
-      {/* ── Grid ── */}
+      {/* -- Grid -- */}
       <main className="flex-1 max-w-4xl mx-auto px-6 py-10 w-full">
         {filtered.length === 0 ? (
           <div className="text-center py-24">

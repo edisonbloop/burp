@@ -70,7 +70,7 @@ export default function ProfilePage() {
     });
   }, [supabase]);
 
-  // ── Username uniqueness check (debounced) ─────────────────────────────────
+  // -- Username uniqueness check (debounced) ---------------------------------
   const checkUsername = useCallback((value: string, currentUserId: string) => {
     const clean = value.toLowerCase().replace(/[^a-z0-9-]/g, "");
     if (clean !== value) setUsername(clean);
@@ -88,7 +88,7 @@ export default function ProfilePage() {
     }, 500);
   }, [supabase]);
 
-  // ── Avatar upload ─────────────────────────────────────────────────────────
+  // -- Avatar upload ---------------------------------------------------------
   const handleAvatarChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file || !userId) return;
@@ -119,13 +119,13 @@ export default function ProfilePage() {
     setUploadingAvatar(false);
   };
 
-  // ── Links helpers ─────────────────────────────────────────────────────────
+  // -- Links helpers ---------------------------------------------------------
   const addLink = () => { if (links.length < 5) setLinks(p => [...p, { label: "", url: "" }]); };
   const updateLink = (i: number, f: "label" | "url", v: string) =>
     setLinks(p => p.map((l, j) => j === i ? { ...l, [f]: v } : l));
   const removeLink = (i: number) => setLinks(p => p.filter((_, j) => j !== i));
 
-  // ── Copy public link ──────────────────────────────────────────────────────
+  // -- Copy public link ------------------------------------------------------
   const publicPath = username ? `/profile/${username}` : userId ? `/profile/${userId}` : null;
   const publicUrl = publicPath ? `${BASE_URL}${publicPath}` : null;
 
@@ -137,7 +137,7 @@ export default function ProfilePage() {
     });
   };
 
-  // ── Save ──────────────────────────────────────────────────────────────────
+  // -- Save ------------------------------------------------------------------
   const handleSave = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!userId) return;
@@ -170,7 +170,7 @@ export default function ProfilePage() {
     }
   };
 
-  // ── Avatar circle ─────────────────────────────────────────────────────────
+  // -- Avatar circle ---------------------------------------------------------
   const initials = fullName.trim().split(/\s+/).filter(Boolean);
   const avatarInitials = initials.length >= 2
     ? (initials[0][0] + initials[initials.length - 1][0]).toUpperCase()
@@ -203,7 +203,7 @@ export default function ProfilePage() {
 
       <form onSubmit={handleSave} className="space-y-10">
 
-        {/* ── Photo ──────────────────────────────────────────────────────── */}
+        {/* -- Photo -------------------------------------------------------- */}
         <section>
           <p className={labelCls} style={{ fontFamily: "var(--font-accent)" }}>Profile Photo</p>
           <div className="flex items-center gap-5">
@@ -255,7 +255,7 @@ export default function ProfilePage() {
           </div>
         </section>
 
-        {/* ── Public link ────────────────────────────────────────────────── */}
+        {/* -- Public link -------------------------------------------------- */}
         <section className="bg-parchment-soft border border-stone-edge rounded-2xl px-5 py-5 space-y-4">
           <p className="text-[10px] font-bold uppercase tracking-widest text-gold-deep" style={{ fontFamily: "var(--font-accent)" }}>
             Your Public Profile Link
@@ -319,7 +319,7 @@ export default function ProfilePage() {
           )}
         </section>
 
-        {/* ── Basic info ─────────────────────────────────────────────────── */}
+        {/* -- Basic info --------------------------------------------------- */}
         <section className="space-y-5">
           <h2 className="text-xs font-bold tracking-widest uppercase text-stone-light" style={{ fontFamily: "var(--font-accent)" }}>
             Basic Info
@@ -355,7 +355,7 @@ export default function ProfilePage() {
           </div>
         </section>
 
-        {/* ── Background ─────────────────────────────────────────────────── */}
+        {/* -- Background --------------------------------------------------- */}
         <section className="space-y-5">
           <h2 className="text-xs font-bold tracking-widest uppercase text-stone-light" style={{ fontFamily: "var(--font-accent)" }}>
             Background
@@ -379,7 +379,7 @@ export default function ProfilePage() {
           </div>
         </section>
 
-        {/* ── Links ──────────────────────────────────────────────────────── */}
+        {/* -- Links -------------------------------------------------------- */}
         <section className="space-y-4">
           <div className="flex items-center justify-between">
             <h2 className="text-xs font-bold tracking-widest uppercase text-stone-light" style={{ fontFamily: "var(--font-accent)" }}>Links</h2>
@@ -412,7 +412,7 @@ export default function ProfilePage() {
           </div>
         </section>
 
-        {/* ── Error / save ───────────────────────────────────────────────── */}
+        {/* -- Error / save ------------------------------------------------- */}
         {error && (
           <p className="text-sm text-red-600 bg-red-50 border border-red-200 rounded-xl px-4 py-3">{error}</p>
         )}

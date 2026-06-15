@@ -11,7 +11,7 @@ async function requireAdminSession() {
   }
 }
 
-// ── Plans ──────────────────────────────────────────────────────────────────
+// -- Plans ------------------------------------------------------------------
 
 export async function adminCreatePlan(
   title: string,
@@ -61,7 +61,7 @@ export async function adminDeletePlan(id: string): Promise<{ error?: string }> {
   }
 }
 
-// ── Discussions ────────────────────────────────────────────────────────────
+// -- Discussions ------------------------------------------------------------
 
 export async function adminCreateDiscussion(
   planId: string,
@@ -125,7 +125,7 @@ export async function adminDeleteDiscussion(
   }
 }
 
-// ── Transcribed Comments ───────────────────────────────────────────────────
+// -- Transcribed Comments ---------------------------------------------------
 
 /**
  * Admin-only: post a reflection on behalf of someone who shared it in the
@@ -160,7 +160,7 @@ export async function adminPostTranscribedComment(
   }
 }
 
-// ── Library Item Admin Actions ─────────────────────────────────────────────
+// -- Library Item Admin Actions ---------------------------------------------
 
 export async function adminUpdateLibraryApproval(
   id: string,

@@ -99,7 +99,7 @@ export default function DiscussionExport({
 
   const c = comments ?? [];
 
-  // ── Palette (inline for html2canvas reliability) ──────────────────────────
+  // -- Palette (inline for html2canvas reliability) --------------------------
   const bg      = "#f5efe3";
   const card    = "#fdf8f0";
   const border  = "#ddc9a3";
@@ -136,7 +136,7 @@ export default function DiscussionExport({
         </button>
       </div>
 
-      {/* ── Off-screen export canvas ────────────────────────────────────────── */}
+      {/* -- Off-screen export canvas ------------------------------------------ */}
       <div
         style={{
           position: "fixed", left: -9999, top: 0,

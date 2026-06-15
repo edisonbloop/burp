@@ -13,7 +13,7 @@ const DIFF_BADGE: Record<Difficulty, string> = {
   hard:   "bg-red-50 text-red-700 border border-red-200",
 };
 
-// ── Sounds ────────────────────────────────────────────────────────────────
+// -- Sounds ----------------------------------------------------------------
 function playCorrect() {
   try {
     const ctx = new AudioContext();
@@ -118,7 +118,7 @@ export default function WhoSaidItPage() {
     }));
   }, [phase, score, total, bestStreak]);
 
-  // ── Finished ─────────────────────────────────────────────────────────────
+  // -- Finished -------------------------------------------------------------
   if (phase === "finished") {
     const pct = Math.round((score / total) * 100);
     const medal = pct === 100 ? "🏆" : pct >= 80 ? "🥇" : pct >= 60 ? "🥈" : pct >= 40 ? "🥉" : "📖";

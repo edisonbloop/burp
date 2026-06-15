@@ -15,7 +15,7 @@ const DIFF_BADGE = {
 
 const TIME_LIMIT = 12; // seconds per question
 
-// ── Sounds ────────────────────────────────────────────────────────────────
+// -- Sounds ----------------------------------------------------------------
 function playCorrect() {
   try {
     const ctx = new AudioContext();
@@ -63,7 +63,7 @@ export default function TrueOrFalsePage() {
   const progress = total ? Math.round((index / total) * 100) : 0;
   const diff     = current?.difficulty ?? "easy";
 
-  // ── Timer ────────────────────────────────────────────────────────────────
+  // -- Timer ----------------------------------------------------------------
   const stopTimer = useCallback(() => {
     if (timerRef.current) { clearInterval(timerRef.current); timerRef.current = null; }
   }, []);
@@ -93,7 +93,7 @@ export default function TrueOrFalsePage() {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [index, deck.length]);
 
-  // ── Answer ────────────────────────────────────────────────────────────────
+  // -- Answer ----------------------------------------------------------------
   const answer = (pick: boolean) => {
     if (phase !== "playing" || !current) return;
     stopTimer();
@@ -144,7 +144,7 @@ export default function TrueOrFalsePage() {
     }));
   }, [phase, score, total, bestStreak]);
 
-  // ── Finished ─────────────────────────────────────────────────────────────
+  // -- Finished -------------------------------------------------------------
   if (phase === "finished") {
     const pct = Math.round((score / total) * 100);
     const medal = pct === 100 ? "🏆" : pct >= 80 ? "🥇" : pct >= 60 ? "🥈" : pct >= 40 ? "🥉" : "📖";
