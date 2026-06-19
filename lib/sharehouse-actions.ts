@@ -112,6 +112,15 @@ export async function verifyAndUpdateNeedStatus(
       return { error: "Need not found." };
     }
 
+    // Once a need has been marked as met, its testimony is set in stone and
+    // can no longer be edited from the public board.
+    if (need.status === "met") {
+      return {
+        error:
+          "This need has already been marked as met. Its testimony can no longer be edited.",
+      };
+    }
+
     // 2. Compare contact info (normalized comparison)
     const storedContact = need.contact_info.trim().toLowerCase();
     if (storedContact !== cleanContact) {
