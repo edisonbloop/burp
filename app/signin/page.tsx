@@ -177,9 +177,22 @@ function SignInContent() {
 
           {/* Password */}
           <div>
-            <label className={labelClass} style={{ fontFamily: "var(--font-accent)" }}>
-              Password
-            </label>
+            <div className="flex items-center justify-between mb-1.5">
+              <label
+                className="block text-[10px] font-bold text-stone-mid uppercase tracking-widest"
+                style={{ fontFamily: "var(--font-accent)" }}
+              >
+                Password
+              </label>
+              {mode === "signin" && (
+                <Link
+                  href="/signin/forgot"
+                  className="text-[10px] font-semibold text-gold hover:underline tracking-wide"
+                >
+                  Forgot password?
+                </Link>
+              )}
+            </div>
             <input
               type="password"
               value={password}

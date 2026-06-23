@@ -3,6 +3,7 @@ import { getAdminStones } from "@/lib/actions";
 import { getSupabase } from "@/lib/supabase";
 import { getLibraryItems } from "@/lib/library-actions";
 import { getAdminSharehouseNeeds } from "@/lib/sharehouse-actions";
+import { getAdminBulletinPosts } from "@/lib/bulletin-actions";
 import { adminGetAttributes, adminGetReferences } from "@/lib/admin-attribute-actions";
 import AdminLogin from "./AdminLogin";
 import AdminTabs from "./AdminTabs";
@@ -52,6 +53,7 @@ export default async function AdminPage() {
     plans,
     libraryItems,
     sharehouseNeeds,
+    bulletinPosts,
     godAttributes,
     godReferences,
   ] = await Promise.all([
@@ -59,6 +61,7 @@ export default async function AdminPage() {
     getPlansWithDiscussions(),
     getLibraryItems(undefined, undefined, undefined, true),
     getAdminSharehouseNeeds(),
+    getAdminBulletinPosts(),
     adminGetAttributes(),
     adminGetReferences(),
   ]);
@@ -70,6 +73,7 @@ export default async function AdminPage() {
   );
   const pendingLibrary = libraryItems.filter((i) => !i.approved).length;
   const pendingSharehouse = sharehouseNeeds.filter((n) => !n.approved).length;
+  const pendingBulletin = bulletinPosts.filter((p) => !p.approved).length;
   const pendingAttributes =
     godAttributes.filter((a) => !a.approved).length +
     godReferences.filter((r) => !r.approved).length;
@@ -94,6 +98,8 @@ export default async function AdminPage() {
             { label: "Pending Library", value: pendingLibrary, highlight: pendingLibrary > 0 },
             { label: "Care Needs", value: sharehouseNeeds.length },
             { label: "Pending Needs", value: pendingSharehouse, highlight: pendingSharehouse > 0 },
+            { label: "Bulletin Posts", value: bulletinPosts.length },
+            { label: "Pending Bulletin", value: pendingBulletin, highlight: pendingBulletin > 0 },
             { label: "God Attributes", value: godAttributes.length },
             { label: "Pending Attributes", value: pendingAttributes, highlight: pendingAttributes > 0 },
           ].map(({ label, value, highlight }) => (
@@ -124,6 +130,7 @@ export default async function AdminPage() {
           plans={plans}
           libraryItems={libraryItems}
           sharehouseNeeds={sharehouseNeeds}
+          bulletinPosts={bulletinPosts}
           godAttributes={godAttributes}
           godReferences={godReferences}
         />

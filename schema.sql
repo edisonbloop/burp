@@ -129,3 +129,55 @@ create table if not exists public.sharehouse_needs (
 alter table public.sharehouse_needs disable row level security;
 
 
+-- --------------------------------------------------------
+-- BURP Bulletin (Members' Board) Schema
+-- Members post events, promotions, products & services for the community.
+-- --------------------------------------------------------
+
+create table if not exists public.bulletin_posts (
+  id uuid primary key default gen_random_uuid(),
+  user_id uuid references auth.users(id) on delete set null, -- owner (null for anonymous posts); lets members edit their own
+  category text not null, -- 'event' | 'promotion' | 'product' | 'service'
+  title text not null,
+  description text not null,
+  full_name text not null, -- name of the member posting
+  business_name text, -- optional business / ministry name
+  contact_info text not null, -- how the community can reach or buy from them
+  link_url text, -- optional website / shop / social / registration link
+  image_url text, -- optional flyer / photo (stored in the 'bulletin' storage bucket)
+  video_url text, -- optional video link (YouTube, Vimeo, etc.)
+  price text, -- optional freeform price e.g. "₦5,000", "Free", "From $20"
+  location text, -- optional location / service area
+  event_date timestamptz, -- optional, mainly for events
+  approved boolean not null default false, -- must be approved by admin before appearing publicly
+  featured boolean not null default false, -- whether the post is pinned / featured
+  status text not null default 'active', -- 'active' | 'expired' | 'closed'
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now()
+);
+
+-- If the table already exists, add the owner column safely
+alter table public.bulletin_posts add column if not exists user_id uuid references auth.users(id) on delete set null;
+
+-- Disable Row Level Security as with other tables — server-side queries handle access
+alter table public.bulletin_posts disable row level security;
+
+create index if not exists idx_bulletin_public
+  on public.bulletin_posts (approved, status, featured desc, created_at desc);
+
+-- Storage bucket for bulletin flyers/photos.
+-- Public read; uploads are restricted to signed-in members.
+insert into storage.buckets (id, name, public)
+values ('bulletin', 'bulletin', true)
+on conflict (id) do nothing;
+
+create policy "Public read bulletin flyers"
+  on storage.objects for select
+  using (bucket_id = 'bulletin');
+
+create policy "Members can upload bulletin flyers"
+  on storage.objects for insert
+  to authenticated
+  with check (bucket_id = 'bulletin');
+
+

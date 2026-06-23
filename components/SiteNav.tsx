@@ -17,6 +17,7 @@ const links = [
   { href: "/talk-it-over", label: "Talk It Over" },
   { href: "/library",      label: "Library"      },
   { href: "/sharehouse",   label: "Sharehouse"   },
+  { href: "/bulletin",     label: "Bulletin"     },
   { href: "/attributes",   label: "Attributes"   },
   { href: "/100stones",    label: "100 Stones"   },
   { href: "/games",        label: "Games"        },

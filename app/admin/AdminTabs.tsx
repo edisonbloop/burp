@@ -5,10 +5,12 @@ import AdminStoneTable from "@/components/AdminStoneTable";
 import AdminContentPanel from "@/components/AdminContentPanel";
 import AdminLibraryPanel from "@/components/AdminLibraryPanel";
 import AdminSharehousePanel from "@/components/AdminSharehousePanel";
+import AdminBulletinPanel from "@/components/AdminBulletinPanel";
 import AdminAttributesPanel from "@/components/AdminAttributesPanel";
 import type { Stone } from "@/types/stones";
 import type { LibraryItem } from "@/types/library";
 import type { SharehouseNeed } from "@/types/sharehouse";
+import type { BulletinPost } from "@/types/bulletin";
 import type { GodAttribute, AttributeReference } from "@/types/attributes";
 
 interface Plan {
@@ -38,6 +40,7 @@ interface AdminTabsProps {
   plans: Plan[];
   libraryItems: LibraryItem[];
   sharehouseNeeds: SharehouseNeed[];
+  bulletinPosts: BulletinPost[];
   godAttributes: AttributeWithRefs[];
   godReferences: ReferenceWithAttr[];
 }
@@ -47,6 +50,7 @@ const tabs = [
   { id: "content", label: "Reading Plans & Discussions" },
   { id: "library", label: "Content Library" },
   { id: "sharehouse", label: "BURP Sharehouse" },
+  { id: "bulletin", label: "BURP Bulletin" },
   { id: "attributes", label: "Attributes of God" },
 ] as const;
 
@@ -57,6 +61,7 @@ export default function AdminTabs({
   plans,
   libraryItems,
   sharehouseNeeds,
+  bulletinPosts,
   godAttributes,
   godReferences,
 }: AdminTabsProps) {
@@ -64,6 +69,7 @@ export default function AdminTabs({
 
   const pendingLibrary = libraryItems.filter((i) => !i.approved).length;
   const pendingSharehouse = sharehouseNeeds.filter((n) => !n.approved).length;
+  const pendingBulletin = bulletinPosts.filter((p) => !p.approved).length;
   const pendingAttributes =
     godAttributes.filter((a) => !a.approved).length +
     godReferences.filter((r) => !r.approved).length;
@@ -71,6 +77,7 @@ export default function AdminTabs({
   const badgeFor = (id: TabId) => {
     if (id === "library") return pendingLibrary;
     if (id === "sharehouse") return pendingSharehouse;
+    if (id === "bulletin") return pendingBulletin;
     if (id === "attributes") return pendingAttributes;
     return 0;
   };
@@ -106,6 +113,7 @@ export default function AdminTabs({
       {activeTab === "content" && <AdminContentPanel plans={plans} />}
       {activeTab === "library" && <AdminLibraryPanel items={libraryItems} />}
       {activeTab === "sharehouse" && <AdminSharehousePanel needs={sharehouseNeeds} />}
+      {activeTab === "bulletin" && <AdminBulletinPanel posts={bulletinPosts} />}
       {activeTab === "attributes" && (
         <AdminAttributesPanel attributes={godAttributes} references={godReferences} />
       )}
