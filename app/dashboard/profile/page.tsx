@@ -46,6 +46,13 @@ export default function ProfilePage() {
   const [uploadingAvatar, setUploadingAvatar] = useState(false);
   const [copied, setCopied] = useState(false);
 
+  // Password change
+  const [newPassword, setNewPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [pwSaving, setPwSaving] = useState(false);
+  const [pwSaved, setPwSaved] = useState(false);
+  const [pwError, setPwError] = useState("");
+
   const savedTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const usernameTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -117,6 +124,31 @@ export default function ProfilePage() {
     await supabase.from("profiles").upsert({ id: userId, avatar_url: publicUrl });
     setAvatarUrl(busted);
     setUploadingAvatar(false);
+  };
+
+  // -- Change password -------------------------------------------------------
+  const handleChangePassword = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setPwError("");
+    setPwSaved(false);
+    if (newPassword.length < 8) {
+      setPwError("Password must be at least 8 characters.");
+      return;
+    }
+    if (newPassword !== confirmPassword) {
+      setPwError("Passwords do not match.");
+      return;
+    }
+    setPwSaving(true);
+    const { error } = await supabase.auth.updateUser({ password: newPassword });
+    setPwSaving(false);
+    if (error) {
+      setPwError(error.message);
+      return;
+    }
+    setNewPassword("");
+    setConfirmPassword("");
+    setPwSaved(true);
   };
 
   // -- Links helpers ---------------------------------------------------------
@@ -430,6 +462,64 @@ export default function ProfilePage() {
             <span className="text-sm text-gold-deep flex items-center gap-1.5 font-medium">
               <svg className="w-4 h-4" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 8l4 4 6-7" /></svg>
               Saved
+            </span>
+          )}
+        </div>
+      </form>
+
+      {/* -- Security / Password ------------------------------------------- */}
+      <form
+        onSubmit={handleChangePassword}
+        className="mt-10 bg-parchment-soft border border-stone-edge rounded-2xl px-5 py-6 sm:px-6 space-y-5"
+      >
+        <div>
+          <h2 className="text-xs font-bold tracking-widest uppercase text-stone-light" style={{ fontFamily: "var(--font-accent)" }}>
+            Password
+          </h2>
+          <p className="text-sm text-stone-mid mt-1">Set a new password for signing in.</p>
+        </div>
+
+        <div>
+          <label className={labelCls} style={{ fontFamily: "var(--font-accent)" }}>New Password</label>
+          <input
+            className={inputCls}
+            type="password"
+            value={newPassword}
+            onChange={e => setNewPassword(e.target.value)}
+            placeholder="••••••••"
+            autoComplete="new-password"
+          />
+        </div>
+
+        <div>
+          <label className={labelCls} style={{ fontFamily: "var(--font-accent)" }}>Confirm New Password</label>
+          <input
+            className={inputCls}
+            type="password"
+            value={confirmPassword}
+            onChange={e => setConfirmPassword(e.target.value)}
+            placeholder="••••••••"
+            autoComplete="new-password"
+          />
+        </div>
+
+        {pwError && (
+          <p className="text-sm text-red-600 bg-red-50 border border-red-200 rounded-xl px-4 py-3">{pwError}</p>
+        )}
+
+        <div className="flex items-center gap-4">
+          <button
+            type="submit"
+            disabled={pwSaving}
+            className="px-8 py-3 rounded-full bg-ink hover:bg-stone text-vellum font-bold text-xs tracking-widest uppercase transition-colors disabled:opacity-50"
+            style={{ fontFamily: "var(--font-accent)" }}
+          >
+            {pwSaving ? "Updating…" : "Update Password"}
+          </button>
+          {pwSaved && (
+            <span className="text-sm text-gold-deep flex items-center gap-1.5 font-medium">
+              <svg className="w-4 h-4" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 8l4 4 6-7" /></svg>
+              Password updated
             </span>
           )}
         </div>

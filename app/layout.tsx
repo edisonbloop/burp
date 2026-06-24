@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from "next";
 import { Cormorant_Garamond, Inter, Cinzel } from "next/font/google";
 import "./globals.css";
 import InstallPrompt from "@/components/InstallPrompt";
+import PasswordRecoveryHandler from "@/components/PasswordRecoveryHandler";
 
 const cormorant = Cormorant_Garamond({
   variable: "--font-cormorant",
@@ -50,6 +51,7 @@ export default function RootLayout({
     >
       <body className="min-h-full flex flex-col bg-[#FBF8F1] text-[#1A1714] font-sans">
         {children}
+        <PasswordRecoveryHandler />
         <InstallPrompt />
       </body>
     </html>
