@@ -18,6 +18,7 @@ const links = [
   { href: "/library",      label: "Library"      },
   { href: "/sharehouse",   label: "Sharehouse"   },
   { href: "/bulletin",     label: "Bulletin"     },
+  { href: "/timetable",    label: "Timetable"    },
   { href: "/attributes",   label: "Attributes"   },
   { href: "/100stones",    label: "100 Stones"   },
   { href: "/games",        label: "Games"        },

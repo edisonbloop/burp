@@ -165,6 +165,47 @@ alter table public.bulletin_posts disable row level security;
 create index if not exists idx_bulletin_public
   on public.bulletin_posts (approved, status, featured desc, created_at desc);
 
+
+-- --------------------------------------------------------
+-- Facilitating Timetable (single-row weekly schedule)
+-- Admin sets who facilitates each day; signed-in members view it.
+-- --------------------------------------------------------
+
+create table if not exists public.facilitation_timetable (
+  id int primary key default 1,
+  monday text,
+  tuesday text,
+  wednesday text,
+  thursday text,
+  friday text,
+  saturday text,
+  sunday text,
+  monday_user_id uuid,
+  tuesday_user_id uuid,
+  wednesday_user_id uuid,
+  thursday_user_id uuid,
+  friday_user_id uuid,
+  saturday_user_id uuid,
+  sunday_user_id uuid,
+  note text,
+  updated_at timestamptz not null default now(),
+  constraint facilitation_timetable_single_row check (id = 1)
+);
+
+-- If the table already exists, add the per-day member links safely
+alter table public.facilitation_timetable add column if not exists monday_user_id uuid;
+alter table public.facilitation_timetable add column if not exists tuesday_user_id uuid;
+alter table public.facilitation_timetable add column if not exists wednesday_user_id uuid;
+alter table public.facilitation_timetable add column if not exists thursday_user_id uuid;
+alter table public.facilitation_timetable add column if not exists friday_user_id uuid;
+alter table public.facilitation_timetable add column if not exists saturday_user_id uuid;
+alter table public.facilitation_timetable add column if not exists sunday_user_id uuid;
+
+-- Seed the single row
+insert into public.facilitation_timetable (id) values (1) on conflict (id) do nothing;
+
+alter table public.facilitation_timetable disable row level security;
+
 -- Storage bucket for bulletin flyers/photos.
 -- Public read; uploads are restricted to signed-in members.
 insert into storage.buckets (id, name, public)

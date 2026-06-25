@@ -4,6 +4,7 @@ import { getSupabase } from "@/lib/supabase";
 import { getLibraryItems } from "@/lib/library-actions";
 import { getAdminSharehouseNeeds } from "@/lib/sharehouse-actions";
 import { getAdminBulletinPosts } from "@/lib/bulletin-actions";
+import { getFacilitationTimetable } from "@/lib/timetable-actions";
 import { adminGetAttributes, adminGetReferences } from "@/lib/admin-attribute-actions";
 import AdminLogin from "./AdminLogin";
 import AdminTabs from "./AdminTabs";
@@ -54,6 +55,7 @@ export default async function AdminPage() {
     libraryItems,
     sharehouseNeeds,
     bulletinPosts,
+    timetable,
     godAttributes,
     godReferences,
   ] = await Promise.all([
@@ -62,6 +64,7 @@ export default async function AdminPage() {
     getLibraryItems(undefined, undefined, undefined, true),
     getAdminSharehouseNeeds(),
     getAdminBulletinPosts(),
+    getFacilitationTimetable(),
     adminGetAttributes(),
     adminGetReferences(),
   ]);
@@ -131,6 +134,7 @@ export default async function AdminPage() {
           libraryItems={libraryItems}
           sharehouseNeeds={sharehouseNeeds}
           bulletinPosts={bulletinPosts}
+          timetable={timetable}
           godAttributes={godAttributes}
           godReferences={godReferences}
         />

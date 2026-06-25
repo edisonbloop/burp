@@ -61,6 +61,31 @@ export async function sendApprovalEmail(to: string, firstName: string, itemTitle
   });
 }
 
+// -- Facilitator assigned --------------------------------------------------
+export async function sendFacilitatorEmail(to: string, firstName: string, dayLabel: string) {
+  return resend.emails.send({
+    from: FROM,
+    to,
+    subject: `You're facilitating on ${dayLabel}`,
+    html: emailHtml({
+      preheader: `You've been added to the BURP facilitating timetable for ${dayLabel}.`,
+      body: `
+        <h1>You're facilitating, ${firstName || "friend"}.</h1>
+        <p>
+          You've been added to the BURP facilitating timetable for
+          <strong>${dayLabel}</strong>. Thank you for serving the community. 🙏
+        </p>
+        <p>
+          <a href="https://burp.ink/timetable" class="btn">View the timetable →</a>
+        </p>
+        <p style="color:#A89A85; font-size:13px; margin-top:2rem;">
+          If you have any questions or can't make your day, please reach out to the coordinators.
+        </p>
+      `,
+    }),
+  });
+}
+
 // -- Shared HTML template --------------------------------------------------
 function emailHtml({ preheader, body }: { preheader: string; body: string }) {
   return `<!DOCTYPE html>

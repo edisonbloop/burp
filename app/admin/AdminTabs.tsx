@@ -6,11 +6,13 @@ import AdminContentPanel from "@/components/AdminContentPanel";
 import AdminLibraryPanel from "@/components/AdminLibraryPanel";
 import AdminSharehousePanel from "@/components/AdminSharehousePanel";
 import AdminBulletinPanel from "@/components/AdminBulletinPanel";
+import AdminTimetablePanel from "@/components/AdminTimetablePanel";
 import AdminAttributesPanel from "@/components/AdminAttributesPanel";
 import type { Stone } from "@/types/stones";
 import type { LibraryItem } from "@/types/library";
 import type { SharehouseNeed } from "@/types/sharehouse";
 import type { BulletinPost } from "@/types/bulletin";
+import type { FacilitationTimetable } from "@/types/timetable";
 import type { GodAttribute, AttributeReference } from "@/types/attributes";
 
 interface Plan {
@@ -41,6 +43,7 @@ interface AdminTabsProps {
   libraryItems: LibraryItem[];
   sharehouseNeeds: SharehouseNeed[];
   bulletinPosts: BulletinPost[];
+  timetable: FacilitationTimetable | null;
   godAttributes: AttributeWithRefs[];
   godReferences: ReferenceWithAttr[];
 }
@@ -51,6 +54,7 @@ const tabs = [
   { id: "library", label: "Content Library" },
   { id: "sharehouse", label: "BURP Sharehouse" },
   { id: "bulletin", label: "BURP Bulletin" },
+  { id: "timetable", label: "Facilitating Timetable" },
   { id: "attributes", label: "Attributes of God" },
 ] as const;
 
@@ -62,6 +66,7 @@ export default function AdminTabs({
   libraryItems,
   sharehouseNeeds,
   bulletinPosts,
+  timetable,
   godAttributes,
   godReferences,
 }: AdminTabsProps) {
@@ -114,6 +119,7 @@ export default function AdminTabs({
       {activeTab === "library" && <AdminLibraryPanel items={libraryItems} />}
       {activeTab === "sharehouse" && <AdminSharehousePanel needs={sharehouseNeeds} />}
       {activeTab === "bulletin" && <AdminBulletinPanel posts={bulletinPosts} />}
+      {activeTab === "timetable" && <AdminTimetablePanel timetable={timetable} />}
       {activeTab === "attributes" && (
         <AdminAttributesPanel attributes={godAttributes} references={godReferences} />
       )}
