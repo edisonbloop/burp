@@ -8,12 +8,14 @@ import AdminSharehousePanel from "@/components/AdminSharehousePanel";
 import AdminBulletinPanel from "@/components/AdminBulletinPanel";
 import AdminTimetablePanel from "@/components/AdminTimetablePanel";
 import AdminAttributesPanel from "@/components/AdminAttributesPanel";
+import AdminWorshipPanel from "@/components/AdminWorshipPanel";
 import type { Stone } from "@/types/stones";
 import type { LibraryItem } from "@/types/library";
 import type { SharehouseNeed } from "@/types/sharehouse";
 import type { BulletinPost } from "@/types/bulletin";
 import type { FacilitationTimetable } from "@/types/timetable";
 import type { GodAttribute, AttributeReference } from "@/types/attributes";
+import type { WorshipRsvp } from "@/types/worship";
 
 interface Plan {
   id: string;
@@ -46,6 +48,7 @@ interface AdminTabsProps {
   timetable: FacilitationTimetable | null;
   godAttributes: AttributeWithRefs[];
   godReferences: ReferenceWithAttr[];
+  worshipRsvps: WorshipRsvp[];
 }
 
 const tabs = [
@@ -56,6 +59,7 @@ const tabs = [
   { id: "bulletin", label: "BURP Bulletin" },
   { id: "timetable", label: "Facilitating Timetable" },
   { id: "attributes", label: "Attributes of God" },
+  { id: "worship", label: "Worship RSVPs" },
 ] as const;
 
 type TabId = (typeof tabs)[number]["id"];
@@ -69,6 +73,7 @@ export default function AdminTabs({
   timetable,
   godAttributes,
   godReferences,
+  worshipRsvps,
 }: AdminTabsProps) {
   const [activeTab, setActiveTab] = useState<TabId>("stones");
 
@@ -123,6 +128,7 @@ export default function AdminTabs({
       {activeTab === "attributes" && (
         <AdminAttributesPanel attributes={godAttributes} references={godReferences} />
       )}
+      {activeTab === "worship" && <AdminWorshipPanel rsvps={worshipRsvps} />}
     </div>
   );
 }

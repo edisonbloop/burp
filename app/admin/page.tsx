@@ -6,6 +6,7 @@ import { getAdminSharehouseNeeds } from "@/lib/sharehouse-actions";
 import { getAdminBulletinPosts } from "@/lib/bulletin-actions";
 import { getFacilitationTimetable } from "@/lib/timetable-actions";
 import { adminGetAttributes, adminGetReferences } from "@/lib/admin-attribute-actions";
+import { getAdminWorshipRsvps } from "@/lib/worship-actions";
 import AdminLogin from "./AdminLogin";
 import AdminTabs from "./AdminTabs";
 import PageHeader from "@/components/PageHeader";
@@ -58,6 +59,7 @@ export default async function AdminPage() {
     timetable,
     godAttributes,
     godReferences,
+    worshipRsvps,
   ] = await Promise.all([
     getAdminStones(),
     getPlansWithDiscussions(),
@@ -67,6 +69,7 @@ export default async function AdminPage() {
     getFacilitationTimetable(),
     adminGetAttributes(),
     adminGetReferences(),
+    getAdminWorshipRsvps(),
   ]);
 
   const pendingStones = stones.filter((s) => !s.approved).length;
@@ -105,6 +108,7 @@ export default async function AdminPage() {
             { label: "Pending Bulletin", value: pendingBulletin, highlight: pendingBulletin > 0 },
             { label: "God Attributes", value: godAttributes.length },
             { label: "Pending Attributes", value: pendingAttributes, highlight: pendingAttributes > 0 },
+            { label: "Worship RSVPs", value: worshipRsvps.length },
           ].map(({ label, value, highlight }) => (
             <div
               key={label}
@@ -137,6 +141,7 @@ export default async function AdminPage() {
           timetable={timetable}
           godAttributes={godAttributes}
           godReferences={godReferences}
+          worshipRsvps={worshipRsvps}
         />
       </div>
     </div>

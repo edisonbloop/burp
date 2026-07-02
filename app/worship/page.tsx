@@ -2,6 +2,12 @@ import Image from "next/image";
 import Link from "next/link";
 import type { Metadata } from "next";
 import SiteNav from "@/components/SiteNav";
+import WorshipCountdown from "@/components/WorshipCountdown";
+import WorshipRsvpForm from "@/components/WorshipRsvpForm";
+
+// Single source of truth for the event date/time — used by the countdown,
+// the RSVP confirmation email, and the livestream reminder email.
+export const EVENT_ISO = "2026-08-14T18:30:00+00:00";
 
 export const metadata: Metadata = {
   title: "From the Heart — BURP",
@@ -80,6 +86,18 @@ export default function WorshipPage() {
               14th August 2026
             </p>
           </div>
+
+          <div className="mt-14">
+            <WorshipCountdown targetIso={EVENT_ISO} />
+          </div>
+
+          <a
+            href="#rsvp"
+            className="mt-14 inline-block px-8 py-4 rounded-full bg-gold hover:bg-gold-deep text-[#0f0d0b] font-bold text-xs tracking-[0.2em] uppercase transition-colors"
+            style={{ fontFamily: "var(--font-accent)" }}
+          >
+            RSVP to the Livestream
+          </a>
         </div>
       </section>
 
@@ -296,8 +314,8 @@ export default function WorshipPage() {
 
           <div className="divide-y divide-stone-edge border border-stone-edge rounded-2xl overflow-hidden">
             {[
-              { label: "Date",      value: "Friday, 14th August 2026" },
-              { label: "Format",   value: "In-person · Livestream (TBC)" },
+              { label: "Date",      value: "Friday, 14th August 2026 · 6:30 PM (GMT)" },
+              { label: "Format",   value: "In-person · Livestream (RSVP required)" },
               { label: "Duration", value: "2.5 – 3 hours" },
               { label: "Admission",value: "Free / Love Offering" },
               { label: "Host",     value: "The Berean Upper Room Platform" },
@@ -347,6 +365,35 @@ export default function WorshipPage() {
                 Writers, spoken word artists, and thinkers who want a room where their craft serves something bigger than themselves
               </li>
             </ul>
+          </div>
+        </div>
+      </section>
+
+      {/* -- RSVP ---------------------------------------------------------------- */}
+      <section id="rsvp" className={`${DARK} px-6 py-20 sm:py-28 scroll-mt-8`}>
+        <div className="max-w-xl mx-auto">
+          <p
+            className="text-[10px] tracking-[0.4em] uppercase text-[#7a6a58] mb-3 text-center"
+            style={{ fontFamily: "var(--font-accent)" }}
+          >
+            Join Us Live
+          </p>
+          <h2
+            className="text-4xl sm:text-5xl font-bold text-gold text-center mb-4"
+            style={{ fontFamily: "var(--font-display)" }}
+          >
+            RSVP to the Livestream
+          </h2>
+          <p
+            className="text-base text-[#9a8870] text-center leading-relaxed mb-12"
+            style={{ fontFamily: "var(--font-display)" }}
+          >
+            Can&rsquo;t make it in person? Reserve your spot for the livestream and
+            we&rsquo;ll send your link before the night begins.
+          </p>
+
+          <div className="bg-white/[0.03] border border-white/10 rounded-3xl p-6 sm:p-10">
+            <WorshipRsvpForm />
           </div>
         </div>
       </section>

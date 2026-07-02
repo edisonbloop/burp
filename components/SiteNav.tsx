@@ -22,6 +22,7 @@ const links = [
   { href: "/attributes",   label: "Attributes"   },
   { href: "/100stones",    label: "100 Stones"   },
   { href: "/games",        label: "Games"        },
+  { href: "/worship",      label: "Worship"      },
 ];
 
 export default function SiteNav() {

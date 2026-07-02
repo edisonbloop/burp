@@ -222,3 +222,23 @@ create policy "Members can upload bulletin flyers"
   with check (bucket_id = 'bulletin');
 
 
+-- --------------------------------------------------------
+-- Worship Night RSVPs ("From the Heart")
+-- Public RSVP to attend the livestream; admin sends the link later.
+-- --------------------------------------------------------
+
+create table if not exists public.worship_rsvps (
+  id           uuid primary key default gen_random_uuid(),
+  full_name    text not null,
+  email        text not null unique,
+  guest_count  int not null default 1,
+  notes        text,
+  notified     boolean not null default false,
+  created_at   timestamptz not null default now()
+);
+
+alter table public.worship_rsvps disable row level security;
+
+create index if not exists idx_worship_rsvps_created
+  on public.worship_rsvps (created_at desc);
+

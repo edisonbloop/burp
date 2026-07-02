@@ -86,6 +86,68 @@ export async function sendFacilitatorEmail(to: string, firstName: string, dayLab
   });
 }
 
+// -- Worship RSVP confirmation ----------------------------------------------
+export async function sendWorshipRsvpConfirmation(to: string, firstName: string) {
+  return resend.emails.send({
+    from: FROM,
+    to,
+    subject: "You're RSVP'd — From the Heart",
+    html: emailHtml({
+      preheader: "You're on the list for From the Heart, Friday 14th August 2026.",
+      body: `
+        <h1>You're on the list, ${firstName || "friend"}.</h1>
+        <p>
+          Thank you for RSVPing to <strong>From the Heart</strong> — a night of worship,
+          testimony and ministration hosted by BURP.
+        </p>
+        <p>
+          <strong>Friday, 14th August 2026 · 6:30 PM (GMT)</strong>
+        </p>
+        <p>
+          We'll email your livestream link closer to the night, so keep an eye on your inbox.
+        </p>
+        <p style="margin-top:2rem;">
+          <a href="https://burp.ink/worship" class="btn">View event details →</a>
+        </p>
+        <p style="color:#A89A85; font-size:13px; margin-top:2rem;">
+          We have been feasting. August 14th is what comes out.
+        </p>
+      `,
+    }),
+  });
+}
+
+// -- Worship livestream link -------------------------------------------------
+export async function sendWorshipLivestreamEmail(
+  to: string,
+  firstName: string,
+  linkUrl: string,
+  message?: string
+) {
+  return resend.emails.send({
+    from: FROM,
+    to,
+    subject: "Your livestream link — From the Heart",
+    html: emailHtml({
+      preheader: "Here's your link to join From the Heart live.",
+      body: `
+        <h1>It's almost time, ${firstName || "friend"}.</h1>
+        <p>
+          Here's your livestream link for <strong>From the Heart</strong>,
+          Friday 14th August 2026 at 6:30 PM (GMT).
+        </p>
+        ${message ? `<p>${message}</p>` : ""}
+        <p style="margin-top:2rem;">
+          <a href="${linkUrl}" class="btn">Join the livestream →</a>
+        </p>
+        <p style="color:#A89A85; font-size:13px; margin-top:2rem;">
+          See you there. We have been feasting. August 14th is what comes out.
+        </p>
+      `,
+    }),
+  });
+}
+
 // -- Shared HTML template --------------------------------------------------
 function emailHtml({ preheader, body }: { preheader: string; body: string }) {
   return `<!DOCTYPE html>
