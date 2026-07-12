@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { getPublicBulletinPosts } from "@/lib/bulletin-actions";
 import BulletinBoardClient from "@/components/BulletinBoardClient";
+import AuthMenu from "@/components/AuthMenu";
 
 export const revalidate = 0; // Always dynamic so new posts show immediately
 
@@ -19,13 +20,16 @@ export default async function BulletinPage() {
           >
             ← B U R P
           </Link>
-          <Link
-            href="/bulletin/submit"
-            className="px-4 py-2 rounded-full bg-ink hover:bg-stone text-vellum font-semibold text-xs tracking-widest transition-colors duration-140 uppercase"
-            style={{ fontFamily: "var(--font-accent)" }}
-          >
-            Post to Bulletin
-          </Link>
+          <div className="flex items-center gap-4">
+            <Link
+              href="/bulletin/submit"
+              className="px-4 py-2 rounded-full bg-ink hover:bg-stone text-vellum font-semibold text-xs tracking-widest transition-colors duration-140 uppercase"
+              style={{ fontFamily: "var(--font-accent)" }}
+            >
+              Post to Bulletin
+            </Link>
+            <AuthMenu />
+          </div>
         </div>
       </div>
 

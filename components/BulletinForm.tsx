@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -79,7 +79,13 @@ export default function BulletinForm({ initial }: { initial?: BulletinPost }) {
   const [serverError, setServerError] = useState("");
   const [imageUrl, setImageUrl] = useState(initial?.image_url ?? "");
   const [uploading, setUploading] = useState(false);
+  const [uploadSlow, setUploadSlow] = useState(false);
   const [uploadError, setUploadError] = useState("");
+  // Identifies the current upload attempt. The SDK's upload() call can't be
+  // truly aborted, so Cancel just bumps this — any late response from an
+  // abandoned attempt is then ignored instead of silently overriding the UI.
+  const uploadAttemptRef = useRef(0);
+  const uploadSlowTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   // null = still checking; flyer upload is restricted to signed-in members.
   const [isSignedIn, setIsSignedIn] = useState<boolean | null>(null);
   // Name pulled from the signed-in member's profile, used to prefill + lock the name field.
@@ -150,6 +156,13 @@ export default function BulletinForm({ initial }: { initial?: BulletinPost }) {
     };
   }, [supabase, setValue, isEdit]);
 
+  // Clear the "still uploading?" timer if the component unmounts mid-upload.
+  useEffect(() => {
+    return () => {
+      if (uploadSlowTimerRef.current) clearTimeout(uploadSlowTimerRef.current);
+    };
+  }, []);
+
   const category = watch("category");
   const descriptionValue = watch("description") ?? "";
   const videoUrlValue = watch("video_url") ?? "";
@@ -164,6 +177,25 @@ export default function BulletinForm({ initial }: { initial?: BulletinPost }) {
       }
     };
 
+  function clearUploadSlowTimer() {
+    if (uploadSlowTimerRef.current) {
+      clearTimeout(uploadSlowTimerRef.current);
+      uploadSlowTimerRef.current = null;
+    }
+  }
+
+  // Lets the user bail out of a stuck upload at any time. The underlying
+  // request can't be truly aborted (the installed SDK's upload() has no
+  // abort-signal option), so this just invalidates the attempt — if it
+  // eventually resolves in the background, handleImage's guard ignores it.
+  function cancelUpload() {
+    uploadAttemptRef.current++;
+    clearUploadSlowTimer();
+    setUploading(false);
+    setUploadSlow(false);
+    setUploadError("Upload cancelled. You can try again.");
+  }
+
   const handleImage = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
@@ -177,7 +209,13 @@ export default function BulletinForm({ initial }: { initial?: BulletinPost }) {
     }
 
     setUploadError("");
+    setUploadSlow(false);
     setUploading(true);
+
+    const attemptId = ++uploadAttemptRef.current;
+    uploadSlowTimerRef.current = setTimeout(() => {
+      if (uploadAttemptRef.current === attemptId) setUploadSlow(true);
+    }, 12000);
 
     try {
       const ext = file.name.split(".").pop() ?? "jpg";
@@ -186,6 +224,10 @@ export default function BulletinForm({ initial }: { initial?: BulletinPost }) {
       const { error } = await supabase.storage
         .from("bulletin")
         .upload(path, file, { contentType: file.type });
+
+      // A cancel (or a newer attempt) superseded this one while we waited —
+      // don't let a late response resurrect the UI state.
+      if (uploadAttemptRef.current !== attemptId) return;
 
       if (error) {
         setUploadError("Could not upload image — " + error.message);
@@ -197,13 +239,16 @@ export default function BulletinForm({ initial }: { initial?: BulletinPost }) {
       } = supabase.storage.from("bulletin").getPublicUrl(path);
       setImageUrl(publicUrl);
     } catch (e) {
+      if (uploadAttemptRef.current !== attemptId) return;
       setUploadError(
         "Could not upload image — " + (e instanceof Error ? e.message : "unexpected error")
       );
     } finally {
-      // Always clear the uploading state, even if the request threw instead
-      // of resolving with a Supabase error (e.g. network failure, missing bucket).
-      setUploading(false);
+      if (uploadAttemptRef.current === attemptId) {
+        clearUploadSlowTimer();
+        setUploading(false);
+        setUploadSlow(false);
+      }
     }
   };
 
@@ -526,6 +571,26 @@ export default function BulletinForm({ initial }: { initial?: BulletinPost }) {
               Remove
             </button>
           </div>
+        ) : uploading ? (
+          <div className="flex flex-col items-center justify-center gap-3 w-full py-8 rounded-xl border-2 border-dashed border-gold bg-gold-wash/30 text-center px-4">
+            <svg className="w-6 h-6 text-gold-deep animate-spin" fill="none" viewBox="0 0 24 24">
+              <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+              <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+            </svg>
+            <span className="text-xs font-semibold text-stone-mid">Uploading…</span>
+            {uploadSlow && (
+              <span className="text-[11px] text-stone-mid max-w-xs">
+                This is taking longer than usual. You can keep waiting or cancel and try again.
+              </span>
+            )}
+            <button
+              type="button"
+              onClick={cancelUpload}
+              className="text-xs font-bold text-red-600 hover:underline uppercase tracking-wider"
+            >
+              Cancel Upload
+            </button>
+          </div>
         ) : isSignedIn === false ? (
           <div className="flex flex-col items-center justify-center gap-2 w-full py-8 rounded-xl border-2 border-dashed border-stone-edge bg-parchment-soft text-center px-4">
             <svg className="w-7 h-7 text-stone-light" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24">
@@ -546,20 +611,16 @@ export default function BulletinForm({ initial }: { initial?: BulletinPost }) {
           </div>
         ) : (
           <label
-            className={`flex flex-col items-center justify-center gap-2 w-full py-8 rounded-xl border-2 border-dashed cursor-pointer transition-colors ${
-              uploading
-                ? "border-gold bg-gold-wash/30"
-                : "border-stone-edge bg-white hover:border-gold hover:bg-parchment-soft"
-            } ${isSignedIn === null ? "opacity-60 pointer-events-none" : ""}`}
+            className={`flex flex-col items-center justify-center gap-2 w-full py-8 rounded-xl border-2 border-dashed cursor-pointer transition-colors border-stone-edge bg-white hover:border-gold hover:bg-parchment-soft ${
+              isSignedIn === null ? "opacity-60 pointer-events-none" : ""
+            }`}
           >
             <svg className="w-7 h-7 text-stone-light" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5m-13.5-9L12 3m0 0l4.5 4.5M12 3v13.5" />
             </svg>
-            <span className="text-xs font-semibold text-stone-mid">
-              {uploading ? "Uploading…" : "Tap to upload a flyer or photo"}
-            </span>
+            <span className="text-xs font-semibold text-stone-mid">Tap to upload a flyer or photo</span>
             <span className="text-[10px] text-stone-light">PNG or JPG · up to 5 MB</span>
-            <input type="file" accept="image/*" onChange={handleImage} disabled={uploading} className="hidden" />
+            <input type="file" accept="image/*" onChange={handleImage} className="hidden" />
           </label>
         )}
 

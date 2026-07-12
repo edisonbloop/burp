@@ -9,6 +9,8 @@ import AdminBulletinPanel from "@/components/AdminBulletinPanel";
 import AdminTimetablePanel from "@/components/AdminTimetablePanel";
 import AdminAttributesPanel from "@/components/AdminAttributesPanel";
 import AdminWorshipPanel from "@/components/AdminWorshipPanel";
+import AdminCrmPanel from "@/components/AdminCrmPanel";
+import AdminSecretSantaPanel from "@/components/AdminSecretSantaPanel";
 import type { Stone } from "@/types/stones";
 import type { LibraryItem } from "@/types/library";
 import type { SharehouseNeed } from "@/types/sharehouse";
@@ -16,6 +18,8 @@ import type { BulletinPost } from "@/types/bulletin";
 import type { FacilitationTimetable } from "@/types/timetable";
 import type { GodAttribute, AttributeReference } from "@/types/attributes";
 import type { WorshipRsvp } from "@/types/worship";
+import type { Person } from "@/types/crm";
+import type { SecretSantaMappingRow, SecretSantaRound } from "@/types/secretsanta";
 
 interface Plan {
   id: string;
@@ -49,6 +53,11 @@ interface AdminTabsProps {
   godAttributes: AttributeWithRefs[];
   godReferences: ReferenceWithAttr[];
   worshipRsvps: WorshipRsvp[];
+  people: Person[];
+  secretSantaRound: SecretSantaRound | null;
+  secretSantaMapping: SecretSantaMappingRow[];
+  secretSantaNotPicked: (Person & { canSelfPick: boolean })[];
+  secretSantaTotal: number;
 }
 
 const tabs = [
@@ -60,6 +69,8 @@ const tabs = [
   { id: "timetable", label: "Facilitating Timetable" },
   { id: "attributes", label: "Attributes of God" },
   { id: "worship", label: "Worship RSVPs" },
+  { id: "people", label: "People (CRM)" },
+  { id: "secretsanta", label: "Secret Santa" },
 ] as const;
 
 type TabId = (typeof tabs)[number]["id"];
@@ -74,6 +85,11 @@ export default function AdminTabs({
   godAttributes,
   godReferences,
   worshipRsvps,
+  people,
+  secretSantaRound,
+  secretSantaMapping,
+  secretSantaNotPicked,
+  secretSantaTotal,
 }: AdminTabsProps) {
   const [activeTab, setActiveTab] = useState<TabId>("stones");
 
@@ -129,6 +145,16 @@ export default function AdminTabs({
         <AdminAttributesPanel attributes={godAttributes} references={godReferences} />
       )}
       {activeTab === "worship" && <AdminWorshipPanel rsvps={worshipRsvps} />}
+      {activeTab === "people" && <AdminCrmPanel people={people} />}
+      {activeTab === "secretsanta" && (
+        <AdminSecretSantaPanel
+          round={secretSantaRound}
+          people={people}
+          mapping={secretSantaMapping}
+          notPicked={secretSantaNotPicked}
+          totalParticipants={secretSantaTotal}
+        />
+      )}
     </div>
   );
 }

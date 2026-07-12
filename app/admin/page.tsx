@@ -7,6 +7,8 @@ import { getAdminBulletinPosts } from "@/lib/bulletin-actions";
 import { getFacilitationTimetable } from "@/lib/timetable-actions";
 import { adminGetAttributes, adminGetReferences } from "@/lib/admin-attribute-actions";
 import { getAdminWorshipRsvps } from "@/lib/worship-actions";
+import { getPeople } from "@/lib/crm-actions";
+import { getLatestRound, adminGetRoundOverview } from "@/lib/secretsanta-actions";
 import AdminLogin from "./AdminLogin";
 import AdminTabs from "./AdminTabs";
 import PageHeader from "@/components/PageHeader";
@@ -60,6 +62,8 @@ export default async function AdminPage() {
     godAttributes,
     godReferences,
     worshipRsvps,
+    people,
+    secretSantaRound,
   ] = await Promise.all([
     getAdminStones(),
     getPlansWithDiscussions(),
@@ -70,7 +74,13 @@ export default async function AdminPage() {
     adminGetAttributes(),
     adminGetReferences(),
     getAdminWorshipRsvps(),
+    getPeople(),
+    getLatestRound(),
   ]);
+
+  const secretSantaOverview = secretSantaRound
+    ? await adminGetRoundOverview(secretSantaRound.id)
+    : { mapping: [], notPicked: [], totalParticipants: 0 };
 
   const pendingStones = stones.filter((s) => !s.approved).length;
   const totalDiscs = plans.reduce(
@@ -109,6 +119,8 @@ export default async function AdminPage() {
             { label: "God Attributes", value: godAttributes.length },
             { label: "Pending Attributes", value: pendingAttributes, highlight: pendingAttributes > 0 },
             { label: "Worship RSVPs", value: worshipRsvps.length },
+            { label: "People (CRM)", value: people.length },
+            { label: "Secret Santa Matched", value: secretSantaOverview.mapping.length },
           ].map(({ label, value, highlight }) => (
             <div
               key={label}
@@ -142,6 +154,11 @@ export default async function AdminPage() {
           godAttributes={godAttributes}
           godReferences={godReferences}
           worshipRsvps={worshipRsvps}
+          people={people}
+          secretSantaRound={secretSantaRound}
+          secretSantaMapping={secretSantaOverview.mapping}
+          secretSantaNotPicked={secretSantaOverview.notPicked}
+          secretSantaTotal={secretSantaOverview.totalParticipants}
         />
       </div>
     </div>

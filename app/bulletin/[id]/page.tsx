@@ -5,6 +5,7 @@ import { getBulletinPostById } from "@/lib/bulletin-actions";
 import { parseVideoUrl } from "@/lib/video";
 import ShareButton from "@/components/ShareButton";
 import BulletinOwnerActions from "@/components/BulletinOwnerActions";
+import AuthMenu from "@/components/AuthMenu";
 import type { BulletinCategory } from "@/types/bulletin";
 
 interface PageProps {
@@ -73,9 +74,10 @@ export default async function BulletinDetailPage({ params }: PageProps) {
           >
             ← Bulletin
           </Link>
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-3">
             <BulletinOwnerActions postId={post.id} postUserId={post.user_id} />
             <ShareButton />
+            <AuthMenu />
           </div>
         </div>
       </div>

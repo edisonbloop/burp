@@ -32,6 +32,7 @@ const navItems: NavItem[] = [
   { href: "/timetable", label: "Timetable" },
   { href: "/games", label: "Games" },
   { href: "/worship", label: "Worship" },
+  { href: "/secret-santa", label: "Secret Santa" },
 ];
 
 function isChildActive(children: NavLink[], pathname: string) {
