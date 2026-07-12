@@ -179,24 +179,32 @@ export default function BulletinForm({ initial }: { initial?: BulletinPost }) {
     setUploadError("");
     setUploading(true);
 
-    const ext = file.name.split(".").pop() ?? "jpg";
-    const path = `flyers/${crypto.randomUUID()}.${ext}`;
+    try {
+      const ext = file.name.split(".").pop() ?? "jpg";
+      const path = `flyers/${crypto.randomUUID()}.${ext}`;
 
-    const { error } = await supabase.storage
-      .from("bulletin")
-      .upload(path, file, { contentType: file.type });
+      const { error } = await supabase.storage
+        .from("bulletin")
+        .upload(path, file, { contentType: file.type });
 
-    if (error) {
-      setUploadError("Could not upload image — " + error.message);
+      if (error) {
+        setUploadError("Could not upload image — " + error.message);
+        return;
+      }
+
+      const {
+        data: { publicUrl },
+      } = supabase.storage.from("bulletin").getPublicUrl(path);
+      setImageUrl(publicUrl);
+    } catch (e) {
+      setUploadError(
+        "Could not upload image — " + (e instanceof Error ? e.message : "unexpected error")
+      );
+    } finally {
+      // Always clear the uploading state, even if the request threw instead
+      // of resolving with a Supabase error (e.g. network failure, missing bucket).
       setUploading(false);
-      return;
     }
-
-    const {
-      data: { publicUrl },
-    } = supabase.storage.from("bulletin").getPublicUrl(path);
-    setImageUrl(publicUrl);
-    setUploading(false);
   };
 
   const onSubmit = async (data: FormValues) => {
