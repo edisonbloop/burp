@@ -7,7 +7,7 @@ import { getFacilitationTimetable } from "@/lib/timetable-actions";
 import { TIMETABLE_DAYS } from "@/types/timetable";
 import type { FacilitationTimetable, TimetableDay } from "@/types/timetable";
 
-type Status = "loading" | "unauth" | "ready";
+type Status = "loading" | "unauth" | "ready" | "error";
 
 // JS getDay(): 0 = Sunday … 6 = Saturday → map to our Monday-first key.
 const JS_DAY_TO_KEY: TimetableDay[] = [
@@ -23,30 +23,44 @@ const JS_DAY_TO_KEY: TimetableDay[] = [
 export default function TimetablePage() {
   const supabase = getSupabaseBrowserClient();
   const [status, setStatus] = useState<Status>("loading");
+  const [loadError, setLoadError] = useState("");
   const [timetable, setTimetable] = useState<FacilitationTimetable | null>(null);
   const [today, setToday] = useState<TimetableDay | null>(null);
+  const [retryCount, setRetryCount] = useState(0);
 
   useEffect(() => {
     let active = true;
-    (async () => {
-      setToday(JS_DAY_TO_KEY[new Date().getDay()]);
-      const {
-        data: { session },
-      } = await supabase.auth.getSession();
-      if (!active) return;
-      if (!session) {
-        setStatus("unauth");
-        return;
+
+    async function load() {
+      setStatus("loading");
+      try {
+        setToday(JS_DAY_TO_KEY[new Date().getDay()]);
+        const {
+          data: { session },
+        } = await supabase.auth.getSession();
+        if (!active) return;
+        if (!session) {
+          setStatus("unauth");
+          return;
+        }
+        const tt = await getFacilitationTimetable();
+        if (!active) return;
+        setTimetable(tt);
+        setStatus("ready");
+      } catch (e) {
+        if (!active) return;
+        setLoadError(
+          e instanceof Error ? e.message : "Something went wrong loading the timetable."
+        );
+        setStatus("error");
       }
-      const tt = await getFacilitationTimetable();
-      if (!active) return;
-      setTimetable(tt);
-      setStatus("ready");
-    })();
+    }
+
+    load();
     return () => {
       active = false;
     };
-  }, [supabase]);
+  }, [supabase, retryCount]);
 
   return (
     <main className="flex flex-col flex-1 min-h-screen bg-vellum text-ink">
@@ -88,6 +102,23 @@ export default function TimetablePage() {
       <section className="flex-1 w-full max-w-2xl mx-auto px-4 sm:px-6 py-12">
         {status === "loading" && (
           <p className="text-center text-sm text-stone-mid py-16">Loading the timetable…</p>
+        )}
+
+        {status === "error" && (
+          <div className="text-center py-16">
+            <h2 className="text-2xl font-bold text-ink mb-3" style={{ fontFamily: "var(--font-display)" }}>
+              Couldn&rsquo;t load the timetable
+            </h2>
+            <p className="text-sm text-red-600 bg-red-50 border border-red-200 rounded-xl px-4 py-3 mb-6 max-w-md mx-auto">
+              {loadError}
+            </p>
+            <button
+              onClick={() => setRetryCount((c) => c + 1)}
+              className="px-6 py-3 rounded-xl bg-ink hover:bg-stone text-vellum font-semibold text-sm transition-colors"
+            >
+              Try Again
+            </button>
+          </div>
         )}
 
         {status === "unauth" && (

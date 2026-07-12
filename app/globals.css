@@ -216,3 +216,34 @@ body {
 .animate-pop-in   { animation: pop-in 0.3s cubic-bezier(.175,.885,.32,1.275) forwards; }
 .animate-fade-out { animation: fade-out 0.4s ease-in 0.6s forwards; }
 
+/* ── Secret Santa festive animations ─────────────────────────────────────── */
+@keyframes santa-snowfall {
+  0%   { transform: translateY(-10vh) translateX(0); opacity: 0; }
+  10%  { opacity: 0.9; }
+  90%  { opacity: 0.9; }
+  100% { transform: translateY(110vh) translateX(var(--drift, 20px)); opacity: 0; }
+}
+@keyframes santa-twinkle {
+  0%, 100% { opacity: 0.25; transform: scale(0.85); }
+  50%      { opacity: 1;    transform: scale(1.15); }
+}
+@keyframes santa-confetti-fall {
+  0%   { transform: translateY(-12vh) rotate(0deg); opacity: 1; }
+  100% { transform: translateY(60vh) rotate(540deg); opacity: 0; }
+}
+@keyframes santa-reveal-pop {
+  0%   { transform: scale(0.7) translateY(12px); opacity: 0; }
+  60%  { transform: scale(1.05) translateY(-2px); opacity: 1; }
+  100% { transform: scale(1) translateY(0); opacity: 1; }
+}
+@keyframes santa-glow-pulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(184, 146, 74, 0.35); }
+  50%      { box-shadow: 0 0 0 10px rgba(184, 146, 74, 0); }
+}
+
+.animate-santa-snowfall  { animation-name: santa-snowfall; animation-timing-function: linear; animation-iteration-count: infinite; }
+.animate-santa-twinkle   { animation: santa-twinkle 2.4s ease-in-out infinite; }
+.animate-santa-confetti  { animation-name: santa-confetti-fall; animation-timing-function: ease-in; animation-fill-mode: forwards; }
+.animate-santa-reveal    { animation: santa-reveal-pop 0.6s cubic-bezier(.175,.885,.32,1.275) forwards; }
+.animate-santa-glow      { animation: santa-glow-pulse 2.2s ease-out infinite; }
+

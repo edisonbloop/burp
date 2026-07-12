@@ -26,10 +26,20 @@ export interface SecretSantaMappingRow {
   assigned_method: AssignmentMethod;
 }
 
+/** The recipient details a giver is shown once assigned — enough to reach out and pick a gift. */
+export interface RecipientDetails {
+  recipientName: string;
+  recipientNotes: string | null;
+  recipientPhone: string | null;
+  recipientEmail: string | null;
+  recipientBirthdayMonth: number | null;
+  recipientBirthdayDay: number | null;
+}
+
 /** What a signed-in participant sees about their own round status. */
 export type MyAssignmentStatus =
   | { state: "not_signed_in" }
   | { state: "not_in_roster" }
   | { state: "no_active_round" }
   | { state: "not_picked_yet"; roundYear: number }
-  | { state: "assigned"; roundYear: number; recipientName: string; recipientNotes: string | null };
+  | ({ state: "assigned"; roundYear: number } & RecipientDetails);

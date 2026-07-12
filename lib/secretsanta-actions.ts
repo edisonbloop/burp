@@ -7,6 +7,7 @@ import type { Person } from "@/types/crm";
 import type {
   AssignmentMethod,
   MyAssignmentStatus,
+  RecipientDetails,
   SecretSantaMappingRow,
   SecretSantaRound,
 } from "@/types/secretsanta";
@@ -144,7 +145,7 @@ export async function getMyAssignmentStatus(
 
   const { data: recipient } = await supabase
     .from("people")
-    .select("full_name, notes")
+    .select("full_name, notes, phone, email, birthday_month, birthday_day")
     .eq("id", assignment.recipient_person_id)
     .single();
 
@@ -153,6 +154,10 @@ export async function getMyAssignmentStatus(
     roundYear: round.year,
     recipientName: recipient?.full_name ?? "Someone",
     recipientNotes: recipient?.notes ?? null,
+    recipientPhone: recipient?.phone ?? null,
+    recipientEmail: recipient?.email ?? null,
+    recipientBirthdayMonth: recipient?.birthday_month ?? null,
+    recipientBirthdayDay: recipient?.birthday_day ?? null,
   };
 }
 
@@ -163,7 +168,7 @@ export async function getMyAssignmentStatus(
  */
 export async function pickMySecretSanta(
   userId: string
-): Promise<{ error?: string; recipientName?: string }> {
+): Promise<{ error?: string } & Partial<RecipientDetails>> {
   try {
     const supabase = getSupabase();
 
@@ -181,6 +186,25 @@ export async function pickMySecretSanta(
     if (!round) return { error: "Secret Santa hasn't started yet." };
     if (!round.is_active) return { error: "Picking is currently closed." };
 
+    const recipientFields = "full_name, notes, phone, email, birthday_month, birthday_day";
+    function toRecipientDetails(r: {
+      full_name: string;
+      notes: string | null;
+      phone: string | null;
+      email: string | null;
+      birthday_month: number | null;
+      birthday_day: number | null;
+    }): RecipientDetails {
+      return {
+        recipientName: r.full_name,
+        recipientNotes: r.notes,
+        recipientPhone: r.phone,
+        recipientEmail: r.email,
+        recipientBirthdayMonth: r.birthday_month,
+        recipientBirthdayDay: r.birthday_day,
+      };
+    }
+
     // Idempotent: if they already picked, just return it.
     const { data: existing } = await supabase
       .from("secret_santa_assignments")
@@ -192,17 +216,19 @@ export async function pickMySecretSanta(
     if (existing) {
       const { data: recipient } = await supabase
         .from("people")
-        .select("full_name")
+        .select(recipientFields)
         .eq("id", existing.recipient_person_id)
         .single();
-      return { recipientName: recipient?.full_name ?? "Someone" };
+      return recipient
+        ? toRecipientDetails(recipient)
+        : { recipientName: "Someone", recipientNotes: null, recipientPhone: null, recipientEmail: null, recipientBirthdayMonth: null, recipientBirthdayDay: null };
     }
 
     // Try a few times in case of a race with another concurrent picker.
     for (let attempt = 0; attempt < 5; attempt++) {
       const { data: participants } = await supabase
         .from("people")
-        .select("id, full_name")
+        .select(`id, ${recipientFields}`)
         .eq("secret_santa_opt_out", false);
 
       const { data: taken } = await supabase
@@ -230,7 +256,7 @@ export async function pickMySecretSanta(
 
       if (!error) {
         revalidatePath("/secret-santa");
-        return { recipientName: picked.full_name };
+        return toRecipientDetails(picked);
       }
 
       // Unique-constraint race (someone else claimed this recipient first) — retry.
