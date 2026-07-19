@@ -396,6 +396,9 @@ export default function RedesignedLandingPage() {
             <Link href="/submit" className="hover:text-ink transition-colors">
               Submit Stone
             </Link>
+            <Link href="/link" className="hover:text-ink transition-colors">
+              Links
+            </Link>
             <Link href="/admin" className="hover:text-ink transition-colors">
               Admin
             </Link>

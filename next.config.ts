@@ -10,6 +10,15 @@ const nextConfig: NextConfig = {
       },
     ],
   },
+  async redirects() {
+    return [
+      {
+        source: "/bio",
+        destination: "/link",
+        permanent: true,
+      },
+    ];
+  },
 };
 
 export default nextConfig;
