@@ -13,7 +13,7 @@ const NotificationBell = dynamic(() => import("@/components/NotificationBell"), 
   loading: () => <div className="w-8 h-8" />, // stable placeholder so layout doesn't shift
 });
 
-type NavLink = { href: string; label: string };
+type NavLink = { href: string; label: string; highlight?: boolean };
 type NavItem = NavLink & { children?: NavLink[] };
 
 const navItems: NavItem[] = [
@@ -31,7 +31,7 @@ const navItems: NavItem[] = [
   { href: "/bulletin", label: "Bulletin" },
   { href: "/timetable", label: "Timetable" },
   { href: "/games", label: "Games" },
-  { href: "/worship", label: "Worship" },
+  { href: "/worship", label: "Worship", highlight: true },
   { href: "/secret-santa", label: "Secret Santa" },
 ];
 
@@ -132,7 +132,11 @@ export default function SiteNav() {
               <Link
                 key={item.href}
                 href={item.href}
-                className="text-xs font-semibold tracking-widest text-stone uppercase hover:text-ink transition-colors duration-140"
+                className={`text-xs font-semibold tracking-widest uppercase transition-colors duration-140 ${
+                  item.highlight
+                    ? "text-gold-deep hover:text-gold"
+                    : "text-stone hover:text-ink"
+                }`}
                 style={{ fontFamily: "var(--font-accent)" }}
               >
                 {item.label}
@@ -212,7 +216,11 @@ export default function SiteNav() {
               <Link
                 key={item.href}
                 href={item.href}
-                className="text-xs font-bold tracking-widest uppercase text-stone-mid hover:text-ink hover:bg-vellum px-4 py-3 rounded-xl transition-colors"
+                className={`text-xs font-bold tracking-widest uppercase px-4 py-3 rounded-xl transition-colors ${
+                  item.highlight
+                    ? "text-gold-deep hover:text-gold hover:bg-vellum"
+                    : "text-stone-mid hover:text-ink hover:bg-vellum"
+                }`}
                 style={{ fontFamily: "var(--font-accent)" }}
               >
                 {item.label}

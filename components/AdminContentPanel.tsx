@@ -74,23 +74,46 @@ function PlanForm({
 function DiscussionForm({
   initial, onSave, onCancel, saving,
 }: {
-  initial?: { title: string; content: string };
-  onSave: (title: string, content: string) => void;
+  initial?: { title: string; content: string; day_number?: number | null };
+  onSave: (title: string, content: string, dayNumber: number | null) => void;
   onCancel: () => void;
   saving: boolean;
 }) {
   const [name, setName] = useState(initial?.title ?? "");
   const [content, setContent] = useState(initial?.content ?? "");
+  const [dayNumber, setDayNumber] = useState(
+    initial?.day_number != null ? String(initial.day_number) : ""
+  );
+
+  function parseDayNumber(): number | null {
+    const trimmed = dayNumber.trim();
+    if (!trimmed) return null;
+    const parsed = parseInt(trimmed, 10);
+    return Number.isFinite(parsed) && parsed > 0 ? parsed : null;
+  }
 
   return (
     <div className="space-y-3 p-4 bg-vellum rounded-xl border border-stone-edge">
       <div>
         <label className="block text-xs font-bold tracking-widest uppercase text-stone mb-1.5" style={{ fontFamily: "var(--font-accent)" }}>
-          Person&rsquo;s Name <span className="text-gold">*</span>
+          Day Number <span className="text-stone-light font-normal">(optional)</span>
         </label>
         <input
           className={inputCls}
-          placeholder="e.g. Natasha"
+          type="number"
+          min={1}
+          placeholder="Leave blank for community feed — set a number for day threads"
+          value={dayNumber}
+          onChange={(e) => setDayNumber(e.target.value)}
+        />
+      </div>
+      <div>
+        <label className="block text-xs font-bold tracking-widest uppercase text-stone mb-1.5" style={{ fontFamily: "var(--font-accent)" }}>
+          {dayNumber.trim() ? "Thread Title" : "Person\u2019s Name"} <span className="text-gold">*</span>
+        </label>
+        <input
+          className={inputCls}
+          placeholder={dayNumber.trim() ? "e.g. Psalm 22 — Where God Feels Silent" : "e.g. Natasha"}
           value={name}
           onChange={(e) => setName(e.target.value)}
         />
@@ -109,7 +132,7 @@ function DiscussionForm({
       </div>
       <div className="flex gap-2">
         <button
-          onClick={() => name.trim() && content.trim() && onSave(name.trim(), content.trim())}
+          onClick={() => name.trim() && content.trim() && onSave(name.trim(), content.trim(), parseDayNumber())}
           disabled={saving || !name.trim() || !content.trim()}
           className="px-4 py-2 rounded-xl bg-ink text-vellum text-sm font-semibold hover:bg-stone transition-colors disabled:opacity-50"
         >
@@ -297,7 +320,7 @@ export default function AdminContentPanel({ plans: initialPlans }: { plans: Plan
                     )}
                     {showNewDiscForPlan === plan.id && (
                       <DiscussionForm
-                        onSave={(t, c) => act(() => adminCreateDiscussion(plan.id, null, t, c), () => setShowNewDiscForPlan(null))}
+                        onSave={(t, c, dn) => act(() => adminCreateDiscussion(plan.id, dn, t, c), () => setShowNewDiscForPlan(null))}
                         onCancel={() => setShowNewDiscForPlan(null)}
                         saving={isPending}
                       />
@@ -309,8 +332,8 @@ export default function AdminContentPanel({ plans: initialPlans }: { plans: Plan
                       editingDiscId === disc.id ? (
                         <DiscussionForm
                           key={disc.id}
-                          initial={{ title: disc.title, content: disc.content ?? "" }}
-                          onSave={(t, c) => act(() => adminUpdateDiscussion(disc.id, null, t, c), () => setEditingDiscId(null))}
+                          initial={{ title: disc.title, content: disc.content ?? "", day_number: disc.day_number }}
+                          onSave={(t, c, dn) => act(() => adminUpdateDiscussion(disc.id, dn, t, c), () => setEditingDiscId(null))}
                           onCancel={() => setEditingDiscId(null)}
                           saving={isPending}
                         />
@@ -318,6 +341,14 @@ export default function AdminContentPanel({ plans: initialPlans }: { plans: Plan
                         <div key={disc.id} className="bg-white rounded-xl border border-stone-edge overflow-hidden">
                           <div className="flex items-start justify-between gap-3 px-4 py-3">
                             <div className="flex items-start gap-3 min-w-0">
+                              {disc.day_number != null && (
+                                <span
+                                  className="flex-shrink-0 text-xs font-bold text-gold-deep bg-gold-wash border border-gold-soft rounded-full w-7 h-7 flex items-center justify-center"
+                                  style={{ fontFamily: "var(--font-accent)" }}
+                                >
+                                  {disc.day_number}
+                                </span>
+                              )}
                               <div className="min-w-0">
                                 <p className="text-xs font-bold text-gold-deep uppercase tracking-wide mb-1" style={{ fontFamily: "var(--font-accent)" }}>
                                   {disc.title}

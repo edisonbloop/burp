@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import SiteNav from "@/components/SiteNav";
 import { getDiscussion, getComments, getThreadPosts } from "@/lib/talk-actions";
 import TalkComments, { Avatar } from "@/components/TalkComments";
 
@@ -47,6 +48,7 @@ export default async function DiscussionPage({
 
   return (
     <main className="min-h-screen bg-vellum text-ink pb-16">
+      <SiteNav />
       {/* Top bar */}
       <div className="sticky top-0 z-10 bg-vellum/90 backdrop-blur border-b border-stone-edge">
         <div className="max-w-xl mx-auto px-4 py-3 flex items-center gap-3">

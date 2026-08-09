@@ -1,99 +1,63 @@
-import Link from "next/link";
-import { getReadingPlans } from "@/lib/talk-actions";
+import SiteNav from "@/components/SiteNav";
+import TalkItOverPlansClient from "@/components/TalkItOverPlansClient";
+import { getReadingPlansWithStats } from "@/lib/talk-actions";
 
 export const revalidate = 0;
 
 export default async function TalkItOverPage() {
-  const plans = await getReadingPlans();
+  const plans = await getReadingPlansWithStats();
 
   return (
-    <main className="flex-1 min-h-screen bg-vellum text-ink pb-20">
-      {/* Header */}
-      <div className="w-full bg-parchment-soft border-b border-stone-edge py-4 px-4 sm:px-6">
-        <div className="max-w-4xl mx-auto flex items-center justify-between">
-          <Link
-            href="/"
-            className="text-xs font-bold tracking-widest text-stone uppercase hover:text-ink transition-colors"
-            style={{ fontFamily: "var(--font-accent)" }}
-          >
-            ← B U R P
-          </Link>
-        </div>
-      </div>
+    <main className="flex flex-col flex-1 min-h-screen bg-vellum text-ink">
+      <SiteNav />
 
       {/* Hero */}
       <section
-        className="py-14 px-4 text-center border-b border-stone-edge/50"
+        className="py-16 px-4 text-center border-b border-stone-edge/50"
         style={{
           background:
             "radial-gradient(ellipse 100% 80% at 50% 0%, var(--color-gold-wash) 0%, var(--color-vellum) 65%)",
         }}
       >
-        <div className="max-w-2xl mx-auto">
+        <div className="max-w-3xl mx-auto">
           <span
             className="text-[10px] font-bold tracking-widest text-gold-deep uppercase block mb-3"
             style={{ fontFamily: "var(--font-accent)" }}
           >
-            Community Discussion
+            Acts 17:11 · Community Discussion
           </span>
           <h1
-            className="text-4xl sm:text-5xl font-bold text-ink mb-4 tracking-tight leading-tight"
+            className="text-4xl sm:text-6xl font-bold text-ink mb-4 tracking-tight leading-tight"
             style={{ fontFamily: "var(--font-display)" }}
           >
             Talk It Over
           </h1>
-          <p className="text-stone-mid text-sm max-w-md mx-auto leading-relaxed">
-            Bible reading plans and devotional threads — feast on the Word together.
+          <p className="text-stone-mid text-sm max-w-xl mx-auto leading-relaxed mb-4">
+            Bible reading plans and devotional threads — feast on the Word together,
+            then honestly say what you found.
           </p>
+          <div className="flex items-center justify-center gap-2 text-stone-light">
+            <span className="w-1.5 h-1.5 rounded-full bg-current" />
+            <span className="w-1.5 h-1.5 rounded-full bg-current" />
+            <span className="w-1.5 h-1.5 rounded-full bg-current" />
+          </div>
         </div>
       </section>
 
-      {/* Plans grid */}
-      <div className="max-w-4xl mx-auto px-4 sm:px-6 py-12">
-        {plans.length === 0 ? (
-          <div className="text-center py-20 bg-parchment-soft rounded-3xl border border-stone-edge">
-            <p className="text-stone-mid text-sm italic mb-2">No discussion plans yet.</p>
-            <p className="text-xs text-stone-light">Check back soon — new plans are coming!</p>
-          </div>
-        ) : (
-          <div className="grid gap-6 sm:grid-cols-2">
-            {plans.map((plan: { id: string; title: string; description?: string | null }) => (
-              <Link
-                key={plan.id}
-                href={`/talk-it-over/${plan.id}`}
-                className="group bg-parchment-soft p-8 rounded-3xl border border-stone-edge hover:border-gold hover:shadow-md transition-all duration-220 flex flex-col justify-between"
-              >
-                <div>
-                  <span
-                    className="text-[9px] font-bold tracking-widest text-gold-deep uppercase block mb-3"
-                    style={{ fontFamily: "var(--font-accent)" }}
-                  >
-                    Reading Plan
-                  </span>
-                  <h3
-                    className="text-2xl font-bold text-ink mb-3 group-hover:text-gold-deep transition-colors tracking-tight leading-snug"
-                    style={{ fontFamily: "var(--font-display)" }}
-                  >
-                    {plan.title}
-                  </h3>
-                  {plan.description && (
-                    <p className="text-sm text-stone-mid leading-relaxed line-clamp-3">
-                      {plan.description}
-                    </p>
-                  )}
-                </div>
-                <div
-                  className="mt-8 flex items-center gap-1 text-[10px] font-bold tracking-wider text-stone group-hover:text-ink uppercase transition-colors"
-                  style={{ fontFamily: "var(--font-accent)" }}
-                >
-                  <span>View Discussions</span>
-                  <span className="text-sm font-sans leading-none transition-transform group-hover:translate-x-1">→</span>
-                </div>
-              </Link>
-            ))}
-          </div>
-        )}
-      </div>
+      {/* Plans */}
+      <section className="flex-1 max-w-4xl w-full mx-auto px-4 sm:px-6 py-12">
+        <TalkItOverPlansClient plans={plans} />
+      </section>
+
+      {/* Footer */}
+      <footer className="bg-parchment-deep border-t border-stone-edge py-12 px-4 text-center">
+        <p
+          className="text-[10px] text-stone-light leading-relaxed uppercase tracking-widest"
+          style={{ fontFamily: "var(--font-accent)" }}
+        >
+          BURP Talk It Over · FEAST · REFLECT · QUESTION · GROW
+        </p>
+      </footer>
     </main>
   );
 }

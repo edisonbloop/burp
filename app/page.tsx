@@ -1,6 +1,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import SiteNav from "@/components/SiteNav";
+import LandingHeroSlider from "@/components/LandingHeroSlider";
 
 export default function RedesignedLandingPage() {
   const pillars = [
@@ -35,73 +36,7 @@ export default function RedesignedLandingPage() {
     <main className="flex flex-col flex-1 min-h-screen bg-vellum text-ink">
       <SiteNav />
 
-      {/* Hero Section */}
-      <section
-        className="relative overflow-hidden py-24 px-4 sm:px-6 text-center"
-        style={{
-          background:
-            "radial-gradient(ellipse 70% 60% at 50% 0%, var(--color-gold-wash) 0%, var(--color-vellum) 70%)",
-        }}
-      >
-        <div className="max-w-4xl mx-auto flex flex-col items-center">
-          {/* Square stacked logo / Avatar */}
-          <div className="mb-8">
-            <Image
-              src="/logosquare.png"
-              alt="BURP Icon"
-              width={100}
-              height={100}
-              priority
-              className="h-24 w-auto object-contain drop-shadow-sm"
-            />
-          </div>
-
-          <p
-            className="text-xs font-semibold tracking-widest text-gold-deep uppercase mb-4"
-            style={{ fontFamily: "var(--font-accent)" }}
-          >
-            THE BEREAN UPPER ROOM PLATFORM
-          </p>
-
-          <h1
-            className="text-4xl sm:text-6xl font-bold leading-tight tracking-tight mb-6"
-            style={{ fontFamily: "var(--font-display)" }}
-          >
-            A room to feast on Scripture —
-            <br />
-            and to honestly say what you found.
-          </h1>
-
-          <p className="text-base sm:text-lg text-stone-mid max-w-2xl leading-relaxed mb-8">
-            A faith-centered community for Christians who love God's Word, study it
-            deeply, and gather to reflect honestly. We feast on Scripture daily,
-            then come together to &ldquo;burp&rdquo; — sharing what challenged,
-            confused, or stirred us.
-          </p>
-
-          {/* Signature Dot-Divider */}
-          <div className="flex items-center justify-center gap-2 mb-10 text-stone-light">
-            <span className="w-1.5 h-1.5 rounded-full bg-current" />
-            <span className="w-1.5 h-1.5 rounded-full bg-current" />
-            <span className="w-1.5 h-1.5 rounded-full bg-current" />
-          </div>
-
-          <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Link
-              href="/talk-it-over"
-              className="px-8 py-3.5 rounded-full bg-ink hover:bg-stone text-vellum font-semibold text-sm tracking-wide transition-colors duration-200"
-            >
-              Share a reflection
-            </Link>
-            <Link
-              href="/100stones"
-              className="px-8 py-3.5 rounded-full border border-stone-edge hover:border-gold text-stone hover:text-ink font-semibold text-sm tracking-wide transition-colors duration-200"
-            >
-              100 Stones of remembrance
-            </Link>
-          </div>
-        </div>
-      </section>
+      <LandingHeroSlider />
 
       {/* Brand Story and Pillars */}
       <section className="bg-parchment-soft border-t border-b border-stone-edge py-20 px-4 sm:px-6">
@@ -226,7 +161,58 @@ export default function RedesignedLandingPage() {
             </div>
           </div>
 
-          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+            {/* Worship Night Portal — featured upcoming event */}
+            <div className="bg-[#0f0d0b] p-8 rounded-3xl border border-gold/30 hover:border-gold transition-all duration-220 flex flex-col justify-between md:col-span-2 lg:col-span-3 relative overflow-hidden">
+              <div className="absolute inset-0 opacity-15 pointer-events-none">
+                <Image
+                  src="/images/worship/worship_hero.png"
+                  alt=""
+                  fill
+                  sizes="100vw"
+                  className="object-cover"
+                  aria-hidden
+                />
+                <div className="absolute inset-0 bg-gradient-to-r from-[#0f0d0b] via-[#0f0d0b]/90 to-[#0f0d0b]/70" />
+              </div>
+              <div className="relative z-10 grid md:grid-cols-[1fr_auto] gap-6 items-end">
+                <div>
+                  <span
+                    className="text-xs font-semibold tracking-widest text-gold uppercase block mb-3"
+                    style={{ fontFamily: "var(--font-accent)" }}
+                  >
+                    UPCOMING GATHERING · 14 AUG 2026
+                  </span>
+                  <h3
+                    className="text-3xl font-bold mb-4 text-gold"
+                    style={{ fontFamily: "var(--font-display)" }}
+                  >
+                    From the Heart
+                  </h3>
+                  <p className="text-sm text-[#d4c4ae] leading-relaxed mb-0 max-w-xl">
+                    A night of worship, testimony and ministration. Join in person or
+                    reserve your spot for the livestream — RSVP required for remote access.
+                  </p>
+                </div>
+                <div className="flex flex-col sm:flex-row md:flex-col gap-3 flex-shrink-0">
+                  <Link
+                    href="/worship#rsvp"
+                    className="inline-flex items-center justify-center px-6 py-3 rounded-full bg-gold hover:bg-gold-deep text-[#0f0d0b] font-bold text-xs tracking-[0.15em] uppercase transition-colors"
+                    style={{ fontFamily: "var(--font-accent)" }}
+                  >
+                    RSVP to the Livestream
+                  </Link>
+                  <Link
+                    href="/worship"
+                    className="inline-flex items-center justify-center gap-2 text-xs font-semibold uppercase text-[#a89885] hover:text-gold transition-colors tracking-wider"
+                    style={{ fontFamily: "var(--font-accent)" }}
+                  >
+                    Event details <span className="text-sm font-sans">→</span>
+                  </Link>
+                </div>
+              </div>
+            </div>
+
             {/* Talk It Over Portal */}
             <div className="bg-vellum p-8 rounded-3xl border border-stone-edge hover:border-gold transition-all duration-220 flex flex-col justify-between">
               <div>
@@ -398,6 +384,9 @@ export default function RedesignedLandingPage() {
             </Link>
             <Link href="/link" className="hover:text-ink transition-colors">
               Links
+            </Link>
+            <Link href="/worship" className="hover:text-ink transition-colors">
+              Worship
             </Link>
             <Link href="/admin" className="hover:text-ink transition-colors">
               Admin
