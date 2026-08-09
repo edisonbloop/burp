@@ -5,6 +5,9 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { getSupabaseBrowserClient } from "@/lib/supabase-client";
 import { Avatar } from "@/components/TalkComments";
+import RichPlainTextContent from "@/components/RichPlainTextContent";
+import ShareButton from "@/components/ShareButton";
+import { discussionShareTitle, discussionUrl } from "@/lib/talk-metadata";
 
 interface Disc {
   id: string;
@@ -28,7 +31,15 @@ function timeAgo(dateStr: string) {
   return new Date(dateStr).toLocaleDateString("en-US", { month: "short", day: "numeric" });
 }
 
-export default function FeedPost({ disc }: { disc: Disc }) {
+export default function FeedPost({
+  disc,
+  commentCount = 0,
+  planTitle,
+}: {
+  disc: Disc;
+  commentCount?: number;
+  planTitle?: string;
+}) {
   const supabase = getSupabaseBrowserClient();
   const router = useRouter();
   const menuRef = useRef<HTMLDivElement>(null);
@@ -163,21 +174,32 @@ export default function FeedPost({ disc }: { disc: Disc }) {
             </div>
           ) : (
             disc.content && (
-              <p className="text-sm text-ink leading-relaxed whitespace-pre-wrap mb-3">
-                {disc.content}
-              </p>
+              <div className="mb-3">
+                <RichPlainTextContent content={disc.content} />
+              </div>
             )
           )}
 
-          {/* Reply link — hidden while editing */}
           {!editing && (
-            <Link
-              href={`/talk-it-over/discussion/${disc.id}`}
-              className="text-xs font-bold text-stone-light hover:text-gold transition-colors uppercase tracking-widest"
-              style={{ fontFamily: "var(--font-accent)" }}
-            >
-              Reply →
-            </Link>
+            <div className="flex flex-wrap items-center gap-3">
+              <Link
+                href={`/talk-it-over/discussion/${disc.id}#reply`}
+                className="inline-flex items-center gap-2 text-xs font-bold text-stone-light hover:text-gold transition-colors uppercase tracking-widest"
+                style={{ fontFamily: "var(--font-accent)" }}
+              >
+                {commentCount > 0 && (
+                  <span className="text-gold-deep normal-case tracking-normal font-semibold">
+                    {commentCount} reflection{commentCount !== 1 ? "s" : ""}
+                  </span>
+                )}
+                <span>{commentCount > 0 ? "· Reply →" : "Reply →"}</span>
+              </Link>
+              <ShareButton
+                variant="compact"
+                url={discussionUrl(disc.id)}
+                title={discussionShareTitle(disc.title, planTitle ?? "Talk It Over")}
+              />
+            </div>
           )}
         </div>
       </div>

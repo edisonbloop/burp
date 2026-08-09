@@ -1,7 +1,18 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import SiteNav from "@/components/SiteNav";
+import type { Metadata } from "next";
+import TalkItOverBackHeader from "@/components/TalkItOverBackHeader";
+import RichPlainTextContent from "@/components/RichPlainTextContent";
+import ShareButton from "@/components/ShareButton";
 import { getDiscussion, getComments, getThreadPosts } from "@/lib/talk-actions";
+import {
+  BASE_URL,
+  combinedDiscussionText,
+  discussionShareTitle,
+  discussionUrl,
+  firstVideoThumbnail,
+  truncateForMeta,
+} from "@/lib/talk-metadata";
 import TalkComments, { Avatar } from "@/components/TalkComments";
 
 export const revalidate = 0;
@@ -23,33 +34,101 @@ type Post = {
   thread_index?: number | null;
 };
 
+type Disc = Post & { plan_id: string; reading_plans?: { title?: string } };
+
+async function loadDiscussion(discussionId: string) {
+  const discussion = await getDiscussion(discussionId);
+  if (!discussion) return null;
+
+  const disc = discussion as Disc;
+  const isThread = !!disc.thread_id;
+  const threadPosts: Post[] = isThread
+    ? ((await getThreadPosts(disc.thread_id!)) as Post[])
+    : [disc];
+
+  const commentAnchorId = isThread ? threadPosts[0].id : discussionId;
+  const canonicalId = commentAnchorId;
+  const planTitle = disc.reading_plans?.title || "Talk It Over";
+  const authorName = disc.title || "Community member";
+  const allContent = combinedDiscussionText(...threadPosts.map((p) => p.content));
+
+  return {
+    disc,
+    isThread,
+    threadPosts,
+    commentAnchorId,
+    canonicalId,
+    planTitle,
+    authorName,
+    allContent,
+  };
+}
+
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ discussionId: string }>;
+}): Promise<Metadata> {
+  const { discussionId } = await params;
+  const data = await loadDiscussion(discussionId);
+  if (!data) return { title: "Not Found — BURP" };
+
+  const { canonicalId, planTitle, authorName, allContent } = data;
+  const title = discussionShareTitle(authorName, planTitle);
+  const description = truncateForMeta(allContent);
+  const url = discussionUrl(canonicalId);
+  const videoThumb = firstVideoThumbnail(allContent);
+  const ogImages = videoThumb ? [{ url: videoThumb }] : undefined;
+
+  return {
+    title: `${title} | BURP`,
+    description,
+    openGraph: {
+      title,
+      description,
+      url,
+      siteName: "BURP — Berean Upper Room Platform",
+      type: "article",
+      locale: "en_US",
+      images: ogImages,
+    },
+    twitter: {
+      card: videoThumb ? "summary_large_image" : "summary",
+      title,
+      description,
+      images: videoThumb ? [videoThumb] : undefined,
+    },
+    alternates: { canonical: url },
+  };
+}
+
 export default async function DiscussionPage({
   params,
 }: {
   params: Promise<{ discussionId: string }>;
 }) {
   const { discussionId } = await params;
-  const discussion = await getDiscussion(discussionId);
-  if (!discussion) notFound();
+  const data = await loadDiscussion(discussionId);
+  if (!data) notFound();
 
-  const disc = discussion as Post & { plan_id: string; reading_plans?: { title?: string } };
-  const planTitle = disc.reading_plans?.title || "Discussions";
+  const {
+    disc,
+    isThread,
+    threadPosts,
+    commentAnchorId,
+    canonicalId,
+    planTitle,
+    authorName,
+  } = data;
 
-  // If this post is part of a thread, fetch all posts in the thread
-  const isThread = !!disc.thread_id;
-  const threadPosts: Post[] = isThread
-    ? ((await getThreadPosts(disc.thread_id!)) as Post[])
-    : [disc];
-
-  // Comments always go on the entry point post (discussionId in the URL)
-  const comments = await getComments(discussionId);
-
-  const authorName = disc.title || "?";
+  const comments = await getComments(commentAnchorId);
+  const shareTitle = discussionShareTitle(authorName, planTitle);
+  const shareUrl = discussionUrl(canonicalId);
 
   return (
     <main className="min-h-screen bg-vellum text-ink pb-16">
-      <SiteNav />
-      {/* Top bar */}
+      <TalkItOverBackHeader backHref="/talk-it-over" backLabel="← Talk It Over" />
+
       <div className="sticky top-0 z-10 bg-vellum/90 backdrop-blur border-b border-stone-edge">
         <div className="max-w-xl mx-auto px-4 py-3 flex items-center gap-3">
           <Link
@@ -60,21 +139,20 @@ export default async function DiscussionPage({
               <path d="M12 4l-6 6 6 6" />
             </svg>
           </Link>
-          <p className="font-bold text-ink text-sm truncate">{planTitle}</p>
+          <p className="font-bold text-ink text-sm truncate flex-1">{planTitle}</p>
           {isThread && (
             <span
-              className="ml-auto flex-shrink-0 text-[9px] font-bold uppercase tracking-widest px-2.5 py-1 rounded-full bg-gold-wash text-gold-deep border border-gold-soft"
+              className="flex-shrink-0 text-[9px] font-bold uppercase tracking-widest px-2.5 py-1 rounded-full bg-gold-wash text-gold-deep border border-gold-soft"
               style={{ fontFamily: "var(--font-accent)" }}
             >
               Thread · {threadPosts.length}
             </span>
           )}
+          <ShareButton url={shareUrl} title={shareTitle} variant="compact" />
         </div>
       </div>
 
       <div className="max-w-xl mx-auto px-4">
-
-        {/* -- Single post --------------------------------------------------- */}
         {!isThread && (
           <div className="py-5 border-b border-stone-edge">
             <div className="flex gap-3">
@@ -87,19 +165,18 @@ export default async function DiscussionPage({
                   </span>
                 </div>
                 {disc.content && (
-                  <p className="text-base text-ink leading-relaxed whitespace-pre-wrap">
-                    {disc.content}
-                  </p>
+                  <RichPlainTextContent
+                    content={disc.content}
+                    textClassName="text-base text-ink leading-relaxed whitespace-pre-wrap"
+                  />
                 )}
               </div>
             </div>
           </div>
         )}
 
-        {/* -- Thread — connected posts --------------------------------------- */}
         {isThread && (
           <div className="py-5 border-b border-stone-edge">
-            {/* Author row */}
             <div className="flex items-center gap-3 mb-4">
               <Avatar name={authorName} size="lg" />
               <div>
@@ -108,11 +185,9 @@ export default async function DiscussionPage({
               </div>
             </div>
 
-            {/* Thread posts with connector line */}
             <div className="ml-5 border-l-2 border-stone-edge pl-5 space-y-5">
               {threadPosts.map((post, i) => (
                 <div key={post.id}>
-                  {/* Post number chip */}
                   <div className="flex items-center gap-2 mb-1.5">
                     <span
                       className="text-[9px] font-bold uppercase tracking-widest text-stone-light"
@@ -125,28 +200,46 @@ export default async function DiscussionPage({
                         className="text-[9px] font-bold uppercase tracking-widest text-gold-deep bg-gold-wash border border-gold-soft px-1.5 py-0.5 rounded-full"
                         style={{ fontFamily: "var(--font-accent)" }}
                       >
-                        You're here
+                        You&apos;re here
                       </span>
                     )}
                   </div>
-                  <p
-                    className={`text-base leading-relaxed whitespace-pre-wrap ${
-                      post.id === discussionId ? "text-ink font-medium" : "text-stone-mid"
-                    }`}
-                  >
-                    {post.content}
-                  </p>
+                  {post.content && (
+                    <RichPlainTextContent
+                      content={post.content}
+                      textClassName={`text-base leading-relaxed whitespace-pre-wrap ${
+                        post.id === discussionId ? "text-ink font-medium" : "text-stone-mid"
+                      }`}
+                    />
+                  )}
                 </div>
               ))}
             </div>
           </div>
         )}
 
-        {/* Comments + compose */}
         <div className="pt-5">
-          <TalkComments discussionId={discussionId} initialComments={comments} />
+          <TalkComments discussionId={commentAnchorId} initialComments={comments} />
         </div>
       </div>
+
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify({
+            "@context": "https://schema.org",
+            "@type": "DiscussionForumPosting",
+            headline: shareTitle,
+            url: shareUrl,
+            author: { "@type": "Person", name: authorName },
+            isPartOf: {
+              "@type": "CreativeWork",
+              name: planTitle,
+              url: `${BASE_URL}/talk-it-over/${disc.plan_id}`,
+            },
+          }),
+        }}
+      />
     </main>
   );
 }

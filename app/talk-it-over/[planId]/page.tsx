@@ -1,9 +1,44 @@
 import { notFound } from "next/navigation";
-import SiteNav from "@/components/SiteNav";
+import type { Metadata } from "next";
+import TalkItOverBackHeader from "@/components/TalkItOverBackHeader";
 import PlanDiscussionsClient from "@/components/PlanDiscussionsClient";
-import { getDayDiscussionsForPlan, getFeedPostsForPlan, getPlan } from "@/lib/talk-actions";
+import {
+  getCommentCountsForDiscussions,
+  getDayDiscussionsForPlan,
+  getFeedPostsForPlan,
+  getPlan,
+} from "@/lib/talk-actions";
+import { planUrl, truncateForMeta } from "@/lib/talk-metadata";
 
 export const revalidate = 0;
+
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ planId: string }>;
+}): Promise<Metadata> {
+  const { planId } = await params;
+  const plan = await getPlan(planId);
+  if (!plan) return { title: "Not Found — BURP" };
+
+  const title = `${plan.title} — Talk It Over | BURP`;
+  const description = truncateForMeta(plan.description ?? "Bible reading plans and devotional threads on BURP.");
+  const url = planUrl(planId);
+
+  return {
+    title,
+    description,
+    openGraph: {
+      title: `${plan.title} — Talk It Over`,
+      description,
+      url,
+      siteName: "BURP — Berean Upper Room Platform",
+      type: "website",
+    },
+    twitter: { card: "summary", title, description },
+    alternates: { canonical: url },
+  };
+}
 
 type Disc = {
   id: string;
@@ -60,15 +95,23 @@ export default async function PlanDiscussionsPage({
 
   const feedGroups = groupByThread(feedPosts as Disc[]);
 
+  // Reflections anchor on the first post in a thread; solo posts use their own id.
+  const commentAnchorIds = [
+    ...feedGroups.map((group) => group[0].id),
+    ...(dayDiscussions as Disc[]).map((d) => d.id),
+  ];
+  const commentCounts = await getCommentCountsForDiscussions(commentAnchorIds);
+
   return (
     <main className="min-h-screen bg-vellum text-ink pb-20">
-      <SiteNav />
+      <TalkItOverBackHeader backHref="/talk-it-over" backLabel="← Talk It Over" />
       <PlanDiscussionsClient
         planId={planId}
         planTitle={plan.title}
         planDescription={plan.description}
         feedGroups={feedGroups}
         dayDiscussions={dayDiscussions as Disc[]}
+        commentCounts={commentCounts}
       />
     </main>
   );

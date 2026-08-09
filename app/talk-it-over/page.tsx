@@ -1,15 +1,32 @@
-import SiteNav from "@/components/SiteNav";
+import TalkItOverBackHeader from "@/components/TalkItOverBackHeader";
 import TalkItOverPlansClient from "@/components/TalkItOverPlansClient";
+import TalkItOverSidebar from "@/components/TalkItOverSidebar";
 import { getReadingPlansWithStats } from "@/lib/talk-actions";
+import type { Metadata } from "next";
 
 export const revalidate = 0;
+
+export const metadata: Metadata = {
+  title: "Talk It Over — BURP",
+  description:
+    "Bible reading plans and devotional threads — feast on the Word together, then honestly say what you found.",
+  openGraph: {
+    title: "Talk It Over — BURP",
+    description:
+      "Bible reading plans and devotional threads on the Berean Upper Room Platform.",
+    url: "https://www.burp.ink/talk-it-over",
+    siteName: "BURP — Berean Upper Room Platform",
+    type: "website",
+  },
+  alternates: { canonical: "https://www.burp.ink/talk-it-over" },
+};
 
 export default async function TalkItOverPage() {
   const plans = await getReadingPlansWithStats();
 
   return (
     <main className="flex flex-col flex-1 min-h-screen bg-vellum text-ink">
-      <SiteNav />
+      <TalkItOverBackHeader />
 
       {/* Hero */}
       <section
@@ -44,9 +61,12 @@ export default async function TalkItOverPage() {
         </div>
       </section>
 
-      {/* Plans */}
-      <section className="flex-1 max-w-4xl w-full mx-auto px-4 sm:px-6 py-12">
-        <TalkItOverPlansClient plans={plans} />
+      {/* Plans + sidebar */}
+      <section className="flex-1 max-w-6xl w-full mx-auto px-4 sm:px-6 py-12">
+        <div className="grid gap-10 lg:grid-cols-[minmax(0,1fr)_17rem] lg:gap-12 items-start">
+          <TalkItOverPlansClient plans={plans} />
+          <TalkItOverSidebar plans={plans} />
+        </div>
       </section>
 
       {/* Footer */}

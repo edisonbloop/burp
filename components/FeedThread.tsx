@@ -5,6 +5,9 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { getSupabaseBrowserClient } from "@/lib/supabase-client";
 import { Avatar } from "@/components/TalkComments";
+import RichPlainTextContent from "@/components/RichPlainTextContent";
+import ShareButton from "@/components/ShareButton";
+import { discussionShareTitle, discussionUrl } from "@/lib/talk-metadata";
 
 interface Post {
   id: string;
@@ -30,7 +33,15 @@ function timeAgo(dateStr: string) {
   return new Date(dateStr).toLocaleDateString("en-US", { month: "short", day: "numeric" });
 }
 
-export default function FeedThread({ posts }: { posts: Post[] }) {
+export default function FeedThread({
+  posts,
+  commentCount = 0,
+  planTitle,
+}: {
+  posts: Post[];
+  commentCount?: number;
+  planTitle?: string;
+}) {
   const supabase = getSupabaseBrowserClient();
   const router = useRouter();
   const [userId, setUserId] = useState<string | null>(null);
@@ -39,6 +50,8 @@ export default function FeedThread({ posts }: { posts: Post[] }) {
   const [editContents, setEditContents] = useState<Record<string, string>>({});
   const [openMenuId, setOpenMenuId] = useState<string | null>(null);
   const menuRef = useRef<HTMLDivElement>(null);
+
+  const replyAnchorId = posts[0]?.id;
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
@@ -81,7 +94,7 @@ export default function FeedThread({ posts }: { posts: Post[] }) {
       {/* Thread header */}
       <div className="flex items-center gap-2 mb-3">
         <Avatar name={authorName} size="md" />
-        <div>
+        <div className="min-w-0">
           <span className="font-bold text-ink text-sm">{authorName}</span>
           <span className="text-xs text-stone-light ml-2">{timeAgo(visible[0].created_at)}</span>
         </div>
@@ -94,13 +107,22 @@ export default function FeedThread({ posts }: { posts: Post[] }) {
       </div>
 
       {/* Thread posts connected with line */}
-      <div className="ml-4 pl-4 border-l-2 border-stone-edge space-y-3">
+      <div className="ml-4 pl-4 border-l-2 border-stone-edge space-y-4">
         {visible.map((post, i) => {
           const isOwn = !!(userId && post.user_id && userId === post.user_id);
           const isEditing = editingId === post.id;
 
           return (
             <div key={post.id} className="relative group">
+              {!isEditing && (
+                <span
+                  className="text-[9px] font-bold uppercase tracking-widest text-stone-light mb-1 block"
+                  style={{ fontFamily: "var(--font-accent)" }}
+                >
+                  {i + 1} / {visible.length}
+                </span>
+              )}
+
               {isEditing ? (
                 <div className="space-y-2">
                   <textarea
@@ -134,20 +156,26 @@ export default function FeedThread({ posts }: { posts: Post[] }) {
                 </div>
               ) : (
                 <div className="flex items-start justify-between gap-2">
-                  <p className="text-sm text-ink leading-relaxed whitespace-pre-wrap flex-1">
-                    {post.content}
-                  </p>
+                  <div className="flex-1 min-w-0">
+                    {post.content && <RichPlainTextContent content={post.content} />}
+                  </div>
                   {isOwn && (
-                    <div className="relative flex-shrink-0 opacity-0 group-hover:opacity-100 transition-opacity" ref={openMenuId === post.id ? menuRef : null}>
+                    <div
+                      className="relative flex-shrink-0 opacity-100 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity"
+                      ref={openMenuId === post.id ? menuRef : null}
+                    >
                       <button
+                        type="button"
                         onClick={() => setOpenMenuId(openMenuId === post.id ? null : post.id)}
-                        className="w-6 h-6 flex items-center justify-center rounded-full text-stone-light hover:text-ink hover:bg-parchment-soft transition-colors text-base leading-none"
+                        className="w-8 h-8 flex items-center justify-center rounded-full text-stone-light hover:text-ink hover:bg-parchment-soft transition-colors text-base leading-none"
+                        aria-label="Post options"
                       >
                         ···
                       </button>
                       {openMenuId === post.id && (
                         <div className="absolute right-0 top-full mt-1 bg-white border border-stone-edge rounded-xl shadow-lg z-20 py-1 min-w-[120px]">
                           <button
+                            type="button"
                             onClick={() => {
                               setEditContents((prev) => ({ ...prev, [post.id]: post.content ?? "" }));
                               setEditingId(post.id);
@@ -158,6 +186,7 @@ export default function FeedThread({ posts }: { posts: Post[] }) {
                             Edit
                           </button>
                           <button
+                            type="button"
                             onClick={() => { setOpenMenuId(null); handleDelete(post.id); }}
                             className="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50 transition-colors"
                           >
@@ -169,21 +198,33 @@ export default function FeedThread({ posts }: { posts: Post[] }) {
                   )}
                 </div>
               )}
-
-              {/* Reply link on last post — always links to the first post so the full thread loads */}
-              {i === visible.length - 1 && !isEditing && (
-                <Link
-                  href={`/talk-it-over/discussion/${visible[0].id}`}
-                  className="mt-2 text-xs font-bold text-stone-light hover:text-gold transition-colors uppercase tracking-widest inline-block"
-                  style={{ fontFamily: "var(--font-accent)" }}
-                >
-                  Reply to thread →
-                </Link>
-              )}
             </div>
           );
         })}
       </div>
+
+      {/* Reply footer — always visible */}
+      {replyAnchorId && (
+        <div className="mt-4 ml-4 pl-4 flex flex-wrap items-center gap-3">
+          {commentCount > 0 && (
+            <span className="text-xs font-semibold text-gold-deep">
+              {commentCount} reflection{commentCount !== 1 ? "s" : ""}
+            </span>
+          )}
+          <Link
+            href={`/talk-it-over/discussion/${replyAnchorId}#reply`}
+            className="text-xs font-bold text-stone-light hover:text-gold transition-colors uppercase tracking-widest"
+            style={{ fontFamily: "var(--font-accent)" }}
+          >
+            {commentCount > 0 ? "Join the conversation →" : "Reply to thread →"}
+          </Link>
+          <ShareButton
+            variant="compact"
+            url={discussionUrl(replyAnchorId)}
+            title={discussionShareTitle(authorName, planTitle ?? "Talk It Over")}
+          />
+        </div>
+      )}
     </div>
   );
 }

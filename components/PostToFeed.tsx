@@ -173,8 +173,8 @@ export default function PostToFeed({ planId }: { planId: string }) {
                   }}
                   placeholder={
                     i === 0
-                      ? "Share something with the group…"
-                      : `Add to thread…`
+                      ? "Share something with the group… Paste links or YouTube URLs — they’ll show as rich previews."
+                      : "Add to thread… Links and videos work here too."
                   }
                   rows={i === 0 ? 3 : 2}
                   autoFocus={i === 0}

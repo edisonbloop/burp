@@ -5,6 +5,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { getSupabaseBrowserClient } from "@/lib/supabase-client";
 import EmojiPicker from "@/components/EmojiPicker";
+import RichPlainTextContent from "@/components/RichPlainTextContent";
 import { notifyReply } from "@/lib/notification-actions";
 
 interface Comment {
@@ -100,6 +101,15 @@ export default function TalkComments({
     return () => subscription.unsubscribe();
   }, [supabase]);
 
+  // Jump to reply box when linked with #reply
+  useEffect(() => {
+    if (typeof window === "undefined" || window.location.hash !== "#reply") return;
+    const el = document.getElementById("reply");
+    el?.scrollIntoView({ behavior: "smooth", block: "center" });
+    const timer = setTimeout(() => textareaRef.current?.focus(), 350);
+    return () => clearTimeout(timer);
+  }, []);
+
   const fetchProfile = async (userId: string) => {
     const { data } = await supabase.from("profiles").select("*").eq("id", userId).single();
     if (data) setProfile(data as Profile);
@@ -151,6 +161,84 @@ export default function TalkComments({
 
   return (
     <div>
+      {/* Compose first — easy to reply right after reading the post */}
+      <div id="reply" className="scroll-mt-24 mb-8">
+        <p
+          className="text-[10px] font-bold uppercase tracking-widest text-stone-light mb-3"
+          style={{ fontFamily: "var(--font-accent)" }}
+        >
+          Your reflection
+        </p>
+
+        {!user ? (
+          <Link
+            href={`/signin?redirect=${encodeURIComponent(`${pathname}#reply`)}`}
+            className="flex items-center justify-between w-full px-5 py-4 bg-parchment-soft border border-stone-edge rounded-2xl hover:border-gold-soft hover:bg-gold-wash transition-all group"
+          >
+            <div className="flex items-center gap-3">
+              <div className="w-8 h-8 rounded-full border-2 border-dashed border-stone-edge group-hover:border-gold-soft flex items-center justify-center transition-colors">
+                <span className="text-stone-light group-hover:text-gold text-sm transition-colors">+</span>
+              </div>
+              <span className="text-sm text-stone-mid group-hover:text-ink transition-colors">
+                Sign in to share your reflection…
+              </span>
+            </div>
+            <span
+              className="text-[10px] font-bold uppercase tracking-widest text-gold"
+              style={{ fontFamily: "var(--font-accent)" }}
+            >
+              Sign In →
+            </span>
+          </Link>
+        ) : (
+          <form onSubmit={submitComment}>
+            <div className="flex gap-3 items-start bg-parchment-soft border border-stone-edge rounded-2xl px-4 py-4 focus-within:border-gold transition-colors">
+              <Avatar name={profile?.full_name ?? user.email ?? "?"} size="sm" />
+              <div className="flex-1 min-w-0">
+                <textarea
+                  ref={textareaRef}
+                  value={newComment}
+                  onChange={(e) => setNewComment(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter" && (e.metaKey || e.ctrlKey)) {
+                      e.preventDefault();
+                      if (newComment.trim()) submitComment(e as unknown as React.FormEvent);
+                    }
+                  }}
+                  placeholder="Share your reflection on this…"
+                  rows={3}
+                  className="w-full bg-transparent text-ink placeholder:text-stone-light text-sm focus:outline-none resize-none leading-relaxed"
+                />
+                <div className="flex items-center justify-between mt-2 pt-2 border-t border-stone-edge/50">
+                  <div className="flex items-center gap-2">
+                    <EmojiPicker
+                      onSelect={(emoji) => {
+                        if (textareaRef.current) {
+                          insertAtCursor(textareaRef.current, emoji, newComment, setNewComment);
+                        } else {
+                          setNewComment((v) => v + emoji);
+                        }
+                      }}
+                    />
+                    <span className="text-[10px] text-stone-light hidden sm:inline">
+                      ⌘+Enter to post
+                    </span>
+                  </div>
+                  <button
+                    type="submit"
+                    disabled={submitting || !newComment.trim()}
+                    className="px-5 py-2 rounded-full bg-ink text-vellum text-xs font-bold uppercase tracking-widest hover:bg-stone transition-colors disabled:opacity-40"
+                    style={{ fontFamily: "var(--font-accent)" }}
+                  >
+                    {submitting ? "Sharing…" : "Share reflection"}
+                  </button>
+                </div>
+              </div>
+            </div>
+          </form>
+        )}
+      </div>
+
       {/* Reflection count divider */}
       <div className="flex items-center gap-3 mb-6">
         <div className="h-px flex-1 bg-stone-edge" />
@@ -159,7 +247,7 @@ export default function TalkComments({
           style={{ fontFamily: "var(--font-accent)" }}
         >
           {comments.length === 0
-            ? "No reflections yet"
+            ? "No reflections yet — be the first"
             : `${comments.length} ${comments.length === 1 ? "Reflection" : "Reflections"}`}
         </span>
         <div className="h-px flex-1 bg-stone-edge" />
@@ -167,7 +255,7 @@ export default function TalkComments({
 
       {/* Comment thread */}
       {comments.length > 0 && (
-        <div className="space-y-6 mb-8">
+        <div className="space-y-6">
           {comments.map((comment) => (
             <CommentRow
               key={comment.id}
@@ -179,75 +267,6 @@ export default function TalkComments({
             />
           ))}
         </div>
-      )}
-
-      {/* Compose or sign-in prompt */}
-      {!user ? (
-        <Link
-          href={`/signin?redirect=${encodeURIComponent(pathname)}`}
-          className="flex items-center justify-between w-full px-5 py-4 bg-parchment-soft border border-stone-edge rounded-2xl hover:border-gold-soft hover:bg-gold-wash transition-all group"
-        >
-          <div className="flex items-center gap-3">
-            <div className="w-8 h-8 rounded-full border-2 border-dashed border-stone-edge group-hover:border-gold-soft flex items-center justify-center transition-colors">
-              <span className="text-stone-light group-hover:text-gold text-sm transition-colors">+</span>
-            </div>
-            <span className="text-sm text-stone-mid group-hover:text-ink transition-colors">
-              Share your reflection…
-            </span>
-          </div>
-          <span
-            className="text-[10px] font-bold uppercase tracking-widest text-gold"
-            style={{ fontFamily: "var(--font-accent)" }}
-          >
-            Sign In →
-          </span>
-        </Link>
-      ) : (
-        <form onSubmit={submitComment}>
-          <div className="flex gap-3 items-start">
-            <Avatar name={profile?.full_name ?? user.email ?? "?"} size="sm" />
-            <div className="flex-1">
-              <textarea
-                ref={textareaRef}
-                value={newComment}
-                onChange={(e) => setNewComment(e.target.value)}
-                onKeyDown={(e) => {
-                  if (e.key === "Enter" && (e.metaKey || e.ctrlKey)) {
-                    e.preventDefault();
-                    if (newComment.trim()) submitComment(e as unknown as React.FormEvent);
-                  }
-                }}
-                placeholder="Share your reflection…"
-                rows={3}
-                className="w-full px-4 py-3 rounded-2xl border border-stone-edge bg-parchment-soft text-ink placeholder:text-stone-light text-sm focus:outline-none focus:border-gold resize-none transition-colors leading-relaxed"
-              />
-              <div className="flex items-center justify-between mt-2 px-1">
-                <div className="flex items-center gap-2">
-                  <span className="text-xs text-stone-light">
-                    {profile?.full_name ?? ""}
-                  </span>
-                  <EmojiPicker
-                    onSelect={(emoji) => {
-                      if (textareaRef.current) {
-                        insertAtCursor(textareaRef.current, emoji, newComment, setNewComment);
-                      } else {
-                        setNewComment((v) => v + emoji);
-                      }
-                    }}
-                  />
-                </div>
-                <button
-                  type="submit"
-                  disabled={submitting || !newComment.trim()}
-                  className="px-5 py-2 rounded-full bg-ink text-vellum text-xs font-bold uppercase tracking-widest hover:bg-stone transition-colors disabled:opacity-40"
-                  style={{ fontFamily: "var(--font-accent)" }}
-                >
-                  {submitting ? "Sharing…" : "Share"}
-                </button>
-              </div>
-            </div>
-          </div>
-        </form>
       )}
     </div>
   );
@@ -378,7 +397,7 @@ function CommentRow({
             </div>
           </div>
         ) : (
-          <p className="text-sm text-ink leading-relaxed whitespace-pre-wrap">{comment.content}</p>
+          <RichPlainTextContent content={comment.content} />
         )}
       </div>
     </div>

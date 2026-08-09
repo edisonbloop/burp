@@ -40,12 +40,14 @@ export default function PlanDiscussionsClient({
   planDescription,
   feedGroups,
   dayDiscussions,
+  commentCounts = {},
 }: {
   planId: string;
   planTitle: string;
   planDescription?: string | null;
   feedGroups: Disc[][];
   dayDiscussions: Disc[];
+  commentCounts?: Record<string, number>;
 }) {
   const [searchQuery, setSearchQuery] = useState("");
 
@@ -65,7 +67,7 @@ export default function PlanDiscussionsClient({
   const noSearchResults = hasSearch && totalVisible === 0 && !isEmpty;
 
   return (
-    <>
+    <div className="min-w-0">
       {/* Plan header bar */}
       <div className="sticky top-0 z-10 bg-vellum/90 backdrop-blur border-b border-stone-edge">
         <div className="max-w-xl mx-auto px-4 py-3 flex items-center gap-3">
@@ -123,9 +125,19 @@ export default function PlanDiscussionsClient({
             <div className="bg-parchment-soft border border-stone-edge rounded-2xl overflow-hidden divide-y divide-stone-edge/60">
               {filteredFeedGroups.map((group) =>
                 group.length === 1 ? (
-                  <FeedPost key={group[0].id} disc={group[0]} />
+                  <FeedPost
+                    key={group[0].id}
+                    disc={group[0]}
+                    commentCount={commentCounts[group[0].id] ?? 0}
+                    planTitle={planTitle}
+                  />
                 ) : (
-                  <FeedThread key={group[0].thread_id!} posts={group} />
+                  <FeedThread
+                    key={group[0].thread_id!}
+                    posts={group}
+                    commentCount={commentCounts[group[0].id] ?? 0}
+                    planTitle={planTitle}
+                  />
                 )
               )}
             </div>
@@ -157,10 +169,12 @@ export default function PlanDiscussionsClient({
 
           {filteredDayDiscussions.length > 0 ? (
             <div className="space-y-2">
-              {filteredDayDiscussions.map((disc) => (
+              {filteredDayDiscussions.map((disc) => {
+                const reflections = commentCounts[disc.id] ?? 0;
+                return (
                 <Link
                   key={disc.id}
-                  href={`/talk-it-over/discussion/${disc.id}`}
+                  href={`/talk-it-over/discussion/${disc.id}#reply`}
                   className="flex items-center gap-4 px-5 py-4 bg-parchment-soft border border-stone-edge rounded-2xl hover:border-gold-soft hover:bg-gold-wash transition-all group"
                 >
                   {disc.day_number != null && (
@@ -178,6 +192,14 @@ export default function PlanDiscussionsClient({
                     {disc.content && (
                       <p className="text-xs text-stone-light truncate mt-0.5">{disc.content}</p>
                     )}
+                    {reflections > 0 && (
+                      <p
+                        className="text-[10px] font-bold uppercase tracking-wider text-gold-deep mt-1.5"
+                        style={{ fontFamily: "var(--font-accent)" }}
+                      >
+                        {reflections} reflection{reflections !== 1 ? "s" : ""}
+                      </p>
+                    )}
                   </div>
                   <svg
                     className="w-4 h-4 text-stone-light group-hover:text-gold transition-colors flex-shrink-0"
@@ -190,7 +212,8 @@ export default function PlanDiscussionsClient({
                     <path d="M4 8h8M9 5l3 3-3 3" />
                   </svg>
                 </Link>
-              ))}
+                );
+              })}
             </div>
           ) : dayDiscussions.length === 0 ? (
             <div className="text-center py-10 bg-parchment-soft rounded-2xl border border-dashed border-stone-edge">
@@ -224,6 +247,6 @@ export default function PlanDiscussionsClient({
           </div>
         )}
       </div>
-    </>
+    </div>
   );
 }

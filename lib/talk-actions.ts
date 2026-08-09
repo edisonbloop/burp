@@ -169,3 +169,28 @@ export async function getComments(discussionId: string) {
   }
   return data || [];
 }
+
+/** Comment counts keyed by discussion id — for feed reply badges. */
+export async function getCommentCountsForDiscussions(
+  discussionIds: string[]
+): Promise<Record<string, number>> {
+  const uniqueIds = [...new Set(discussionIds.filter(Boolean))];
+  if (!uniqueIds.length) return {};
+
+  const supabase = getSupabase();
+  const { data, error } = await supabase
+    .from("comments")
+    .select("discussion_id")
+    .in("discussion_id", uniqueIds);
+
+  if (error || !data) {
+    console.error("Error fetching comment counts:", error);
+    return {};
+  }
+
+  const counts: Record<string, number> = {};
+  for (const row of data) {
+    counts[row.discussion_id] = (counts[row.discussion_id] ?? 0) + 1;
+  }
+  return counts;
+}

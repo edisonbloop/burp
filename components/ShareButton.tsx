@@ -2,12 +2,21 @@
 
 import { useState, useRef, useEffect } from "react";
 
-export default function ShareButton() {
+export default function ShareButton({
+  url,
+  title,
+  variant = "default",
+}: {
+  /** Share this URL instead of the current page */
+  url?: string;
+  /** Share title override */
+  title?: string;
+  variant?: "default" | "compact";
+}) {
   const [open, setOpen] = useState(false);
   const [copied, setCopied] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
 
-  // Close dropdown on outside click
   useEffect(() => {
     function handler(e: MouseEvent) {
       if (ref.current && !ref.current.contains(e.target as Node)) setOpen(false);
@@ -16,16 +25,21 @@ export default function ShareButton() {
     return () => document.removeEventListener("mousedown", handler);
   }, []);
 
-  const getUrl = () => (typeof window !== "undefined" ? window.location.href : "");
-  const getTitle = () => (typeof window !== "undefined" ? document.title : "BURP Content Library");
+  const getUrl = () =>
+    url ?? (typeof window !== "undefined" ? window.location.href : "");
+  const getTitle = () =>
+    title ??
+    (typeof window !== "undefined" ? document.title : "BURP — Berean Upper Room Platform");
 
   async function handleClick() {
-    // On mobile, prefer the native share sheet
+    const shareUrl = getUrl();
+    const shareTitle = getTitle();
+
     if (typeof navigator !== "undefined" && navigator.share) {
       try {
-        await navigator.share({ title: getTitle(), url: getUrl() });
+        await navigator.share({ title: shareTitle, url: shareUrl });
       } catch {
-        // user cancelled — no-op
+        // user cancelled
       }
       return;
     }
@@ -75,19 +89,31 @@ export default function ShareButton() {
     setOpen(false);
   }
 
+  const isCompact = variant === "compact";
+
   return (
     <div ref={ref} className="relative">
       <button
+        type="button"
         onClick={handleClick}
-        className={`px-5 py-2.5 rounded-full border text-xs font-semibold tracking-wider uppercase transition-all duration-140 flex items-center gap-2 shadow-sm ${
-          open
-            ? "bg-gold-wash border-gold text-ink"
-            : "bg-vellum border-stone-edge hover:border-gold text-stone hover:text-ink"
-        }`}
-        style={{ fontFamily: "var(--font-accent)" }}
+        aria-label="Share"
+        className={
+          isCompact
+            ? `w-8 h-8 flex items-center justify-center rounded-full border transition-all ${
+                open
+                  ? "border-gold bg-gold-wash text-gold-deep"
+                  : "border-stone-edge text-stone-light hover:border-gold hover:text-ink"
+              }`
+            : `px-5 py-2.5 rounded-full border text-xs font-semibold tracking-wider uppercase transition-all duration-140 flex items-center gap-2 shadow-sm ${
+                open
+                  ? "bg-gold-wash border-gold text-ink"
+                  : "bg-vellum border-stone-edge hover:border-gold text-stone hover:text-ink"
+              }`
+        }
+        style={isCompact ? undefined : { fontFamily: "var(--font-accent)" }}
       >
         <ShareIcon />
-        Share
+        {!isCompact && "Share"}
       </button>
 
       {open && (
@@ -107,6 +133,7 @@ export default function ShareButton() {
           <ShareOption onClick={shareTelegram} icon={<TelegramIcon />} label="Telegram" color="text-[#229ED9]" />
 
           <button
+            type="button"
             onClick={copyLink}
             className="w-full flex items-center gap-3 px-4 py-3 text-sm text-stone hover:bg-gold-wash transition-colors border-t border-stone-edge/50"
           >
@@ -132,6 +159,7 @@ function ShareOption({
 }) {
   return (
     <button
+      type="button"
       onClick={onClick}
       className="w-full flex items-center gap-3 px-4 py-3 text-sm text-stone hover:bg-gold-wash transition-colors"
     >
@@ -140,8 +168,6 @@ function ShareOption({
     </button>
   );
 }
-
-/* -- Icons --------------------------------------------------------------- */
 
 function ShareIcon() {
   return (

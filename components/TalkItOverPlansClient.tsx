@@ -34,6 +34,18 @@ export default function TalkItOverPlansClient({
 
   return (
     <div className="space-y-8">
+      <div>
+        <p
+          className="text-[10px] font-bold tracking-widest uppercase text-stone-light mb-1"
+          style={{ fontFamily: "var(--font-accent)" }}
+        >
+          Reading Plans
+        </p>
+        <p className="text-xs text-stone-mid leading-relaxed">
+          Browse all plans — use search to find a passage, topic, or thread.
+        </p>
+      </div>
+
       {/* Search toolbar */}
       <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-4 border-b border-stone-edge pb-6">
         <p className="text-xs text-stone-mid">
