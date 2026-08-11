@@ -21,15 +21,15 @@ export async function generateMetadata({
   const plan = await getPlan(planId);
   if (!plan) return { title: "Not Found — BURP" };
 
-  const title = `${plan.title} — Talk It Over | BURP`;
-  const description = truncateForMeta(plan.description ?? "Bible reading plans and devotional threads on BURP.");
+  const title = `${plan.title} — Burp It | BURP`;
+  const description = truncateForMeta(plan.description ?? "Share thoughts and reflections on this Burp It plan.");
   const url = planUrl(planId);
 
   return {
     title,
     description,
     openGraph: {
-      title: `${plan.title} — Talk It Over`,
+      title: `${plan.title} — Burp It`,
       description,
       url,
       siteName: "BURP — Berean Upper Room Platform",
@@ -104,7 +104,7 @@ export default async function PlanDiscussionsPage({
 
   return (
     <main className="min-h-screen bg-vellum text-ink pb-20">
-      <TalkItOverBackHeader backHref="/talk-it-over" backLabel="← Talk It Over" />
+      <TalkItOverBackHeader backHref="/burp-it" backLabel="← Burp It" />
       <PlanDiscussionsClient
         planId={planId}
         planTitle={plan.title}

@@ -212,7 +212,7 @@ export default function FeedThread({
             </span>
           )}
           <Link
-            href={`/talk-it-over/discussion/${replyAnchorId}#reply`}
+            href={`/burp-it/discussion/${replyAnchorId}#reply`}
             className="text-xs font-bold text-stone-light hover:text-gold transition-colors uppercase tracking-widest"
             style={{ fontFamily: "var(--font-accent)" }}
           >
@@ -221,7 +221,7 @@ export default function FeedThread({
           <ShareButton
             variant="compact"
             url={discussionUrl(replyAnchorId)}
-            title={discussionShareTitle(authorName, planTitle ?? "Talk It Over")}
+            title={discussionShareTitle(authorName, planTitle ?? "Burp It")}
           />
         </div>
       )}

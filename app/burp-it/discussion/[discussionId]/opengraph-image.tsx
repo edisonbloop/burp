@@ -3,7 +3,7 @@ import { getDiscussion, getThreadPosts } from "@/lib/talk-actions";
 import { truncateForMeta } from "@/lib/talk-metadata";
 
 export const runtime = "nodejs";
-export const alt = "Talk It Over — BURP";
+export const alt = "Burp It — BURP";
 export const size = { width: 1200, height: 630 };
 export const contentType = "image/png";
 
@@ -18,7 +18,7 @@ export default async function OGImage({
   const author = (discussion?.title as string | undefined) ?? "BURP Community";
   const planTitle =
     (discussion?.reading_plans as { title?: string } | undefined)?.title ??
-    "Talk It Over";
+    "Burp It";
 
   let excerpt = truncateForMeta((discussion?.content as string | undefined) ?? "", 180);
   if (discussion?.thread_id) {
@@ -75,7 +75,7 @@ export default async function OGImage({
                 display: "flex",
               }}
             >
-              Talk It Over
+              Burp It
             </div>
             <div
               style={{

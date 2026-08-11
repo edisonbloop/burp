@@ -34,7 +34,7 @@ export async function notifyReply(
       type: "reply",
       actor_name: actorName,
       message: `${actorName} replied to your post`,
-      link: `/talk-it-over/discussion/${discussionId}`,
+      link: `/burp-it/discussion/${discussionId}`,
     });
   } catch { /* non-critical */ }
 }

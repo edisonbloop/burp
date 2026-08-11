@@ -144,7 +144,7 @@ export default function RedesignedLandingPage() {
         </div>
       </section>
 
-      {/* Dual Portals (Talk It Over vs 100 Stones) */}
+      {/* Portal grid */}
       <section className="bg-parchment-soft border-t border-stone-edge py-20 px-4 sm:px-6">
         <div className="max-w-5xl mx-auto">
           <div className="text-center mb-12">
@@ -213,32 +213,32 @@ export default function RedesignedLandingPage() {
               </div>
             </div>
 
-            {/* Talk It Over Portal */}
+            {/* Burp It Portal */}
             <div className="bg-vellum p-8 rounded-3xl border border-stone-edge hover:border-gold transition-all duration-220 flex flex-col justify-between">
               <div>
                 <span
                   className="text-xs font-semibold tracking-widest text-gold uppercase block mb-3"
                   style={{ fontFamily: "var(--font-accent)" }}
                 >
-                  COMMUNITY DISCUSSION
+                  FEAST · REFLECT · BURP
                 </span>
                 <h3
                   className="text-2xl font-bold mb-4"
                   style={{ fontFamily: "var(--font-display)" }}
                 >
-                  Talk It Over
+                  Burp It
                 </h3>
                 <p className="text-xs text-stone-mid leading-relaxed mb-6">
-                  Engage with Bible reading plans and devotional threads. Share what stood out,
-                  discuss with other readers in your Upper Room, and ask honest questions.
+                  Bible plans, open threads, and honest reflections. Share what stood out,
+                  ask questions, and burp what you found with your Upper Room.
                 </p>
               </div>
               <Link
-                href="/talk-it-over"
+                href="/burp-it"
                 className="inline-flex items-center gap-2 text-xs font-semibold uppercase text-gold-deep hover:text-gold transition-colors duration-140 tracking-wider"
                 style={{ fontFamily: "var(--font-accent)" }}
               >
-                Join discussion plans <span className="text-sm font-sans">→</span>
+                Enter Burp It <span className="text-sm font-sans">→</span>
               </Link>
             </div>
 
@@ -364,8 +364,8 @@ export default function RedesignedLandingPage() {
             <Link href="/" className="hover:text-ink transition-colors">
               Home
             </Link>
-            <Link href="/talk-it-over" className="hover:text-ink transition-colors">
-              Talk It Over
+            <Link href="/burp-it" className="hover:text-ink transition-colors">
+              Burp It
             </Link>
             <Link href="/library" className="hover:text-ink transition-colors">
               Library

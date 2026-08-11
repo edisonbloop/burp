@@ -46,7 +46,7 @@ const slides: Slide[] = [
       </>
     ),
     body: "A faith-centered community for Christians who love God's Word, study it deeply, and gather to reflect honestly. We feast on Scripture daily, then come together to \"burp\" — sharing what challenged, confused, or stirred us.",
-    primaryCta: { label: "Share a reflection", href: "/talk-it-over", variant: "ink" },
+    primaryCta: { label: "Share a reflection", href: "/burp-it", variant: "ink" },
     secondaryCta: { label: "100 Stones of remembrance", href: "/100stones" },
   },
 ];

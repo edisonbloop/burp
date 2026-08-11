@@ -183,7 +183,7 @@ export default function FeedPost({
           {!editing && (
             <div className="flex flex-wrap items-center gap-3">
               <Link
-                href={`/talk-it-over/discussion/${disc.id}#reply`}
+                href={`/burp-it/discussion/${disc.id}#reply`}
                 className="inline-flex items-center gap-2 text-xs font-bold text-stone-light hover:text-gold transition-colors uppercase tracking-widest"
                 style={{ fontFamily: "var(--font-accent)" }}
               >
@@ -197,7 +197,7 @@ export default function FeedPost({
               <ShareButton
                 variant="compact"
                 url={discussionUrl(disc.id)}
-                title={discussionShareTitle(disc.title, planTitle ?? "Talk It Over")}
+                title={discussionShareTitle(disc.title, planTitle ?? "Burp It")}
               />
             </div>
           )}

@@ -50,7 +50,7 @@ export default function DashboardLayout({
     { name: "My Dashboard",    href: "/dashboard" },
     { name: "Edit Profile",    href: "/dashboard/profile" },
     { name: "Content Library", href: "/library" },
-    { name: "Talk It Over",    href: "/talk-it-over" },
+    { name: "Burp It", href: "/burp-it" },
     { name: "Community",       href: "/community" },
     { name: "Attributes of God", href: "/attributes" },
   ];

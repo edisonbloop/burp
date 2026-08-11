@@ -409,10 +409,10 @@ export default function DashboardPage() {
               reflecting.
             </p>
             <Link
-              href="/talk-it-over"
+              href="/burp-it"
               className="text-sm text-gold font-semibold mt-3 inline-block hover:underline"
             >
-              Browse reading plans →
+              Browse Burp It plans →
             </Link>
           </div>
         ) : (
@@ -449,7 +449,7 @@ export default function DashboardPage() {
                 </p>
                 {comment.discussions && (
                   <Link
-                    href={`/talk-it-over/${comment.discussions.plan_id}/${comment.discussion_id}`}
+                    href={`/burp-it/discussion/${comment.discussion_id}`}
                     className="text-xs font-bold text-gold hover:text-gold-deep transition-colors"
                     style={{ fontFamily: "var(--font-accent)" }}
                   >
@@ -468,7 +468,7 @@ export default function DashboardPage() {
           className="text-2xl font-bold text-ink mb-5"
           style={{ fontFamily: "var(--font-display)" }}
         >
-          Reading Plans
+          Burp It Plans
         </h2>
 
         {plans.length === 0 ? (
@@ -483,7 +483,7 @@ export default function DashboardPage() {
             {plans.map((plan) => (
               <Link
                 key={plan.id}
-                href={`/talk-it-over/${plan.id}`}
+                href={`/burp-it/${plan.id}`}
                 className="block bg-parchment-soft p-6 rounded-2xl border border-stone-edge shadow-sm hover:border-gold-soft hover:shadow-md transition-all group"
               >
                 <h3

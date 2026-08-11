@@ -48,7 +48,7 @@ async function loadDiscussion(discussionId: string) {
 
   const commentAnchorId = isThread ? threadPosts[0].id : discussionId;
   const canonicalId = commentAnchorId;
-  const planTitle = disc.reading_plans?.title || "Talk It Over";
+  const planTitle = disc.reading_plans?.title || "Burp It";
   const authorName = disc.title || "Community member";
   const allContent = combinedDiscussionText(...threadPosts.map((p) => p.content));
 
@@ -127,12 +127,12 @@ export default async function DiscussionPage({
 
   return (
     <main className="min-h-screen bg-vellum text-ink pb-16">
-      <TalkItOverBackHeader backHref="/talk-it-over" backLabel="← Talk It Over" />
+      <TalkItOverBackHeader backHref="/burp-it" backLabel="← Burp It" />
 
       <div className="sticky top-0 z-10 bg-vellum/90 backdrop-blur border-b border-stone-edge">
         <div className="max-w-xl mx-auto px-4 py-3 flex items-center gap-3">
           <Link
-            href={`/talk-it-over/${disc.plan_id}`}
+            href={`/burp-it/${disc.plan_id}`}
             className="text-stone-mid hover:text-ink transition-colors"
           >
             <svg className="w-5 h-5" viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
@@ -235,7 +235,7 @@ export default async function DiscussionPage({
             isPartOf: {
               "@type": "CreativeWork",
               name: planTitle,
-              url: `${BASE_URL}/talk-it-over/${disc.plan_id}`,
+              url: `${BASE_URL}/burp-it/${disc.plan_id}`,
             },
           }),
         }}

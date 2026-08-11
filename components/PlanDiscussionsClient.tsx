@@ -71,7 +71,7 @@ export default function PlanDiscussionsClient({
       {/* Plan header bar */}
       <div className="sticky top-0 z-10 bg-vellum/90 backdrop-blur border-b border-stone-edge">
         <div className="max-w-xl mx-auto px-4 py-3 flex items-center gap-3">
-          <Link href="/talk-it-over" className="text-stone-mid hover:text-ink transition-colors">
+          <Link href="/burp-it" className="text-stone-mid hover:text-ink transition-colors">
             <svg className="w-5 h-5" viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
               <path d="M12 4l-6 6 6 6" />
             </svg>
@@ -174,7 +174,7 @@ export default function PlanDiscussionsClient({
                 return (
                 <Link
                   key={disc.id}
-                  href={`/talk-it-over/discussion/${disc.id}#reply`}
+                  href={`/burp-it/discussion/${disc.id}#reply`}
                   className="flex items-center gap-4 px-5 py-4 bg-parchment-soft border border-stone-edge rounded-2xl hover:border-gold-soft hover:bg-gold-wash transition-all group"
                 >
                   {disc.day_number != null && (

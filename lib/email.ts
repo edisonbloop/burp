@@ -24,7 +24,7 @@ export async function sendWelcomeEmail(to: string, firstName: string) {
         <p>Here's what you can do now:</p>
         <ul>
           <li>Browse the <a href="https://burp.ink/library">Content Library</a></li>
-          <li>Join a <a href="https://burp.ink/talk-it-over">Talk It Over</a> reading plan</li>
+          <li>Join a <a href="https://burp.ink/burp-it">Burp It</a> plan and share your reflections</li>
           <li>Submit your own piece to the library</li>
           <li>Complete your <a href="https://burp.ink/dashboard/profile">profile</a></li>
         </ul>

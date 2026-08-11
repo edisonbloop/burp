@@ -17,6 +17,26 @@ const nextConfig: NextConfig = {
         destination: "/link",
         permanent: true,
       },
+      {
+        source: "/talk-it-over",
+        destination: "/burp-it",
+        permanent: true,
+      },
+      {
+        source: "/talk-it-over/:path*",
+        destination: "/burp-it/:path*",
+        permanent: true,
+      },
+      {
+        source: "/talkitover",
+        destination: "/burp-it",
+        permanent: true,
+      },
+      {
+        source: "/talkitover/:path*",
+        destination: "/burp-it/:path*",
+        permanent: true,
+      },
     ];
   },
 };

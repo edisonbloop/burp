@@ -108,7 +108,7 @@ export default function LibrarySubmitForm({
   const [signedInName, setSignedInName] = useState<string | null>(null);
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  // Pre-fill author from the signed-in Talk It Over profile
+  // Pre-fill author from the signed-in Burp It profile
   useEffect(() => {
     const supabase = getSupabaseBrowserClient();
     supabase.auth.getSession().then(async ({ data: { session } }) => {

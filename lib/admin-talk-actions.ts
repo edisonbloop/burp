@@ -153,7 +153,7 @@ export async function adminPostTranscribedComment(
       });
 
     if (error) return { error: error.message };
-    revalidatePath("/talk-it-over");
+    revalidatePath("/burp-it");
     return {};
   } catch (e) {
     return { error: e instanceof Error ? e.message : "Failed" };

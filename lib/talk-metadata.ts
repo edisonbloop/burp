@@ -4,7 +4,7 @@ import { extractUrls } from "./extract-urls";
 export const BASE_URL = "https://www.burp.ink";
 
 export function discussionPath(discussionId: string) {
-  return `/talk-it-over/discussion/${discussionId}`;
+  return `/burp-it/discussion/${discussionId}`;
 }
 
 export function discussionUrl(discussionId: string) {
@@ -12,7 +12,7 @@ export function discussionUrl(discussionId: string) {
 }
 
 export function planPath(planId: string) {
-  return `/talk-it-over/${planId}`;
+  return `/burp-it/${planId}`;
 }
 
 export function planUrl(planId: string) {
@@ -24,7 +24,7 @@ export function truncateForMeta(text: string, max = 160): string {
 }
 
 export function discussionShareTitle(authorName: string, planTitle: string) {
-  return `${authorName} on ${planTitle} — Talk It Over`;
+  return `${authorName} on ${planTitle} — Burp It`;
 }
 
 /** First YouTube/Vimeo thumbnail found in any content strings. */

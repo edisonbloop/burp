@@ -17,7 +17,7 @@ type NavLink = { href: string; label: string; highlight?: boolean };
 type NavItem = NavLink & { children?: NavLink[] };
 
 const navItems: NavItem[] = [
-  { href: "/talk-it-over", label: "Talk It Over" },
+  { href: "/burp-it", label: "Burp It" },
   {
     href: "/library",
     label: "Library",

@@ -93,10 +93,10 @@ export default function StonesRemembranceHome() {
             View the Stones
           </Link>
           <Link
-            href="/talk-it-over"
+            href="/burp-it"
             className="px-8 py-3.5 rounded-full border border-stone-edge hover:border-gold text-stone hover:text-ink font-semibold text-sm tracking-wide transition-colors duration-200"
           >
-            Talk It Over
+            Burp It
           </Link>
         </div>
       </section>

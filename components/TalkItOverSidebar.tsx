@@ -49,7 +49,7 @@ function SidebarPlanLink({
 }) {
   return (
     <Link
-      href={`/talk-it-over/${plan.id}`}
+      href={`/burp-it/${plan.id}`}
       className={`block rounded-2xl border px-4 py-3 transition-all ${
         active
           ? "border-gold bg-gold-wash"
@@ -122,7 +122,7 @@ export default function TalkItOverSidebar({
             Recently Added
           </p>
           <p className="text-xs text-stone-mid mb-4 leading-relaxed">
-            New reading plans just opened on the platform.
+            New Burp It plans just opened on the platform.
           </p>
           <div className="space-y-2">
             {recentlyAdded.map((plan) => (
@@ -145,7 +145,7 @@ export default function TalkItOverSidebar({
         </p>
         <div className="space-y-2 text-xs text-stone-mid">
           <p>
-            <span className="font-bold text-ink">{plans.length}</span> reading plan
+            <span className="font-bold text-ink">{plans.length}</span> Burp It plan
             {plans.length !== 1 ? "s" : ""}
           </p>
           <p>

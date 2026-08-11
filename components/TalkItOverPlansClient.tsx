@@ -42,14 +42,14 @@ export default function TalkItOverPlansClient({
           Reading Plans
         </p>
         <p className="text-xs text-stone-mid leading-relaxed">
-          Browse all plans — use search to find a passage, topic, or thread.
+          Browse all Burp It plans — share thoughts, questions, and reflections with the room.
         </p>
       </div>
 
       {/* Search toolbar */}
       <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-4 border-b border-stone-edge pb-6">
         <p className="text-xs text-stone-mid">
-          {plans.length} reading plan{plans.length !== 1 ? "s" : ""}
+          {plans.length} Burp It plan{plans.length !== 1 ? "s" : ""}
           {searchQuery.trim() && filteredPlans.length !== plans.length && (
             <span className="text-stone-light"> · {filteredPlans.length} shown</span>
           )}
@@ -91,7 +91,7 @@ export default function TalkItOverPlansClient({
           {filteredPlans.map((plan) => (
             <Link
               key={plan.id}
-              href={`/talk-it-over/${plan.id}`}
+              href={`/burp-it/${plan.id}`}
               className="group bg-parchment-soft p-8 rounded-3xl border border-stone-edge hover:border-gold hover:shadow-md transition-all duration-220 flex flex-col justify-between"
             >
               <div>
@@ -100,7 +100,7 @@ export default function TalkItOverPlansClient({
                     className="text-[9px] font-bold tracking-widest text-gold-deep uppercase"
                     style={{ fontFamily: "var(--font-accent)" }}
                   >
-                    Reading Plan
+                    Burp It Plan
                   </span>
                   {plan.day_thread_count > 0 && (
                     <span className="text-[9px] font-bold tracking-wider uppercase px-2 py-0.5 rounded-full bg-gold-wash text-gold-deep border border-gold-soft">
