@@ -535,6 +535,13 @@ export default function WorshipPage() {
         >
           ← Back to BURP
         </Link>
+        <Link
+          href="/worship/attend"
+          className="text-[10px] tracking-widest uppercase text-[#6a5e50] hover:text-[#a89885] transition-colors"
+          style={{ fontFamily: "var(--font-accent)" }}
+        >
+          Venue check-in →
+        </Link>
         <p
           className="text-[10px] tracking-widest uppercase text-[#6a5e50]"
           style={{ fontFamily: "var(--font-accent)" }}

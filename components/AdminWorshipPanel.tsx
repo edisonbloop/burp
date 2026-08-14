@@ -6,9 +6,17 @@ import {
   adminDeleteWorshipRsvp,
   adminSendWorshipLivestreamEmail,
 } from "@/lib/worship-actions";
-import type { WorshipRsvp } from "@/types/worship";
+import type { WorshipRsvp, WorshipAttendance } from "@/types/worship";
+import AdminWorshipAttendancePanel from "@/components/AdminWorshipAttendancePanel";
 
-export default function AdminWorshipPanel({ rsvps }: { rsvps: WorshipRsvp[] }) {
+export default function AdminWorshipPanel({
+  rsvps,
+  attendance,
+}: {
+  rsvps: WorshipRsvp[];
+  attendance: WorshipAttendance[];
+}) {
+  const [section, setSection] = useState<"livestream" | "venue">("livestream");
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
   const [search, setSearch] = useState("");
@@ -87,6 +95,38 @@ export default function AdminWorshipPanel({ rsvps }: { rsvps: WorshipRsvp[] }) {
 
   return (
     <div className={isPending ? "opacity-60 pointer-events-none" : ""}>
+      {/* Livestream vs venue */}
+      <div className="flex gap-1 mb-6 bg-parchment-soft rounded-xl p-1 border border-stone-edge w-fit">
+        <button
+          type="button"
+          onClick={() => setSection("livestream")}
+          className={`px-4 py-2 rounded-lg text-xs font-bold uppercase tracking-wider transition-all ${
+            section === "livestream"
+              ? "bg-white text-ink shadow-sm border border-stone-edge"
+              : "text-stone-mid hover:text-ink"
+          }`}
+          style={{ fontFamily: "var(--font-accent)" }}
+        >
+          Livestream RSVPs ({rsvps.length})
+        </button>
+        <button
+          type="button"
+          onClick={() => setSection("venue")}
+          className={`px-4 py-2 rounded-lg text-xs font-bold uppercase tracking-wider transition-all ${
+            section === "venue"
+              ? "bg-white text-ink shadow-sm border border-stone-edge"
+              : "text-stone-mid hover:text-ink"
+          }`}
+          style={{ fontFamily: "var(--font-accent)" }}
+        >
+          Venue Attendance ({attendance.length})
+        </button>
+      </div>
+
+      {section === "venue" ? (
+        <AdminWorshipAttendancePanel records={attendance} />
+      ) : (
+        <>
       {/* Stats */}
       <div className="grid grid-cols-3 gap-4 mb-6">
         <div className="rounded-2xl border border-stone-edge bg-white p-4 text-center">
@@ -248,6 +288,8 @@ export default function AdminWorshipPanel({ rsvps }: { rsvps: WorshipRsvp[] }) {
             </div>
           ))}
         </div>
+      )}
+        </>
       )}
     </div>
   );

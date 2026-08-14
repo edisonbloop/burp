@@ -6,7 +6,7 @@ import { getAdminSharehouseNeeds } from "@/lib/sharehouse-actions";
 import { getAdminBulletinPosts } from "@/lib/bulletin-actions";
 import { getFacilitationTimetable } from "@/lib/timetable-actions";
 import { adminGetAttributes, adminGetReferences } from "@/lib/admin-attribute-actions";
-import { getAdminWorshipRsvps } from "@/lib/worship-actions";
+import { getAdminWorshipRsvps, getAdminWorshipAttendance } from "@/lib/worship-actions";
 import { getPeople } from "@/lib/crm-actions";
 import { getLatestRound, adminGetRoundOverview } from "@/lib/secretsanta-actions";
 import AdminLogin from "./AdminLogin";
@@ -62,6 +62,7 @@ export default async function AdminPage() {
     godAttributes,
     godReferences,
     worshipRsvps,
+    worshipAttendance,
     people,
     secretSantaRound,
   ] = await Promise.all([
@@ -74,6 +75,7 @@ export default async function AdminPage() {
     adminGetAttributes(),
     adminGetReferences(),
     getAdminWorshipRsvps(),
+    getAdminWorshipAttendance(),
     getPeople(),
     getLatestRound(),
   ]);
@@ -119,6 +121,7 @@ export default async function AdminPage() {
             { label: "God Attributes", value: godAttributes.length },
             { label: "Pending Attributes", value: pendingAttributes, highlight: pendingAttributes > 0 },
             { label: "Worship RSVPs", value: worshipRsvps.length },
+            { label: "Venue Attendance", value: worshipAttendance.length },
             { label: "People (CRM)", value: people.length },
             { label: "Secret Santa Matched", value: secretSantaOverview.mapping.length },
           ].map(({ label, value, highlight }) => (
@@ -154,6 +157,7 @@ export default async function AdminPage() {
           godAttributes={godAttributes}
           godReferences={godReferences}
           worshipRsvps={worshipRsvps}
+          worshipAttendance={worshipAttendance}
           people={people}
           secretSantaRound={secretSantaRound}
           secretSantaMapping={secretSantaOverview.mapping}

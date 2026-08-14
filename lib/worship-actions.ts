@@ -4,7 +4,7 @@ import { cookies } from "next/headers";
 import { revalidatePath } from "next/cache";
 import { getSupabase } from "./supabase";
 import { sendWorshipRsvpConfirmation, sendWorshipLivestreamEmail } from "./email";
-import type { WorshipRsvp, WorshipRsvpFormData } from "@/types/worship";
+import type { WorshipRsvp, WorshipRsvpFormData, WorshipAttendance, WorshipAttendanceFormData } from "@/types/worship";
 
 // Admin check helper
 async function requireAdminSession() {
@@ -157,5 +157,87 @@ export async function adminSendWorshipLivestreamEmail(
     return { sent };
   } catch (e) {
     return { error: e instanceof Error ? e.message : "Failed to send emails" };
+  }
+}
+
+/**
+ * Public: Venue attendance check-in at the door (/worship/attend).
+ */
+export async function createWorshipAttendance(
+  data: WorshipAttendanceFormData
+): Promise<{ error?: string }> {
+  try {
+    const supabase = getSupabase();
+
+    const full_name = data.full_name.trim();
+    const email = data.email?.trim().toLowerCase() || null;
+    const phone = data.phone?.trim() || null;
+    const guest_count = Math.max(1, Math.min(20, Math.round(data.guest_count || 1)));
+    const notes = data.notes?.trim() || null;
+
+    if (!full_name) {
+      return { error: "Name is required." };
+    }
+
+    const { error } = await supabase.from("worship_attendance").insert({
+      full_name,
+      email,
+      phone,
+      guest_count,
+      notes,
+    });
+
+    if (error) return { error: error.message };
+
+    revalidatePath("/worship/attend");
+    revalidatePath("/admin");
+    return {};
+  } catch (e) {
+    return { error: e instanceof Error ? e.message : "Something went wrong" };
+  }
+}
+
+/**
+ * Admin: Fetch all venue attendance records, newest first.
+ */
+export async function getAdminWorshipAttendance(): Promise<WorshipAttendance[]> {
+  await requireAdminSession();
+  let supabase;
+  try {
+    supabase = getSupabase();
+  } catch {
+    return [];
+  }
+
+  const { data, error } = await supabase
+    .from("worship_attendance")
+    .select("*")
+    .order("created_at", { ascending: false });
+
+  if (error) {
+    console.error("Error fetching worship attendance:", error);
+    return [];
+  }
+
+  return (data as WorshipAttendance[]) ?? [];
+}
+
+/**
+ * Admin: Delete a venue attendance record.
+ */
+export async function adminDeleteWorshipAttendance(
+  id: string
+): Promise<{ error?: string }> {
+  try {
+    await requireAdminSession();
+    const supabase = getSupabase();
+
+    const { error } = await supabase.from("worship_attendance").delete().eq("id", id);
+    if (error) return { error: error.message };
+
+    revalidatePath("/admin");
+    return {};
+  } catch (e) {
+    return { error: e instanceof Error ? e.message : "Failed to delete record" };
   }
 }

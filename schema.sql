@@ -301,3 +301,23 @@ alter table public.worship_rsvps disable row level security;
 create index if not exists idx_worship_rsvps_created
   on public.worship_rsvps (created_at desc);
 
+-- --------------------------------------------------------
+-- Worship Night venue attendance ("From the Heart" — in-person)
+-- Quick check-in at the door via /worship/attend
+-- --------------------------------------------------------
+
+create table if not exists public.worship_attendance (
+  id           uuid primary key default gen_random_uuid(),
+  full_name    text not null,
+  email        text,
+  phone        text,
+  guest_count  int not null default 1,
+  notes        text,
+  created_at   timestamptz not null default now()
+);
+
+alter table public.worship_attendance disable row level security;
+
+create index if not exists idx_worship_attendance_created
+  on public.worship_attendance (created_at desc);
+

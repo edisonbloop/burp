@@ -17,7 +17,7 @@ import type { SharehouseNeed } from "@/types/sharehouse";
 import type { BulletinPost } from "@/types/bulletin";
 import type { FacilitationTimetable } from "@/types/timetable";
 import type { GodAttribute, AttributeReference } from "@/types/attributes";
-import type { WorshipRsvp } from "@/types/worship";
+import type { WorshipRsvp, WorshipAttendance } from "@/types/worship";
 import type { Person } from "@/types/crm";
 import type { SecretSantaMappingRow, SecretSantaRound } from "@/types/secretsanta";
 
@@ -53,6 +53,7 @@ interface AdminTabsProps {
   godAttributes: AttributeWithRefs[];
   godReferences: ReferenceWithAttr[];
   worshipRsvps: WorshipRsvp[];
+  worshipAttendance: WorshipAttendance[];
   people: Person[];
   secretSantaRound: SecretSantaRound | null;
   secretSantaMapping: SecretSantaMappingRow[];
@@ -68,7 +69,7 @@ const tabs = [
   { id: "bulletin", label: "BURP Bulletin" },
   { id: "timetable", label: "Facilitating Timetable" },
   { id: "attributes", label: "Attributes of God" },
-  { id: "worship", label: "Worship RSVPs" },
+  { id: "worship", label: "Worship" },
   { id: "people", label: "People (CRM)" },
   { id: "secretsanta", label: "Secret Santa" },
 ] as const;
@@ -85,6 +86,7 @@ export default function AdminTabs({
   godAttributes,
   godReferences,
   worshipRsvps,
+  worshipAttendance,
   people,
   secretSantaRound,
   secretSantaMapping,
@@ -144,7 +146,9 @@ export default function AdminTabs({
       {activeTab === "attributes" && (
         <AdminAttributesPanel attributes={godAttributes} references={godReferences} />
       )}
-      {activeTab === "worship" && <AdminWorshipPanel rsvps={worshipRsvps} />}
+      {activeTab === "worship" && (
+        <AdminWorshipPanel rsvps={worshipRsvps} attendance={worshipAttendance} />
+      )}
       {activeTab === "people" && <AdminCrmPanel people={people} />}
       {activeTab === "secretsanta" && (
         <AdminSecretSantaPanel
