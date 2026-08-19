@@ -99,6 +99,9 @@ export default function StoneModal({ stone, onClose }: StoneModalProps) {
                   >
                     {stone.journey_word}
                   </span>
+                  <span className="text-[10px] font-semibold tracking-wider uppercase px-2 py-1 rounded-full text-[#a0846a] border border-[#e8d4b0]">
+                    {stone.milestone_days} Days
+                  </span>
                   {stone.featured && (
                     <span className="text-[10px] font-semibold tracking-widest uppercase text-[#c4893a] flex items-center gap-1">
                       <span>✦</span> Featured Stone

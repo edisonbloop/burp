@@ -4,6 +4,7 @@ import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { submitReference } from "@/lib/attribute-actions";
 import { BIBLE_BOOKS, formatCitation } from "@/types/attributes";
+import VerseLookup from "@/components/VerseLookup";
 import type { GodAttribute, AttributeReference } from "@/types/attributes";
 
 const inputCls =
@@ -268,7 +269,7 @@ export default function AttributeDetail({
                 >
                   Verse Text{" "}
                   <span className="text-stone-light font-normal normal-case tracking-normal">
-                    (paste the actual verse)
+                    (paste it, or look it up below)
                   </span>
                 </label>
                 <textarea
@@ -278,6 +279,20 @@ export default function AttributeDetail({
                   value={verseText}
                   onChange={(e) => setVerseText(e.target.value)}
                 />
+                <div className="mt-2">
+                  <VerseLookup
+                    compact
+                    insertLabel="Use as Verse Text"
+                    initialReference={
+                      book
+                        ? `${book}${chapter ? ` ${chapter}` : ""}${
+                            verseStart ? `:${verseStart}${verseEnd && verseEnd !== verseStart ? `-${verseEnd}` : ""}` : ""
+                          }`
+                        : ""
+                    }
+                    onInsert={(result) => setVerseText(result.text)}
+                  />
+                </div>
               </div>
 
               {/* Note */}

@@ -10,12 +10,14 @@ export default function AdminStoneTable({ stones: initialStones }: { stones: Sto
   const [isPending, startTransition] = useTransition();
   const [search, setSearch] = useState("");
   const [filter, setFilter] = useState<"all" | "pending" | "approved">("pending");
+  const [milestoneFilter, setMilestoneFilter] = useState<100 | 200 | "all">("all");
   const [expanded, setExpanded] = useState<string | null>(null);
   const [error, setError] = useState("");
 
   const filtered = initialStones.filter((s) => {
     if (filter === "pending" && s.approved) return false;
     if (filter === "approved" && !s.approved) return false;
+    if (milestoneFilter !== "all" && s.milestone_days !== milestoneFilter) return false;
     if (!search.trim()) return true;
     const q = search.toLowerCase();
     return (
@@ -90,6 +92,22 @@ export default function AdminStoneTable({ stones: initialStones }: { stones: Sto
             </button>
           ))}
         </div>
+        <div className="flex gap-2">
+          {(["all", 100, 200] as const).map((m) => (
+            <button
+              key={m}
+              onClick={() => setMilestoneFilter(m)}
+              style={{ fontFamily: "var(--font-accent)" }}
+              className={`text-xs px-4 py-2 rounded-lg border font-bold tracking-widest uppercase transition-colors ${
+                milestoneFilter === m
+                  ? "bg-ink text-vellum border-ink"
+                  : "border-stone-edge text-stone-mid hover:border-gold hover:text-ink"
+              }`}
+            >
+              {m === "all" ? "All Days" : `${m} Days`}
+            </button>
+          ))}
+        </div>
       </div>
 
       <p className="text-sm text-stone-mid mb-4 font-medium">
@@ -131,6 +149,9 @@ export default function AdminStoneTable({ stones: initialStones }: { stones: Sto
                       {stone.anonymous ? stone.display_name || "Anonymous" : stone.full_name}
                     </p>
                     <div className="flex items-center gap-2 mt-1 flex-wrap">
+                      <span className="text-xs font-bold text-stone-mid bg-parchment-soft px-2 py-0.5 rounded-full border border-stone-edge">
+                        {stone.milestone_days} Days
+                      </span>
                       {stone.anonymous && (
                         <span className="text-xs text-stone-light bg-parchment-soft px-2 py-0.5 rounded-full border border-stone-edge">
                           Anonymous

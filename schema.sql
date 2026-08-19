@@ -16,15 +16,23 @@ create table if not exists public.stones (
   anonymous        boolean not null default false,
   approved         boolean not null default false,
   featured         boolean not null default false,
-  created_at       timestamptz not null default now()
+  milestone_days   int not null default 100, -- which reading milestone this stone marks: 100 or 200
+  created_at       timestamptz not null default now(),
+  constraint stones_milestone_days_check check (milestone_days in (100, 200))
 );
+
+-- If the table already exists, add the milestone column safely (powers "200 Stones")
+alter table public.stones add column if not exists milestone_days int not null default 100;
+alter table public.stones drop constraint if exists stones_milestone_days_check;
+alter table public.stones add constraint stones_milestone_days_check check (milestone_days in (100, 200));
 
 -- Disable Row Level Security — access is managed server-side via service role key
 alter table public.stones disable row level security;
 
--- Optional: index for public stones query
+-- Optional: index for public stones query (recreated to include milestone_days)
+drop index if exists idx_stones_public;
 create index if not exists idx_stones_public
-  on public.stones (approved, consent_public, featured desc, created_at desc);
+  on public.stones (approved, consent_public, milestone_days, featured desc, created_at desc);
 
 -- --------------------------------------------------------
 -- Bible Discussions ("Talk it over") Schema

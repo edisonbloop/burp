@@ -2,10 +2,17 @@ import { getPublicStones } from "@/lib/actions";
 import StonesGrid from "@/components/StonesGrid";
 import EmptyState from "@/components/EmptyState";
 import Link from "next/link";
+import type { MilestoneDays } from "@/types/stones";
 
 export const revalidate = 60;
 
-export default async function StonesPage() {
+interface StonesPageProps {
+  searchParams: Promise<{ days?: string }>;
+}
+
+export default async function StonesPage({ searchParams }: StonesPageProps) {
+  const { days } = await searchParams;
+  const initialMilestone: MilestoneDays | null = days === "100" || days === "200" ? (Number(days) as MilestoneDays) : null;
   const stones = await getPublicStones();
 
   return (
@@ -20,11 +27,11 @@ export default async function StonesPage() {
         }}
       >
         <Link
-          href="/100stones"
+          href={initialMilestone === 200 ? "/200stones" : "/100stones"}
           className="inline-flex items-center gap-1.5 text-xs font-semibold text-stone hover:text-ink tracking-widest uppercase mb-8 transition-colors duration-140"
           style={{ fontFamily: "var(--font-accent)" }}
         >
-          ← Back to 100 Stones
+          ← Back to {initialMilestone === 200 ? "200" : "100"} Stones
         </Link>
 
         <div className="flex justify-center mb-5">
@@ -47,7 +54,7 @@ export default async function StonesPage() {
           The Wall of Remembrance
         </h1>
         <p className="text-stone-mid text-xs max-w-md mx-auto leading-relaxed mb-6">
-          Each stone is a testimony — one thing God did in someone during 100 days in His Word.
+          Each stone is a testimony — one thing God did in someone during their days in His Word.
         </p>
 
         {/* Stone count stat */}
@@ -84,7 +91,7 @@ export default async function StonesPage() {
             icon="◎"
           />
         ) : (
-          <StonesGrid stones={stones} />
+          <StonesGrid stones={stones} initialMilestone={initialMilestone} />
         )}
       </div>
 
@@ -109,7 +116,7 @@ export default async function StonesPage() {
           Your remembrance matters. Add it to the memorial.
         </p>
         <Link
-          href="/submit"
+          href={initialMilestone === 200 ? "/200stones/submit" : "/submit"}
           className="inline-block px-8 py-3.5 rounded-full bg-ink hover:bg-stone text-vellum font-semibold text-xs tracking-wide transition-colors duration-200"
         >
           Submit Your Stone

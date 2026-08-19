@@ -1,3 +1,5 @@
+export type MilestoneDays = 100 | 200;
+
 export interface Stone {
   id: string;
   full_name: string;
@@ -11,6 +13,7 @@ export interface Stone {
   anonymous: boolean;
   approved: boolean;
   featured: boolean;
+  milestone_days: MilestoneDays;
   created_at: string;
 }
 
@@ -24,6 +27,7 @@ export interface PublicStone {
   remembrance: string;
   testimony: string | null;
   featured: boolean;
+  milestone_days: MilestoneDays;
   created_at: string;
 }
 
@@ -37,4 +41,5 @@ export interface StoneFormData {
   testimony?: string;
   consent_public: boolean;
   anonymous: boolean;
+  milestone_days: MilestoneDays;
 }

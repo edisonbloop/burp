@@ -6,15 +6,17 @@ import StoneCard from "./StoneCard";
 import StoneModal from "./StoneModal";
 import BackToTop from "./BackToTop";
 import EmptyState from "./EmptyState";
-import type { PublicStone } from "@/types/stones";
+import type { PublicStone, MilestoneDays } from "@/types/stones";
 
 interface StonesGridProps {
   stones: PublicStone[];
+  initialMilestone?: MilestoneDays | null;
 }
 
-export default function StonesGrid({ stones }: StonesGridProps) {
+export default function StonesGrid({ stones, initialMilestone = null }: StonesGridProps) {
   const [search, setSearch] = useState("");
   const [activeWord, setActiveWord] = useState<string | null>(null);
+  const [activeMilestone, setActiveMilestone] = useState<MilestoneDays | null>(initialMilestone);
   const [selectedStone, setSelectedStone] = useState<PublicStone | null>(null);
 
   const journeyWords = useMemo(() => {
@@ -24,6 +26,7 @@ export default function StonesGrid({ stones }: StonesGridProps) {
 
   const filtered = useMemo(() => {
     return stones.filter((stone) => {
+      if (activeMilestone && stone.milestone_days !== activeMilestone) return false;
       const matchesWord =
         !activeWord ||
         stone.journey_word.toLowerCase() === activeWord.toLowerCase();
@@ -40,13 +43,30 @@ export default function StonesGrid({ stones }: StonesGridProps) {
             stone.full_name.toLowerCase().includes(q)))
       );
     });
-  }, [stones, search, activeWord]);
+  }, [stones, search, activeWord, activeMilestone]);
 
-  const isFiltering = !!search.trim() || !!activeWord;
-  const gridKey = `${activeWord ?? "all"}-${search}`;
+  const isFiltering = !!search.trim() || !!activeWord || !!activeMilestone;
+  const gridKey = `${activeMilestone ?? "any"}-${activeWord ?? "all"}-${search}`;
 
   return (
     <div>
+      {/* Milestone filter */}
+      <div className="flex flex-wrap gap-2 mb-4">
+        {([null, 100, 200] as const).map((m) => (
+          <button
+            key={m ?? "all"}
+            onClick={() => setActiveMilestone(m)}
+            className={`text-xs px-4 py-2 rounded-full font-semibold tracking-wide transition-all duration-200 ${
+              activeMilestone === m
+                ? "bg-[#2d1f0e] text-white shadow-sm"
+                : "bg-white border border-[#e8d4b0] text-[#7a5a3a] hover:border-[#c4893a] hover:text-[#c4893a]"
+            }`}
+          >
+            {m === null ? "All Milestones" : `${m} Days`}
+          </button>
+        ))}
+      </div>
+
       {/* Search */}
       <div className="relative mb-4">
         <span className="absolute left-4 top-1/2 -translate-y-1/2 text-[#c4b090] text-base pointer-events-none">

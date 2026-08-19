@@ -25,6 +25,7 @@ export async function createStone(data: StoneFormData): Promise<{ error?: string
       testimony: data.testimony || null,
       consent_public: data.consent_public,
       anonymous: data.anonymous,
+      milestone_days: data.milestone_days,
       approved: false,
       featured: false,
     });
@@ -46,7 +47,7 @@ export async function getPublicStones(): Promise<PublicStone[]> {
   const { data, error } = await supabase
     .from("stones")
     .select(
-      "id, display_name, full_name, anonymous, journey_word, scripture, remembrance, testimony, featured, created_at"
+      "id, display_name, full_name, anonymous, journey_word, scripture, remembrance, testimony, featured, milestone_days, created_at"
     )
     .eq("approved", true)
     .eq("consent_public", true)

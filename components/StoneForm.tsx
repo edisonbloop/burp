@@ -6,6 +6,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { createStone } from "@/lib/actions";
 import Link from "next/link";
+import type { MilestoneDays } from "@/types/stones";
 
 const schema = z.object({
   full_name: z.string().min(2, "Full name is required"),
@@ -30,7 +31,7 @@ const schema = z.object({
 
 type FormValues = z.infer<typeof schema>;
 
-export default function StoneForm() {
+export default function StoneForm({ milestoneDays = 100 }: { milestoneDays?: MilestoneDays }) {
   const [submitted, setSubmitted] = useState(false);
   const [serverError, setServerError] = useState("");
 
@@ -62,6 +63,7 @@ export default function StoneForm() {
       testimony: data.testimony,
       consent_public: data.consent_public,
       anonymous: data.anonymous,
+      milestone_days: milestoneDays,
     });
 
     if (result.error) {
@@ -189,7 +191,7 @@ export default function StoneForm() {
           Your Stone of Remembrance <span className="text-[#c4893a]">*</span>
         </label>
         <p className="text-sm text-[#7a5a3a] mb-2 leading-relaxed italic">
-          What do you want to remember God did in you during these 100 days?
+          What do you want to remember God did in you during these {milestoneDays} days?
         </p>
         <textarea
           {...register("remembrance")}

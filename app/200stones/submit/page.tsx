@@ -1,13 +1,13 @@
 import StoneForm from "@/components/StoneForm";
 import PageHeader from "@/components/PageHeader";
 
-export default function SubmitPage() {
+export default function Submit200StonePage() {
   return (
     <div className="flex-1 flex flex-col">
       <PageHeader
         title="Submit Your Stone"
-        subtitle="What do you want to remember God did in you during these 100 days?"
-        backHref="/100stones"
+        subtitle="What do you want to remember God did in you during these 200 days?"
+        backHref="/200stones"
       />
 
       <div className="flex-1 py-10 px-4 sm:px-6">
@@ -19,7 +19,7 @@ export default function SubmitPage() {
           </p>
         </div>
 
-        <StoneForm milestoneDays={100} />
+        <StoneForm milestoneDays={200} />
       </div>
     </div>
   );

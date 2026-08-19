@@ -36,18 +36,23 @@ export default function StoneCard({ stone, index = 0, onClick }: StoneCardProps)
           "0 2px 12px rgba(196,137,58,0.08), 0 1px 3px rgba(196,137,58,0.06)";
       }}
     >
-      {/* Top row: journey word + featured */}
+      {/* Top row: journey word + milestone + featured */}
       <div className="flex items-center justify-between gap-2">
-        <span
-          className="text-xs font-bold tracking-widest uppercase px-3 py-1.5 rounded-full"
-          style={{
-            background: "linear-gradient(135deg, #f9edda, #f0d9b0)",
-            color: "#8a5420",
-            letterSpacing: "0.1em",
-          }}
-        >
-          {stone.journey_word}
-        </span>
+        <div className="flex items-center gap-1.5 flex-wrap">
+          <span
+            className="text-xs font-bold tracking-widest uppercase px-3 py-1.5 rounded-full"
+            style={{
+              background: "linear-gradient(135deg, #f9edda, #f0d9b0)",
+              color: "#8a5420",
+              letterSpacing: "0.1em",
+            }}
+          >
+            {stone.journey_word}
+          </span>
+          <span className="text-[10px] font-semibold tracking-wider uppercase px-2 py-1 rounded-full text-[#a0846a] border border-[#e8d4b0]">
+            {stone.milestone_days} Days
+          </span>
+        </div>
         {stone.featured && (
           <span className="text-[10px] font-semibold tracking-widest uppercase text-[#c4893a] flex items-center gap-1">
             <span style={{ fontSize: "10px" }}>✦</span> Featured
@@ -139,15 +144,20 @@ export default function StoneCard({ stone, index = 0, onClick }: StoneCardProps)
         >
           {/* Top row */}
           <div className="flex items-center justify-between gap-2">
-            <span
-              className="text-xs font-bold tracking-widest uppercase px-3 py-1.5 rounded-full"
-              style={{
-                background: "linear-gradient(135deg, #f9edda, #f0d9b0)",
-                color: "#8a5420",
-              }}
-            >
-              {stone.journey_word}
-            </span>
+            <div className="flex items-center gap-1.5 flex-wrap">
+              <span
+                className="text-xs font-bold tracking-widest uppercase px-3 py-1.5 rounded-full"
+                style={{
+                  background: "linear-gradient(135deg, #f9edda, #f0d9b0)",
+                  color: "#8a5420",
+                }}
+              >
+                {stone.journey_word}
+              </span>
+              <span className="text-[10px] font-semibold tracking-wider uppercase px-2 py-1 rounded-full text-[#a0846a] border border-[#e8d4b0]">
+                {stone.milestone_days} Days
+              </span>
+            </div>
             <span className="text-[10px] font-semibold tracking-widest uppercase text-[#c4893a] flex items-center gap-1">
               <span style={{ fontSize: "10px" }}>✦</span> Featured
             </span>

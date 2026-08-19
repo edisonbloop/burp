@@ -9,6 +9,7 @@ import {
 } from "@/lib/admin-talk-actions";
 import DiscussionExport from "@/components/DiscussionExport";
 import PlanExport from "@/components/PlanExport";
+import VerseLookup from "@/components/VerseLookup";
 
 interface Discussion {
   id: string;
@@ -129,6 +130,17 @@ function DiscussionForm({
           value={content}
           onChange={(e) => setContent(e.target.value)}
         />
+        <div className="mt-2">
+          <VerseLookup
+            compact
+            insertLabel="Insert Passage"
+            onInsert={(result) =>
+              setContent((prev) =>
+                `Read: ${result.reference} (${result.versionAbbreviation})\n\n"${result.text}"\n\n${prev}`
+              )
+            }
+          />
+        </div>
       </div>
       <div className="flex gap-2">
         <button
