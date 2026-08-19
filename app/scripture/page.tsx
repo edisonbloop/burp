@@ -117,30 +117,41 @@ export default function ScripturePage() {
           </p>
         )}
 
-        <div className="space-y-4">
-          {results.map((r) => (
-            <div
-              key={r.version.id}
-              className="p-5 rounded-2xl border border-stone-edge bg-white"
-            >
-              <p className="text-xs font-bold text-gold-deep uppercase tracking-widest mb-2" style={accent}>
-                {r.version.abbreviation} · {r.version.label}
+        {/* Never surface per-version errors to visitors — just quietly omit that version. */}
+        {(() => {
+          const visible = results.filter((r) => r.status !== "error");
+          const settledCount = results.filter((r) => r.status !== "loading").length;
+          const allErrored = results.length > 0 && settledCount === results.length && visible.length === 0;
+
+          if (allErrored) {
+            return (
+              <p className="text-center text-sm text-stone-mid italic">
+                Couldn&rsquo;t find that reference — try a different one, e.g. &ldquo;John 3:16&rdquo;.
               </p>
-              {r.status === "loading" && <p className="text-sm text-stone-light">Looking up…</p>}
-              {r.status === "error" && (
-                <p className="text-sm text-danger-earthen">{r.error}</p>
-              )}
-              {r.status === "done" && (
-                <>
-                  <p className="text-sm text-stone-light mb-2">{r.result.reference}</p>
-                  <p className="text-base text-ink leading-relaxed italic">
-                    &ldquo;{r.result.text}&rdquo;
+            );
+          }
+
+          return (
+            <div className="space-y-4">
+              {visible.map((r) => (
+                <div key={r.version.id} className="p-5 rounded-2xl border border-stone-edge bg-white">
+                  <p className="text-xs font-bold text-gold-deep uppercase tracking-widest mb-2" style={accent}>
+                    {r.version.abbreviation} · {r.version.label}
                   </p>
-                </>
-              )}
+                  {r.status === "loading" && <p className="text-sm text-stone-light">Looking up…</p>}
+                  {r.status === "done" && (
+                    <>
+                      <p className="text-sm text-stone-light mb-2">{r.result.reference}</p>
+                      <p className="text-base text-ink leading-relaxed italic">
+                        &ldquo;{r.result.text}&rdquo;
+                      </p>
+                    </>
+                  )}
+                </div>
+              ))}
             </div>
-          ))}
-        </div>
+          );
+        })()}
 
         {unconfigured.length > 0 && (
           <p className="mt-10 text-center text-[11px] text-stone-light">

@@ -3,8 +3,15 @@
 import { BIBLE_VERSIONS } from "@/types/bible";
 import type { BibleLookupResponse, BibleVersionInfo } from "@/types/bible";
 
-/** Cache verse lookups for a week — Bible text never changes, so this is safe and saves rate limit. */
+/** Cache actual verse *text* for a week — Bible text never changes, so this is safe and saves rate limit. */
 const CACHE_OPTS = { next: { revalidate: 60 * 60 * 24 * 7 } };
+/**
+ * Cache the api.bible *catalog* (which translations this account can access)
+ * for only 5 minutes — publisher access grants can change at any time, and a
+ * long cache here would keep serving a stale "not available" verdict for a
+ * translation that was just approved.
+ */
+const CATALOG_CACHE_OPTS = { next: { revalidate: 60 * 5 } };
 
 /**
  * Every version BURP knows about, annotated with whether it's actually usable
@@ -98,7 +105,7 @@ async function fetchFromEsvApi(
 // valid key alone doesn't guarantee it's available.
 async function resolveApiBibleId(abbreviation: string, key: string): Promise<string | null> {
   const res = await fetch("https://api.scripture.api.bible/v1/bibles?language=eng", {
-    ...CACHE_OPTS,
+    ...CATALOG_CACHE_OPTS,
     headers: { "api-key": key },
   });
   if (!res.ok) return null;
@@ -115,10 +122,12 @@ async function fetchFromApiBible(
 ): Promise<BibleLookupResponse> {
   const key = process.env.API_BIBLE_KEY;
   if (!key) {
-    return { error: "NIV requires an API key — add API_BIBLE_KEY to your environment (free at scripture.api.bible)." };
+    return {
+      error: `${version.abbreviation} requires an API key — add API_BIBLE_KEY to your environment (free at scripture.api.bible).`,
+    };
   }
 
-  const bibleId = await resolveApiBibleId(version.abbreviation, key);
+  const bibleId = await resolveApiBibleId(version.apiLookupAbbreviation ?? version.abbreviation, key);
   if (!bibleId) {
     return {
       error: `${version.abbreviation} isn't available on your api.bible account yet — request access for it in your api.bible dashboard.`,
@@ -131,6 +140,11 @@ async function fetchFromApiBible(
     headers: { "api-key": key },
   });
 
+  if (res.status === 403) {
+    return {
+      error: `${version.abbreviation} is listed on your api.bible account but not authorized for content access yet — request access for it in your api.bible dashboard.`,
+    };
+  }
   if (!res.ok) {
     return { error: `${version.abbreviation} API error (${res.status}).` };
   }
