@@ -9,6 +9,7 @@ import { adminGetAttributes, adminGetReferences } from "@/lib/admin-attribute-ac
 import { getAdminWorshipRsvps, getAdminWorshipAttendance } from "@/lib/worship-actions";
 import { getPeople } from "@/lib/crm-actions";
 import { getLatestRound, adminGetRoundOverview } from "@/lib/secretsanta-actions";
+import { getAdminAssessmentResults } from "@/lib/admin-assessment-actions";
 import AdminLogin from "./AdminLogin";
 import AdminTabs from "./AdminTabs";
 import PageHeader from "@/components/PageHeader";
@@ -65,6 +66,7 @@ export default async function AdminPage() {
     worshipAttendance,
     people,
     secretSantaRound,
+    assessmentResults,
   ] = await Promise.all([
     getAdminStones(),
     getPlansWithDiscussions(),
@@ -78,6 +80,7 @@ export default async function AdminPage() {
     getAdminWorshipAttendance(),
     getPeople(),
     getLatestRound(),
+    getAdminAssessmentResults(),
   ]);
 
   const secretSantaOverview = secretSantaRound
@@ -124,6 +127,7 @@ export default async function AdminPage() {
             { label: "Venue Attendance", value: worshipAttendance.length },
             { label: "People (CRM)", value: people.length },
             { label: "Secret Santa Matched", value: secretSantaOverview.mapping.length },
+            { label: "Leadership Feedback", value: assessmentResults.submissions.length },
           ].map(({ label, value, highlight }) => (
             <div
               key={label}
@@ -163,6 +167,8 @@ export default async function AdminPage() {
           secretSantaMapping={secretSantaOverview.mapping}
           secretSantaNotPicked={secretSantaOverview.notPicked}
           secretSantaTotal={secretSantaOverview.totalParticipants}
+          assessmentStats={assessmentResults.stats}
+          assessmentSubmissions={assessmentResults.submissions}
         />
       </div>
     </div>

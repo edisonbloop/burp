@@ -11,6 +11,7 @@ import AdminAttributesPanel from "@/components/AdminAttributesPanel";
 import AdminWorshipPanel from "@/components/AdminWorshipPanel";
 import AdminCrmPanel from "@/components/AdminCrmPanel";
 import AdminSecretSantaPanel from "@/components/AdminSecretSantaPanel";
+import AdminAssessmentResults from "@/components/AdminAssessmentResults";
 import type { Stone } from "@/types/stones";
 import type { LibraryItem } from "@/types/library";
 import type { SharehouseNeed } from "@/types/sharehouse";
@@ -20,6 +21,7 @@ import type { GodAttribute, AttributeReference } from "@/types/attributes";
 import type { WorshipRsvp, WorshipAttendance } from "@/types/worship";
 import type { Person } from "@/types/crm";
 import type { SecretSantaMappingRow, SecretSantaRound } from "@/types/secretsanta";
+import type { AdminAggregateStats, AdminAssessmentSubmission } from "@/types/admin-assessment";
 
 interface Plan {
   id: string;
@@ -59,6 +61,8 @@ interface AdminTabsProps {
   secretSantaMapping: SecretSantaMappingRow[];
   secretSantaNotPicked: (Person & { canSelfPick: boolean })[];
   secretSantaTotal: number;
+  assessmentStats: AdminAggregateStats[];
+  assessmentSubmissions: AdminAssessmentSubmission[];
 }
 
 const tabs = [
@@ -72,6 +76,7 @@ const tabs = [
   { id: "worship", label: "Worship" },
   { id: "people", label: "People (CRM)" },
   { id: "secretsanta", label: "Secret Santa" },
+  { id: "assessment", label: "Leadership Feedback" },
 ] as const;
 
 type TabId = (typeof tabs)[number]["id"];
@@ -92,6 +97,8 @@ export default function AdminTabs({
   secretSantaMapping,
   secretSantaNotPicked,
   secretSantaTotal,
+  assessmentStats,
+  assessmentSubmissions,
 }: AdminTabsProps) {
   const [activeTab, setActiveTab] = useState<TabId>("stones");
 
@@ -158,6 +165,9 @@ export default function AdminTabs({
           notPicked={secretSantaNotPicked}
           totalParticipants={secretSantaTotal}
         />
+      )}
+      {activeTab === "assessment" && (
+        <AdminAssessmentResults stats={assessmentStats} submissions={assessmentSubmissions} />
       )}
     </div>
   );
