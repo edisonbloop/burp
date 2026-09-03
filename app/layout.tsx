@@ -1,8 +1,11 @@
 import type { Metadata, Viewport } from "next";
 import { Cormorant_Garamond, Inter, Cinzel } from "next/font/google";
+import { GoogleAnalytics } from "@next/third-parties/google";
 import "./globals.css";
 import InstallPrompt from "@/components/InstallPrompt";
 import PasswordRecoveryHandler from "@/components/PasswordRecoveryHandler";
+
+const GA_MEASUREMENT_ID = process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID;
 
 const cormorant = Cormorant_Garamond({
   variable: "--font-cormorant",
@@ -54,6 +57,7 @@ export default function RootLayout({
         <PasswordRecoveryHandler />
         <InstallPrompt />
       </body>
+      {GA_MEASUREMENT_ID && <GoogleAnalytics gaId={GA_MEASUREMENT_ID} />}
     </html>
   );
 }

@@ -12,6 +12,7 @@ import AdminWorshipPanel from "@/components/AdminWorshipPanel";
 import AdminCrmPanel from "@/components/AdminCrmPanel";
 import AdminSecretSantaPanel from "@/components/AdminSecretSantaPanel";
 import AdminAssessmentResults from "@/components/AdminAssessmentResults";
+import AdminOutreachPanel from "@/components/AdminOutreachPanel";
 import type { Stone } from "@/types/stones";
 import type { LibraryItem } from "@/types/library";
 import type { SharehouseNeed } from "@/types/sharehouse";
@@ -22,6 +23,7 @@ import type { WorshipRsvp, WorshipAttendance } from "@/types/worship";
 import type { Person } from "@/types/crm";
 import type { SecretSantaMappingRow, SecretSantaRound } from "@/types/secretsanta";
 import type { AdminAggregateStats, AdminAssessmentSubmission } from "@/types/admin-assessment";
+import type { OutreachRound, OutreachIdea, VoteTally } from "@/types/outreach";
 
 interface Plan {
   id: string;
@@ -63,6 +65,10 @@ interface AdminTabsProps {
   secretSantaTotal: number;
   assessmentStats: AdminAggregateStats[];
   assessmentSubmissions: AdminAssessmentSubmission[];
+  outreachRound: OutreachRound | null;
+  outreachIdeas: (OutreachIdea & { commentCount: number })[];
+  outreachTallies: VoteTally[];
+  outreachTotalVoters: number;
 }
 
 const tabs = [
@@ -77,6 +83,7 @@ const tabs = [
   { id: "people", label: "People (CRM)" },
   { id: "secretsanta", label: "Secret Santa" },
   { id: "assessment", label: "Leadership Feedback" },
+  { id: "outreach", label: "Community Outreach" },
 ] as const;
 
 type TabId = (typeof tabs)[number]["id"];
@@ -99,6 +106,10 @@ export default function AdminTabs({
   secretSantaTotal,
   assessmentStats,
   assessmentSubmissions,
+  outreachRound,
+  outreachIdeas,
+  outreachTallies,
+  outreachTotalVoters,
 }: AdminTabsProps) {
   const [activeTab, setActiveTab] = useState<TabId>("stones");
 
@@ -168,6 +179,14 @@ export default function AdminTabs({
       )}
       {activeTab === "assessment" && (
         <AdminAssessmentResults stats={assessmentStats} submissions={assessmentSubmissions} />
+      )}
+      {activeTab === "outreach" && (
+        <AdminOutreachPanel
+          round={outreachRound}
+          ideas={outreachIdeas}
+          tallies={outreachTallies}
+          totalVoters={outreachTotalVoters}
+        />
       )}
     </div>
   );

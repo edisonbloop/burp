@@ -10,6 +10,7 @@ import { getAdminWorshipRsvps, getAdminWorshipAttendance } from "@/lib/worship-a
 import { getPeople } from "@/lib/crm-actions";
 import { getLatestRound, adminGetRoundOverview } from "@/lib/secretsanta-actions";
 import { getAdminAssessmentResults } from "@/lib/admin-assessment-actions";
+import { getActiveRound as getActiveOutreachRound, adminGetRoundOverview as adminGetOutreachOverview } from "@/lib/outreach-actions";
 import AdminLogin from "./AdminLogin";
 import AdminTabs from "./AdminTabs";
 import PageHeader from "@/components/PageHeader";
@@ -67,6 +68,7 @@ export default async function AdminPage() {
     people,
     secretSantaRound,
     assessmentResults,
+    outreachRound,
   ] = await Promise.all([
     getAdminStones(),
     getPlansWithDiscussions(),
@@ -81,11 +83,16 @@ export default async function AdminPage() {
     getPeople(),
     getLatestRound(),
     getAdminAssessmentResults(),
+    getActiveOutreachRound(),
   ]);
 
   const secretSantaOverview = secretSantaRound
     ? await adminGetRoundOverview(secretSantaRound.id)
     : { mapping: [], notPicked: [], totalParticipants: 0 };
+
+  const outreachOverview = outreachRound
+    ? await adminGetOutreachOverview(outreachRound.id)
+    : { ideas: [], tallies: [], totalVoters: 0 };
 
   const pendingStones = stones.filter((s) => !s.approved).length;
   const totalDiscs = plans.reduce(
@@ -128,6 +135,8 @@ export default async function AdminPage() {
             { label: "People (CRM)", value: people.length },
             { label: "Secret Santa Matched", value: secretSantaOverview.mapping.length },
             { label: "Leadership Feedback", value: assessmentResults.submissions.length },
+            { label: "Outreach Ideas", value: outreachOverview.ideas.length },
+            { label: "Outreach Voters", value: outreachOverview.totalVoters },
           ].map(({ label, value, highlight }) => (
             <div
               key={label}
@@ -169,6 +178,10 @@ export default async function AdminPage() {
           secretSantaTotal={secretSantaOverview.totalParticipants}
           assessmentStats={assessmentResults.stats}
           assessmentSubmissions={assessmentResults.submissions}
+          outreachRound={outreachRound}
+          outreachIdeas={outreachOverview.ideas}
+          outreachTallies={outreachOverview.tallies}
+          outreachTotalVoters={outreachOverview.totalVoters}
         />
       </div>
     </div>
