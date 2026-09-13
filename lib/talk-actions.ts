@@ -7,6 +7,7 @@ export type ReadingPlanWithStats = {
   title: string;
   description: string | null;
   created_at: string;
+  day_number: number | null;
   discussion_count: number;
   day_thread_count: number;
   last_activity_at: string | null;

@@ -192,7 +192,7 @@ export default function TalkComments({
           </Link>
         ) : (
           <form onSubmit={submitComment}>
-            <div className="flex gap-3 items-start bg-parchment-soft border border-stone-edge rounded-2xl px-4 py-4 focus-within:border-gold transition-colors">
+            <div className="flex gap-2 sm:gap-3 items-start bg-parchment-soft border border-stone-edge rounded-2xl px-3 sm:px-4 py-4 focus-within:border-gold transition-colors">
               <Avatar name={profile?.full_name ?? user.email ?? "?"} size="sm" />
               <div className="flex-1 min-w-0">
                 <textarea

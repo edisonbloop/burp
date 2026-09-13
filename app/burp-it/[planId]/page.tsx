@@ -8,6 +8,7 @@ import {
   getFeedPostsForPlan,
   getPlan,
 } from "@/lib/talk-actions";
+import { getOneYearPlanDay } from "@/lib/oneyear-actions";
 import { planUrl, truncateForMeta } from "@/lib/talk-metadata";
 
 export const revalidate = 0;
@@ -93,6 +94,9 @@ export default async function PlanDiscussionsPage({
 
   if (!plan) notFound();
 
+  const oneYearDay =
+    "day_number" in plan && typeof plan.day_number === "number" ? await getOneYearPlanDay(plan.day_number) : null;
+
   const feedGroups = groupByThread(feedPosts as Disc[]);
 
   // Reflections anchor on the first post in a thread; solo posts use their own id.
@@ -109,6 +113,7 @@ export default async function PlanDiscussionsPage({
         planId={planId}
         planTitle={plan.title}
         planDescription={plan.description}
+        oneYearDay={oneYearDay}
         feedGroups={feedGroups}
         dayDiscussions={dayDiscussions as Disc[]}
         commentCounts={commentCounts}

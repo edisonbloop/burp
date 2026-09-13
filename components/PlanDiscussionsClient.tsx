@@ -5,7 +5,9 @@ import Link from "next/link";
 import PostToFeed from "@/components/PostToFeed";
 import FeedPost from "@/components/FeedPost";
 import FeedThread from "@/components/FeedThread";
+import PlanReadingSection from "@/components/PlanReadingSection";
 import { anyTextMatchesQuery, normalizeSearchQuery } from "@/lib/search-utils";
+import type { OneYearPlanDay } from "@/types/oneyear";
 
 type Disc = {
   id: string;
@@ -38,6 +40,7 @@ export default function PlanDiscussionsClient({
   planId,
   planTitle,
   planDescription,
+  oneYearDay,
   feedGroups,
   dayDiscussions,
   commentCounts = {},
@@ -45,6 +48,7 @@ export default function PlanDiscussionsClient({
   planId: string;
   planTitle: string;
   planDescription?: string | null;
+  oneYearDay?: OneYearPlanDay | null;
   feedGroups: Disc[][];
   dayDiscussions: Disc[];
   commentCounts?: Record<string, number>;
@@ -70,7 +74,7 @@ export default function PlanDiscussionsClient({
     <div className="min-w-0">
       {/* Plan header bar */}
       <div className="sticky top-0 z-10 bg-vellum/90 backdrop-blur border-b border-stone-edge">
-        <div className="max-w-xl mx-auto px-4 py-3 flex items-center gap-3">
+        <div className="max-w-xl mx-auto px-3 sm:px-4 py-3 flex items-center gap-3">
           <Link href="/burp-it" className="text-stone-mid hover:text-ink transition-colors">
             <svg className="w-5 h-5" viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
               <path d="M12 4l-6 6 6 6" />
@@ -85,7 +89,10 @@ export default function PlanDiscussionsClient({
         </div>
       </div>
 
-      <div className="max-w-xl mx-auto px-4 py-6 space-y-8">
+      <div className="max-w-xl mx-auto px-3 sm:px-4 py-6 space-y-8">
+        {/* Live scripture reading for this day, when available */}
+        {oneYearDay && <PlanReadingSection day={oneYearDay} />}
+
         {/* Search */}
         {!isEmpty && (
           <div className="relative">

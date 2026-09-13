@@ -33,23 +33,109 @@ function stripHtml(html: string): string {
     .trim();
 }
 
+interface BibleApiVerse {
+  book_name: string;
+  chapter: number;
+  verse: number;
+  text: string;
+}
+
+async function fetchBibleApiChapter(
+  book: string,
+  chapter: number,
+  translation: string
+): Promise<BibleApiVerse[] | null> {
+  const url = `https://bible-api.com/${encodeURIComponent(`${book} ${chapter}`)}?translation=${translation}`;
+  const res = await fetch(url, CACHE_OPTS);
+  if (!res.ok) return null;
+  const data = await res.json();
+  return (data.verses as BibleApiVerse[] | undefined) ?? null;
+}
+
+/**
+ * Parses "Book Ch:V-Ch:V", "Book Ch:V-V" (same chapter), "Book Ch-Ch" (whole
+ * chapters), "Book Ch:V", or "Book Ch" into its parts.
+ */
+function parseReference(reference: string): {
+  book: string;
+  chStart: number;
+  vStart?: number;
+  chEnd?: number;
+  vEnd?: number;
+} | null {
+  const m = reference.match(/^(.+?)\s+(\d+)(?::(\d+))?(?:-(\d+)(?::(\d+))?)?$/);
+  if (!m) return null;
+  const [, book, chStartStr, vStartStr, secondStr, vEndStr] = m;
+  const chStart = parseInt(chStartStr, 10);
+  const vStart = vStartStr ? parseInt(vStartStr, 10) : undefined;
+  const second = secondStr ? parseInt(secondStr, 10) : undefined;
+  const vEnd = vEndStr ? parseInt(vEndStr, 10) : undefined;
+
+  if (second === undefined) return { book, chStart, vStart };
+  if (vEnd !== undefined) return { book, chStart, vStart, chEnd: second, vEnd };
+  if (vStart !== undefined) return { book, chStart, vStart, chEnd: chStart, vEnd: second };
+  return { book, chStart, chEnd: second };
+}
+
+/**
+ * bible-api.com refuses any range spanning more than one chapter boundary
+ * ("too many chapters"). Many of our reading-plan entries span several
+ * chapters (e.g. "Genesis 1:1-3:24"), so for those we fetch each whole
+ * chapter individually (always supported) and trim the first/last chapter
+ * down to the requested verses ourselves, rather than relying on the API's
+ * own (narrower) range support.
+ */
 async function fetchFromBibleApiCom(
   reference: string,
   version: BibleVersionInfo
 ): Promise<BibleLookupResponse> {
-  const url = `https://bible-api.com/${encodeURIComponent(reference)}?translation=${version.id}`;
-  const res = await fetch(url, CACHE_OPTS);
-  if (!res.ok) {
+  const parsed = parseReference(reference);
+  const spansMultipleChapters = parsed?.chEnd !== undefined && parsed.chEnd - parsed.chStart >= 2;
+
+  if (!parsed || !spansMultipleChapters) {
+    const url = `https://bible-api.com/${encodeURIComponent(reference)}?translation=${version.id}`;
+    const res = await fetch(url, CACHE_OPTS);
+    if (!res.ok) {
+      return { error: `Couldn't find "${reference}" in ${version.abbreviation}.` };
+    }
+    const data = await res.json();
+    if (data.error || !data.text) {
+      return { error: data.error || `Couldn't find "${reference}" in ${version.abbreviation}.` };
+    }
+    return {
+      result: {
+        reference: data.reference || reference,
+        text: (data.text as string).replace(/\s+/g, " ").trim(),
+        versionId: version.id,
+        versionAbbreviation: version.abbreviation,
+      },
+    };
+  }
+
+  const { book, chStart, vStart, chEnd, vEnd } = parsed;
+  const chapterNumbers = Array.from({ length: chEnd! - chStart + 1 }, (_, i) => chStart + i);
+  const chapters = await Promise.all(chapterNumbers.map((n) => fetchBibleApiChapter(book, n, version.id)));
+
+  const verses: BibleApiVerse[] = [];
+  for (let i = 0; i < chapterNumbers.length; i++) {
+    const chapterVerses = chapters[i];
+    if (!chapterVerses) continue;
+    const n = chapterNumbers[i];
+    for (const v of chapterVerses) {
+      if (n === chStart && vStart !== undefined && v.verse < vStart) continue;
+      if (n === chEnd && vEnd !== undefined && v.verse > vEnd) continue;
+      verses.push(v);
+    }
+  }
+
+  if (verses.length === 0) {
     return { error: `Couldn't find "${reference}" in ${version.abbreviation}.` };
   }
-  const data = await res.json();
-  if (data.error || !data.text) {
-    return { error: data.error || `Couldn't find "${reference}" in ${version.abbreviation}.` };
-  }
+
   return {
     result: {
-      reference: data.reference || reference,
-      text: (data.text as string).replace(/\s+/g, " ").trim(),
+      reference,
+      text: verses.map((v) => v.text).join(" ").replace(/\s+/g, " ").trim(),
       versionId: version.id,
       versionAbbreviation: version.abbreviation,
     },

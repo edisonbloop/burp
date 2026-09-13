@@ -26,17 +26,22 @@ function getMostActivePlans(plans: ReadingPlanWithStats[], limit = 5) {
     .slice(0, limit);
 }
 
-function getRecentlyAddedPlans(
+/** Past/today days with no reflections yet, closest to today first — a gentle "catch up" nudge. */
+function getCatchUpPlans(
   plans: ReadingPlanWithStats[],
+  currentDayNumber: number,
   excludeIds: Set<string>,
   limit = 4
 ) {
-  return [...plans]
-    .filter((p) => !excludeIds.has(p.id))
-    .sort(
-      (a, b) =>
-        new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+  return plans
+    .filter(
+      (p) =>
+        !excludeIds.has(p.id) &&
+        p.discussion_count === 0 &&
+        p.day_number != null &&
+        p.day_number <= currentDayNumber
     )
+    .sort((a, b) => (b.day_number ?? 0) - (a.day_number ?? 0))
     .slice(0, limit);
 }
 
@@ -75,16 +80,18 @@ function SidebarPlanLink({
 
 export default function TalkItOverSidebar({
   plans,
+  currentDayNumber,
   currentPlanId,
   className = "",
 }: {
   plans: ReadingPlanWithStats[];
+  currentDayNumber: number;
   currentPlanId?: string;
   className?: string;
 }) {
   const mostActive = getMostActivePlans(plans);
   const mostActiveIds = new Set(mostActive.map((p) => p.id));
-  const recentlyAdded = getRecentlyAddedPlans(plans, mostActiveIds);
+  const catchUp = getCatchUpPlans(plans, currentDayNumber, mostActiveIds);
 
   if (plans.length === 0) return null;
 
@@ -113,19 +120,19 @@ export default function TalkItOverSidebar({
         </section>
       )}
 
-      {recentlyAdded.length > 0 && (
+      {catchUp.length > 0 && (
         <section>
           <p
             className="text-[10px] font-bold tracking-widest uppercase text-stone-light mb-1"
             style={{ fontFamily: "var(--font-accent)" }}
           >
-            Recently Added
+            Catch Up
           </p>
           <p className="text-xs text-stone-mid mb-4 leading-relaxed">
-            New Burp It plans just opened on the platform.
+            Recent days with no reflections yet — be the first.
           </p>
           <div className="space-y-2">
-            {recentlyAdded.map((plan) => (
+            {catchUp.map((plan) => (
               <SidebarPlanLink
                 key={plan.id}
                 plan={plan}
@@ -145,8 +152,7 @@ export default function TalkItOverSidebar({
         </p>
         <div className="space-y-2 text-xs text-stone-mid">
           <p>
-            <span className="font-bold text-ink">{plans.length}</span> Burp It plan
-            {plans.length !== 1 ? "s" : ""}
+            <span className="font-bold text-ink">Day {currentDayNumber}</span> of 365
           </p>
           <p>
             <span className="font-bold text-ink">

@@ -137,9 +137,9 @@ export default function PostToFeed({ planId }: { planId: string }) {
 
   return (
     <div className="mb-2">
-      <div className="rounded-2xl bg-parchment-soft border border-stone-edge px-4 py-4">
+      <div className="rounded-2xl bg-parchment-soft border border-stone-edge px-3 sm:px-4 py-4">
         {posts.map((content, i) => (
-          <div key={i} className="flex gap-3 items-start">
+          <div key={i} className="flex gap-2 sm:gap-3 items-start">
             {/* Avatar column with thread line */}
             <div className="flex flex-col items-center flex-shrink-0">
               {i === 0 ? (

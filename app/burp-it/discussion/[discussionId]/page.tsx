@@ -130,7 +130,7 @@ export default async function DiscussionPage({
       <TalkItOverBackHeader backHref="/burp-it" backLabel="← Burp It" />
 
       <div className="sticky top-0 z-10 bg-vellum/90 backdrop-blur border-b border-stone-edge">
-        <div className="max-w-xl mx-auto px-4 py-3 flex items-center gap-3">
+        <div className="max-w-xl mx-auto px-3 sm:px-4 py-3 flex items-center gap-3">
           <Link
             href={`/burp-it/${disc.plan_id}`}
             className="text-stone-mid hover:text-ink transition-colors"
@@ -152,7 +152,7 @@ export default async function DiscussionPage({
         </div>
       </div>
 
-      <div className="max-w-xl mx-auto px-4">
+      <div className="max-w-xl mx-auto px-3 sm:px-4">
         {!isThread && (
           <div className="py-5 border-b border-stone-edge">
             <div className="flex gap-3">
