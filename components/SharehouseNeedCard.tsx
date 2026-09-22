@@ -72,12 +72,12 @@ export default function SharehouseNeedCard({ need, onMarkAsMet }: SharehouseNeed
 
   return (
     <div
-      className={`rounded-3xl border-2 overflow-hidden transition-all duration-220 flex flex-col bg-white relative ${
+      className={`rounded-none border overflow-hidden transition-all duration-300 flex flex-col bg-parchment-soft relative hover:-translate-y-1 hover:shadow-[0_20px_60px_rgba(53,43,28,.08)] ${
         isMet
-          ? "border-gold-soft bg-gold-wash/10 shadow-sm"
+          ? "border-gold-soft bg-gold-wash/20 shadow-sm"
           : need.featured
-          ? "border-gold-soft/80"
-          : "border-stone-edge hover:border-gold-soft/60"
+          ? "border-gold-soft"
+          : "border-stone-edge hover:border-gold-soft"
       }`}
     >
       {/* Featured Star Indicator */}
@@ -88,7 +88,7 @@ export default function SharehouseNeedCard({ need, onMarkAsMet }: SharehouseNeed
       )}
 
       {/* Card Header & Badges */}
-      <div className="p-6 pb-4">
+      <div className="p-7 pb-4">
         <div className="flex flex-wrap items-center gap-2 mb-3">
           <span
             className={`text-[9px] font-bold tracking-widest uppercase px-2.5 py-1 rounded-full border ${catStyle.bg} ${catStyle.text} ${catStyle.border}`}
@@ -132,7 +132,7 @@ export default function SharehouseNeedCard({ need, onMarkAsMet }: SharehouseNeed
       </div>
 
       {/* Card Body - Description / Testimony */}
-      <div className="px-6 flex-1 flex flex-col justify-between">
+      <div className="px-7 flex-1 flex flex-col justify-between">
         <div>
           {/* Main Description */}
           <div className="text-xs sm:text-sm text-stone-mid leading-relaxed whitespace-pre-wrap font-sans">

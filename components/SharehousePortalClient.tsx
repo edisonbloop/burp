@@ -47,15 +47,15 @@ export default function SharehousePortalClient({ initialNeeds }: { initialNeeds:
   return (
     <div className="space-y-10">
       {/* Search and Tab Toolbar */}
-      <div className="flex flex-col md:flex-row items-center justify-between gap-6 border-b border-stone-edge pb-6">
+      <div className="flex flex-col md:flex-row items-center justify-between gap-6 border-y border-stone-edge py-6">
         {/* Toggle between Active Needs & Met testimonies */}
-        <div className="flex gap-1.5 bg-parchment-soft rounded-2xl p-1.5 border border-stone-edge w-full md:w-fit">
+        <div className="flex gap-1.5 bg-parchment-soft rounded-full p-1.5 border border-stone-edge w-full md:w-fit">
           <button
             onClick={() => {
               setActiveTab("active");
               setSelectedCategory("all");
             }}
-            className={`flex-1 md:flex-initial px-5 py-3 rounded-xl text-xs font-bold tracking-widest uppercase transition-all flex items-center justify-center gap-2 ${
+            className={`flex-1 md:flex-initial px-5 py-3 rounded-full text-[10px] font-bold tracking-widest uppercase transition-all flex items-center justify-center gap-2 ${
               activeTab === "active"
                 ? "bg-ink text-vellum shadow-md"
                 : "text-stone-mid hover:text-ink"
@@ -77,7 +77,7 @@ export default function SharehousePortalClient({ initialNeeds }: { initialNeeds:
               setActiveTab("met");
               setSelectedCategory("all");
             }}
-            className={`flex-1 md:flex-initial px-5 py-3 rounded-xl text-xs font-bold tracking-widest uppercase transition-all flex items-center justify-center gap-2 ${
+            className={`flex-1 md:flex-initial px-5 py-3 rounded-full text-[10px] font-bold tracking-widest uppercase transition-all flex items-center justify-center gap-2 ${
               activeTab === "met"
                 ? "bg-ink text-vellum shadow-md"
                 : "text-stone-mid hover:text-ink"
@@ -102,7 +102,7 @@ export default function SharehousePortalClient({ initialNeeds }: { initialNeeds:
             placeholder="Search needs..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full bg-vellum border border-stone-edge text-ink text-sm rounded-full pl-5 pr-10 py-3 focus:outline-none focus:border-gold focus:ring-1 focus:ring-gold transition-all placeholder:text-stone-light/75"
+            className="w-full bg-transparent border-b border-stone-edge text-ink text-sm pl-1 pr-10 py-3 focus:outline-none focus:border-gold transition-all placeholder:text-stone-light/75"
           />
           <span className="absolute right-4 top-1/2 -translate-y-1/2 text-stone-light">
             <svg
@@ -140,7 +140,7 @@ export default function SharehousePortalClient({ initialNeeds }: { initialNeeds:
                 className={`text-xs px-4 py-2 rounded-full border transition-all uppercase tracking-wider font-semibold ${
                   isSelected
                     ? "bg-gold text-white border-gold shadow-sm scale-[1.02]"
-                    : "border-stone-edge text-stone bg-white hover:border-gold hover:text-ink"
+                    : "border-stone-edge text-stone bg-transparent hover:border-gold hover:text-ink"
                 }`}
                 style={{ fontFamily: "var(--font-accent)" }}
               >
@@ -161,7 +161,7 @@ export default function SharehousePortalClient({ initialNeeds }: { initialNeeds:
           </p>
         </div>
       ) : (
-        <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-3 max-w-7xl mx-auto">
+        <div className="grid gap-5 md:grid-cols-2 lg:grid-cols-3 max-w-7xl mx-auto">
           {searchedNeeds.map((need) => (
             <SharehouseNeedCard
               key={need.id}
@@ -173,7 +173,7 @@ export default function SharehousePortalClient({ initialNeeds }: { initialNeeds:
       )}
 
       {/* Scripture Banner */}
-      <div className="max-w-4xl mx-auto border-y border-stone-edge/30 py-8 text-center bg-vellum">
+      <div className="max-w-4xl mx-auto border-y border-stone-edge/60 py-10 text-center bg-vellum">
         <span
           className="text-[10px] font-bold tracking-widest text-gold uppercase block mb-3"
           style={{ fontFamily: "var(--font-accent)" }}
