@@ -13,6 +13,19 @@ export const metadata: Metadata = {
 
 const AVAILABLE = [
   {
+    href: "/games/burp-it-quiz",
+    emoji: "📜",
+    title: "Burp It Quiz",
+    tagline: "Your readings. Your verses.",
+    description: "Questions pulled from the verses in your Burp It daily readings. Fill in the word, name the book, then jump into that day's discussion.",
+    stat: "365",
+    statLabel: "days of verses",
+    color: "bg-gold-wash",
+    border: "border-gold",
+    titleColor: "text-gold-deep",
+    badgeColor: "bg-gold text-vellum",
+  },
+  {
     href: "/games/guess-the-character",
     emoji: "🎭",
     title: "Guess the Character",
