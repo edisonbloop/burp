@@ -1,7 +1,7 @@
 "use server";
 
-import { cookies } from "next/headers";
 import { getSupabase } from "./supabase";
+import { requireAdminSession } from "./admin-session";
 import { ASSESSED_ADMINS, RATING_QUESTIONS } from "@/types/admin-assessment";
 import type {
   AdminAssessmentFormData,
@@ -10,13 +10,6 @@ import type {
   AdminAggregateStats,
   RatingKey,
 } from "@/types/admin-assessment";
-
-async function requireAdminSession() {
-  const cookieStore = await cookies();
-  if (cookieStore.get("admin_session")?.value !== "authenticated") {
-    throw new Error("Unauthorized");
-  }
-}
 
 /**
  * Public: Submit one respondent's ratings for all assessed admins. Fully

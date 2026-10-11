@@ -1,7 +1,7 @@
 "use server";
 
-import { cookies } from "next/headers";
 import { revalidatePath } from "next/cache";
+import { requireAdminSession } from "./admin-session";
 import { getSupabase } from "./supabase";
 import { getSupabaseAdmin } from "./supabase-admin";
 import { TIMETABLE_DAYS } from "@/types/timetable";
@@ -11,13 +11,6 @@ import type {
   MemberSuggestion,
   TimetableDay,
 } from "@/types/timetable";
-
-async function requireAdminSession() {
-  const cookieStore = await cookies();
-  if (cookieStore.get("admin_session")?.value !== "authenticated") {
-    throw new Error("Unauthorized");
-  }
-}
 
 /**
  * Public: Read the single facilitating-timetable row.

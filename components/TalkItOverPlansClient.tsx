@@ -8,6 +8,8 @@ import { anyTextMatchesQuery } from "@/lib/search-utils";
 const accent = { fontFamily: "var(--font-accent)" };
 const display = { fontFamily: "var(--font-display)" };
 
+const PAST_PAGE_SIZE = 14;
+
 function formatActivityDate(dateStr: string | null): string {
   if (!dateStr) return "No activity yet";
   const date = new Date(dateStr);
@@ -25,12 +27,21 @@ function PlanCard({ plan }: { plan: ReadingPlanWithStats }) {
   return (
     <Link
       href={`/burp-it/${plan.id}`}
-      className="group bg-parchment-soft p-8 rounded-3xl border border-stone-edge hover:border-gold hover:shadow-md transition-all duration-220 flex flex-col justify-between"
+      className="group relative overflow-hidden bg-parchment-soft p-7 rounded-3xl border border-stone-edge hover:border-gold hover:-translate-y-0.5 hover:shadow-lg transition-all duration-200 flex flex-col justify-between"
     >
-      <div>
+      {plan.day_number != null && (
+        <span
+          aria-hidden
+          className="absolute -right-2 -top-4 text-[7rem] leading-none font-bold text-gold-wash group-hover:text-gold-soft/50 transition-colors select-none pointer-events-none"
+          style={display}
+        >
+          {plan.day_number}
+        </span>
+      )}
+      <div className="relative">
         <div className="flex items-center justify-between gap-3 mb-3">
           <span className="text-[9px] font-bold tracking-widest text-gold-deep uppercase" style={accent}>
-            Burp It Plan
+            {plan.day_number != null ? `Day ${plan.day_number}` : "Burp It Plan"}
           </span>
           {plan.day_thread_count > 0 && (
             <span className="text-[9px] font-bold tracking-wider uppercase px-2 py-0.5 rounded-full bg-gold-wash text-gold-deep border border-gold-soft">
@@ -49,7 +60,7 @@ function PlanCard({ plan }: { plan: ReadingPlanWithStats }) {
         )}
       </div>
 
-      <div className="mt-8 space-y-3">
+      <div className="relative mt-8 pt-4 border-t border-stone-edge/70 space-y-3">
         <div className="flex items-center gap-4 text-[10px] text-stone-light uppercase tracking-wider">
           <span>
             {plan.discussion_count} discussion{plan.discussion_count !== 1 ? "s" : ""}
@@ -78,6 +89,7 @@ export default function TalkItOverPlansClient({
 }) {
   const [searchQuery, setSearchQuery] = useState("");
   const [showUpcoming, setShowUpcoming] = useState(false);
+  const [pastVisible, setPastVisible] = useState(PAST_PAGE_SIZE);
   const [jumpValue, setJumpValue] = useState("");
   const [jumpError, setJumpError] = useState("");
 
@@ -135,7 +147,7 @@ export default function TalkItOverPlansClient({
             placeholder="Search plans, passages, or topics..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full bg-vellum border border-stone-edge text-ink text-sm rounded-full pl-5 pr-10 py-3 focus:outline-none focus:border-gold focus:ring-1 focus:ring-gold transition-all placeholder:text-stone-light/75"
+            className="w-full bg-white border border-stone-edge shadow-sm text-ink text-sm rounded-full pl-5 pr-10 py-3 focus:outline-none focus:border-gold focus:ring-1 focus:ring-gold transition-all placeholder:text-stone-light/75"
           />
           <span className="absolute right-4 top-1/2 -translate-y-1/2 text-stone-light pointer-events-none">
             <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
@@ -179,31 +191,38 @@ export default function TalkItOverPlansClient({
               </p>
               <Link
                 href={`/burp-it/${todayPlan.id}`}
-                className="group block bg-gold-wash/25 p-8 sm:p-10 rounded-3xl border-2 border-gold-soft hover:border-gold hover:shadow-md transition-all duration-220"
+                className="group relative overflow-hidden block bg-gradient-to-br from-gold-wash to-parchment-soft p-8 sm:p-10 rounded-3xl border-2 border-gold-soft hover:border-gold hover:shadow-xl transition-all duration-200"
               >
+                <span
+                  aria-hidden
+                  className="absolute -right-3 -top-8 text-[10rem] leading-none font-bold text-gold-soft/40 select-none pointer-events-none"
+                  style={display}
+                >
+                  {currentDayNumber}
+                </span>
                 <h3
-                  className="text-3xl font-bold text-ink mb-3 group-hover:text-gold-deep transition-colors tracking-tight leading-snug"
+                  className="relative text-3xl sm:text-4xl font-bold text-ink mb-3 group-hover:text-gold-deep transition-colors tracking-tight leading-snug"
                   style={display}
                 >
                   {todayPlan.title}
                 </h3>
                 {todayPlan.description && (
-                  <p className="text-sm text-stone-mid leading-relaxed mb-6">{todayPlan.description}</p>
+                  <p className="relative text-sm text-stone-mid leading-relaxed mb-6 max-w-xl">{todayPlan.description}</p>
                 )}
-                <div className="flex items-center gap-4 text-[10px] text-stone-light uppercase tracking-wider mb-4">
+                <div className="relative flex items-center gap-4 text-[10px] text-stone-mid uppercase tracking-wider mb-5">
                   <span>
                     {todayPlan.discussion_count} discussion{todayPlan.discussion_count !== 1 ? "s" : ""}
                   </span>
                   <span className="w-1 h-1 rounded-full bg-stone-edge" />
                   <span>{formatActivityDate(todayPlan.last_activity_at)}</span>
                 </div>
-                <div
-                  className="flex items-center gap-1 text-xs font-bold tracking-wider text-gold-deep group-hover:text-ink uppercase transition-colors"
+                <span
+                  className="relative inline-flex items-center gap-2 px-6 py-3 rounded-full bg-ink group-hover:bg-stone text-vellum text-[11px] font-bold tracking-[0.15em] uppercase transition-colors"
                   style={accent}
                 >
-                  <span>Read &amp; Discuss Today</span>
-                  <span className="text-sm font-sans leading-none transition-transform group-hover:translate-x-1">→</span>
-                </div>
+                  Read &amp; Discuss Today
+                  <span className="font-sans leading-none transition-transform group-hover:translate-x-1">→</span>
+                </span>
               </Link>
             </div>
           )}
@@ -216,10 +235,29 @@ export default function TalkItOverPlansClient({
               </p>
               <p className="text-xs text-stone-mid mb-5">Past days, most recent first.</p>
               <div className="grid gap-6 sm:grid-cols-2">
-                {pastPlans.map((plan) => (
+                {pastPlans.slice(0, pastVisible).map((plan) => (
                   <PlanCard key={plan.id} plan={plan} />
                 ))}
               </div>
+              {pastVisible < pastPlans.length && (
+                <div className="mt-8 flex flex-wrap items-center justify-center gap-3">
+                  <button
+                    type="button"
+                    onClick={() => setPastVisible((n) => n + PAST_PAGE_SIZE)}
+                    className="px-6 py-3 rounded-full border border-stone-edge hover:border-gold text-xs font-bold uppercase tracking-wider text-stone hover:text-ink transition-colors"
+                    style={accent}
+                  >
+                    Show older days
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setPastVisible(pastPlans.length)}
+                    className="text-xs text-stone-light hover:text-ink transition-colors"
+                  >
+                    Show all {pastPlans.length}
+                  </button>
+                </div>
+              )}
             </div>
           )}
 

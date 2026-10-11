@@ -1,7 +1,7 @@
 "use server";
 
-import { cookies } from "next/headers";
 import { revalidatePath } from "next/cache";
+import { requireAdminSession } from "./admin-session";
 import { getSupabase } from "./supabase";
 import type { Person } from "@/types/crm";
 import type {
@@ -11,13 +11,6 @@ import type {
   SecretSantaMappingRow,
   SecretSantaRound,
 } from "@/types/secretsanta";
-
-async function requireAdminSession() {
-  const cookieStore = await cookies();
-  if (cookieStore.get("admin_session")?.value !== "authenticated") {
-    throw new Error("Unauthorized");
-  }
-}
 
 /**
  * The round everyone interacts with by default: the one with the latest year.

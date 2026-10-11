@@ -83,6 +83,22 @@ export async function getReadingPlans() {
   return data || [];
 }
 
+/** The Burp It plan row for a given One Year Bible day (null if none / column not migrated yet). */
+export async function getPlanByDayNumber(dayNumber: number) {
+  try {
+    const supabase = getSupabase();
+    const { data, error } = await supabase
+      .from("reading_plans")
+      .select("id, title, description, day_number")
+      .eq("day_number", dayNumber)
+      .maybeSingle();
+    if (error) return null;
+    return data as { id: string; title: string; description: string | null; day_number: number } | null;
+  } catch {
+    return null;
+  }
+}
+
 export async function getPlan(planId: string) {
   const supabase = getSupabase();
   const { data, error } = await supabase

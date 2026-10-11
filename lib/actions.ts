@@ -1,16 +1,8 @@
 "use server";
 
-import { cookies } from "next/headers";
 import { getSupabase } from "./supabase";
+import { requireAdminSession } from "./admin-session";
 import type { Stone, PublicStone, StoneFormData } from "@/types/stones";
-
-async function requireAdminSession() {
-  const cookieStore = await cookies();
-  const session = cookieStore.get("admin_session")?.value;
-  if (session !== "authenticated") {
-    throw new Error("Unauthorized");
-  }
-}
 
 export async function createStone(data: StoneFormData): Promise<{ error?: string }> {
   try {

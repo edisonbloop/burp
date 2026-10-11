@@ -1,19 +1,12 @@
 "use server";
 
-import { cookies } from "next/headers";
 import { revalidatePath } from "next/cache";
+import { requireAdminSession } from "./admin-session";
 import { getSupabase } from "./supabase";
 import { sendWorshipRsvpConfirmation, sendWorshipLivestreamEmail } from "./email";
 import type { WorshipRsvp, WorshipRsvpFormData, WorshipAttendance, WorshipAttendanceFormData } from "@/types/worship";
 
 // Admin check helper
-async function requireAdminSession() {
-  const cookieStore = await cookies();
-  if (cookieStore.get("admin_session")?.value !== "authenticated") {
-    throw new Error("Unauthorized");
-  }
-}
-
 /**
  * Public: RSVP to attend the "From the Heart" livestream.
  * Re-submitting with the same email updates the existing RSVP.

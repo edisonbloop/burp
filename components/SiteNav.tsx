@@ -125,7 +125,7 @@ export default function SiteNav() {
         </Link>
 
         {/* Desktop nav */}
-        <nav className="hidden md:flex items-center gap-6">
+        <nav className="hidden lg:flex items-center gap-6">
           {navItems.map((item) =>
             item.children ? (
               <DesktopNavDropdown key={item.href} item={item} pathname={pathname} />
@@ -149,7 +149,7 @@ export default function SiteNav() {
         </nav>
 
         {/* Mobile right side: bell + auth + hamburger */}
-        <div className="flex items-center gap-2 md:hidden">
+        <div className="flex items-center gap-2 lg:hidden">
           <NotificationBell />
           <AuthMenu />
           <button
@@ -173,7 +173,7 @@ export default function SiteNav() {
 
       {/* Mobile dropdown */}
       {open && (
-        <nav className="md:hidden border-t border-stone-edge bg-parchment-soft px-4 py-3 flex flex-col gap-1">
+        <nav className="lg:hidden border-t border-stone-edge bg-parchment-soft px-4 py-3 flex flex-col gap-1">
           {navItems.map((item) =>
             item.children ? (
               <div key={item.href}>

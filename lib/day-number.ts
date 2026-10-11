@@ -8,6 +8,11 @@
 const ANCHOR_DAY_NUMBER = 224;
 const ANCHOR_DATE_UTC = Date.UTC(2026, 8, 12); // Sept 12, 2026
 
+/** The real-world calendar date (UTC) a given plan day falls on. */
+export function dayNumberToDate(dayNumber: number): Date {
+  return new Date(ANCHOR_DATE_UTC + (dayNumber - ANCHOR_DAY_NUMBER) * 24 * 60 * 60 * 1000);
+}
+
 export function getCurrentDayNumber(): number {
   const diffDays = Math.floor((Date.now() - ANCHOR_DATE_UTC) / (1000 * 60 * 60 * 24));
   return Math.min(365, Math.max(1, ANCHOR_DAY_NUMBER + diffDays));

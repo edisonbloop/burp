@@ -1,15 +1,8 @@
 "use server";
 
-import { cookies } from "next/headers";
 import { revalidatePath } from "next/cache";
+import { requireAdminSession } from "./admin-session";
 import { getSupabase } from "./supabase";
-
-async function requireAdminSession() {
-  const cookieStore = await cookies();
-  if (cookieStore.get("admin_session")?.value !== "authenticated") {
-    throw new Error("Unauthorized");
-  }
-}
 
 // -- Plans ------------------------------------------------------------------
 

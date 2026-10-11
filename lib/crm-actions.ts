@@ -1,17 +1,10 @@
 "use server";
 
-import { cookies } from "next/headers";
 import { revalidatePath } from "next/cache";
+import { requireAdminSession } from "./admin-session";
 import { getSupabase } from "./supabase";
 import { MONTH_NAMES } from "@/types/crm";
 import type { BulkImportResult, Person, PersonFormData } from "@/types/crm";
-
-async function requireAdminSession() {
-  const cookieStore = await cookies();
-  if (cookieStore.get("admin_session")?.value !== "authenticated") {
-    throw new Error("Unauthorized");
-  }
-}
 
 /**
  * Admin: Fetch every person in the CRM roster.

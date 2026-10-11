@@ -1,4 +1,4 @@
-import { cookies } from "next/headers";
+import { isAdminSession } from "@/lib/admin-session";
 import { getAdminStones } from "@/lib/actions";
 import { getSupabase } from "@/lib/supabase";
 import { getLibraryItems } from "@/lib/library-actions";
@@ -41,9 +41,7 @@ async function getPlansWithDiscussions() {
 }
 
 export default async function AdminPage() {
-  const cookieStore = await cookies();
-  const isAuthenticated =
-    cookieStore.get("admin_session")?.value === "authenticated";
+  const isAuthenticated = await isAdminSession();
 
   if (!isAuthenticated) {
     return (

@@ -1,18 +1,11 @@
 "use server";
 
-import { cookies } from "next/headers";
 import { revalidatePath } from "next/cache";
+import { requireAdminSession } from "./admin-session";
 import { getSupabase } from "./supabase";
 import type { SharehouseNeed, SharehouseNeedFormData } from "@/types/sharehouse";
 
 // Admin check helper
-async function requireAdminSession() {
-  const cookieStore = await cookies();
-  if (cookieStore.get("admin_session")?.value !== "authenticated") {
-    throw new Error("Unauthorized");
-  }
-}
-
 /**
  * Public: Submit a new tangible need to the community care platform.
  * Submissions are unapproved (pending review) by default.

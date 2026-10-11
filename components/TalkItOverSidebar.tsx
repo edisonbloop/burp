@@ -96,7 +96,7 @@ export default function TalkItOverSidebar({
   if (plans.length === 0) return null;
 
   return (
-    <aside className={`space-y-8 lg:sticky lg:top-6 lg:self-start ${className}`}>
+    <aside className={`space-y-8 lg:sticky lg:top-6 lg:self-start lg:pl-8 lg:border-l lg:border-stone-edge ${className}`}>
       {mostActive.length > 0 && (
         <section>
           <p

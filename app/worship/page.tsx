@@ -109,7 +109,7 @@ export default function WorshipPage() {
             aria-hidden="true"
             style={{ fontFamily: "var(--font-display)" }}
           >
-            "
+            {'"'}
           </span>
           <p
             className="text-2xl sm:text-3xl md:text-4xl text-ink font-light italic leading-relaxed"
@@ -124,7 +124,7 @@ export default function WorshipPage() {
             aria-hidden="true"
             style={{ fontFamily: "var(--font-display)" }}
           >
-            "
+            {'"'}
           </span>
           <p
             className="mt-8 text-sm text-stone-light tracking-widest uppercase"
