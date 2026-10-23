@@ -1,6 +1,11 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
+  experimental: {
+    // Birthday card photos are compressed in the browser to < 1 MB, then sent
+    // through a server action; leave headroom for the multipart overhead.
+    serverActions: { bodySizeLimit: "2mb" },
+  },
   images: {
     remotePatterns: [
       {
