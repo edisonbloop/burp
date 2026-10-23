@@ -2,8 +2,9 @@
 
 import { randomBytes } from "crypto";
 import { revalidatePath } from "next/cache";
+import { requireAdminSession } from "./admin-session";
 import { getSupabase } from "./supabase";
-import type { BirthdayCard, BirthdayCardInput, BirthdayMessage, BirthdayTheme, Celebrant } from "@/types/birthday";
+import type { AdminBirthdayCard, BirthdayCard, BirthdayCardInput, BirthdayMessage, BirthdayTheme, Celebrant } from "@/types/birthday";
 
 /**
  * Birthday cards — a group card anyone can sign, no sign-in required.
@@ -329,6 +330,34 @@ export async function getCelebrants(
   }
 }
 
+/** Organiser fixes a message: name, wording, or dropping its photo. */
+export async function editBirthdayMessage(
+  slug: string,
+  key: string,
+  messageId: string,
+  input: { author_name: string; message: string; remove_photo?: boolean }
+): Promise<{ error?: string }> {
+  const author_name = clean(input.author_name, 60);
+  const message = clean(input.message, 1500);
+  if (!author_name) return { error: "The message needs a name." };
+  if (message.length < 2) return { error: "The message can't be empty." };
+  try {
+    const id = await cardIdForKey(slug, key);
+    if (!id) return { error: "This manage link isn't valid." };
+    if (!UUID.test(messageId)) return { error: "Unknown message." };
+    const { error } = await getSupabase()
+      .from("birthday_card_messages")
+      .update({ author_name, message, ...(input.remove_photo ? { photo_url: null } : {}) })
+      .eq("id", messageId)
+      .eq("card_id", id);
+    if (error) return { error: error.message };
+    revalidatePath(`/birthday/${slug}`);
+    return {};
+  } catch (e) {
+    return { error: e instanceof Error ? e.message : "Couldn't save that message." };
+  }
+}
+
 /** Show (or hide again) messages on the card. */
 export async function setBirthdayMessagesApproved(
   slug: string,
@@ -351,5 +380,51 @@ export async function setBirthdayMessagesApproved(
     return {};
   } catch (e) {
     return { error: e instanceof Error ? e.message : "Couldn't update that message." };
+  }
+}
+
+/**
+ * Admin: every card, newest first, with message counts. Includes each card's
+ * manage_key so the admin panel can open the organiser's manage page.
+ */
+export async function adminGetBirthdayCards(): Promise<AdminBirthdayCard[]> {
+  try {
+    await requireAdminSession();
+    const supabase = getSupabase();
+    const { data: cards, error } = await supabase
+      .from("birthday_cards")
+      .select(`${PUBLIC_COLUMNS}, manage_key`)
+      .order("created_at", { ascending: false });
+    if (error || !cards?.length) return [];
+
+    const { data: messages } = await supabase
+      .from("birthday_card_messages")
+      .select("card_id, approved")
+      .in("card_id", cards.map((c) => c.id));
+
+    return cards.map((c) => ({
+      ...(c as BirthdayCard & { manage_key: string }),
+      approved_count: messages?.filter((m) => m.card_id === c.id && m.approved).length ?? 0,
+      waiting_count: messages?.filter((m) => m.card_id === c.id && !m.approved).length ?? 0,
+    }));
+  } catch {
+    return [];
+  }
+}
+
+/** Admin: delete a card and (via cascade) all of its messages. */
+export async function adminDeleteBirthdayCard(id: string): Promise<{ error?: string }> {
+  try {
+    await requireAdminSession();
+    if (!UUID.test(id)) return { error: "Unknown card." };
+    const supabase = getSupabase();
+    const { data: card } = await supabase.from("birthday_cards").select("slug").eq("id", id).maybeSingle();
+    const { error } = await supabase.from("birthday_cards").delete().eq("id", id);
+    if (error) return { error: error.message };
+    revalidatePath("/admin");
+    if (card?.slug) revalidatePath(`/birthday/${card.slug}`);
+    return {};
+  } catch (e) {
+    return { error: e instanceof Error ? e.message : "Couldn't delete the card." };
   }
 }

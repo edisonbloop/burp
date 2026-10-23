@@ -3,7 +3,7 @@
 import { useState, useTransition } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { deleteBirthdayMessage, setBirthdayMessagesApproved, updateBirthdayCard } from "@/lib/birthday-actions";
+import { deleteBirthdayMessage, editBirthdayMessage, setBirthdayMessagesApproved, updateBirthdayCard } from "@/lib/birthday-actions";
 import type { BirthdayCard, BirthdayCardInput, BirthdayMessage } from "@/types/birthday";
 import CardDetailsFields from "./CardDetailsFields";
 import CardLinks from "./CardLinks";
@@ -131,7 +131,7 @@ export default function ManageCardClient({
         ) : (
           <ul className="space-y-3">
             {waiting.map((m) => (
-              <MessageRow key={m.id} m={m}>
+              <MessageRow key={m.id} m={m} slug={card.slug} manageKey={manageKey}>
                 <button
                   type="button"
                   onClick={() => setApproved([m.id], true)}
@@ -161,7 +161,7 @@ export default function ManageCardClient({
           <h2 className="text-3xl font-bold text-ink mb-5" style={display}>On the card</h2>
           <ul className="space-y-3">
             {shown.map((m) => (
-              <MessageRow key={m.id} m={m} clamp>
+              <MessageRow key={m.id} m={m} slug={card.slug} manageKey={manageKey} clamp>
                 <button
                   type="button"
                   onClick={() => setApproved([m.id], false)}
@@ -206,7 +206,99 @@ export default function ManageCardClient({
   );
 }
 
-function MessageRow({ m, clamp, children }: { m: BirthdayMessage; clamp?: boolean; children: React.ReactNode }) {
+/** One message in the organiser's list, with in-place editing. */
+function MessageRow({
+  m,
+  slug,
+  manageKey,
+  clamp,
+  children,
+}: {
+  m: BirthdayMessage;
+  slug: string;
+  manageKey: string;
+  clamp?: boolean;
+  children: React.ReactNode;
+}) {
+  const router = useRouter();
+  const [editing, setEditing] = useState(false);
+  const [name, setName] = useState(m.author_name);
+  const [text, setText] = useState(m.message);
+  const [dropPhoto, setDropPhoto] = useState(false);
+  const [error, setError] = useState("");
+  const [saving, startSaving] = useTransition();
+
+  function cancel() {
+    setName(m.author_name);
+    setText(m.message);
+    setDropPhoto(false);
+    setError("");
+    setEditing(false);
+  }
+
+  function save() {
+    setError("");
+    startSaving(async () => {
+      const res = await editBirthdayMessage(slug, manageKey, m.id, { author_name: name, message: text, remove_photo: dropPhoto });
+      if (res.error) {
+        setError(res.error);
+        return;
+      }
+      setEditing(false);
+      router.refresh();
+    });
+  }
+
+  if (editing) {
+    return (
+      <li className="bg-white border-2 border-gold rounded-2xl p-4 space-y-3">
+        <input
+          value={name}
+          onChange={(e) => setName(e.target.value)}
+          maxLength={60}
+          aria-label="Name"
+          className="w-full bg-parchment-soft border border-stone-edge rounded-xl px-3 py-2 font-bold text-ink focus:outline-none focus:border-gold"
+          style={display}
+        />
+        <textarea
+          value={text}
+          onChange={(e) => setText(e.target.value)}
+          maxLength={1500}
+          aria-label="Message"
+          className="w-full min-h-32 bg-parchment-soft border border-stone-edge rounded-xl px-3 py-2 text-sm text-ink resize-y focus:outline-none focus:border-gold"
+        />
+        {m.photo_url && (
+          <label className="flex items-center gap-3 text-sm text-stone-mid">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src={m.photo_url} alt="" className={`w-12 h-12 rounded-lg object-cover ${dropPhoto ? "opacity-30" : ""}`} />
+            <input type="checkbox" checked={dropPhoto} onChange={(e) => setDropPhoto(e.target.checked)} />
+            Remove the photo
+          </label>
+        )}
+        {error && <p className="text-sm text-danger-earthen">{error}</p>}
+        <div className="flex gap-2 justify-end">
+          <button
+            type="button"
+            onClick={cancel}
+            className="px-4 py-2 rounded-full border border-stone-edge text-stone-mid text-[10px] font-bold uppercase tracking-widest hover:text-ink transition-colors"
+            style={accent}
+          >
+            Cancel
+          </button>
+          <button
+            type="button"
+            onClick={save}
+            disabled={saving}
+            className="px-4 py-2 rounded-full bg-ink text-vellum text-[10px] font-bold uppercase tracking-widest hover:bg-stone transition-colors disabled:opacity-60"
+            style={accent}
+          >
+            {saving ? "Saving…" : "Save"}
+          </button>
+        </div>
+      </li>
+    );
+  }
+
   return (
     <li className="flex flex-col sm:flex-row gap-4 bg-white border border-stone-edge rounded-2xl p-4">
       {m.photo_url && (
@@ -217,7 +309,19 @@ function MessageRow({ m, clamp, children }: { m: BirthdayMessage; clamp?: boolea
         <p className="font-bold text-ink" style={display}>{m.author_name}</p>
         <p className={`text-sm text-stone-mid whitespace-pre-line ${clamp ? "line-clamp-3" : ""}`}>{m.message}</p>
       </div>
-      <div className="flex sm:flex-col gap-2 sm:items-end shrink-0">{children}</div>
+      <div className="flex sm:flex-col gap-2 sm:items-end shrink-0">
+        {children}
+        <button
+          type="button"
+          onClick={() => setEditing(true)}
+          className={clamp
+            ? "text-[10px] font-bold uppercase tracking-widest text-stone-light hover:text-ink transition-colors"
+            : "px-4 py-2 rounded-full border border-stone-edge text-stone-mid text-[10px] font-bold uppercase tracking-widest hover:border-gold hover:text-ink transition-colors"}
+          style={accent}
+        >
+          Edit
+        </button>
+      </div>
     </li>
   );
 }

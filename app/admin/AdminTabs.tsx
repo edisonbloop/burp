@@ -13,6 +13,7 @@ import AdminCrmPanel from "@/components/AdminCrmPanel";
 import AdminSecretSantaPanel from "@/components/AdminSecretSantaPanel";
 import AdminAssessmentResults from "@/components/AdminAssessmentResults";
 import AdminOutreachPanel from "@/components/AdminOutreachPanel";
+import AdminBirthdayPanel from "@/components/AdminBirthdayPanel";
 import type { Stone } from "@/types/stones";
 import type { LibraryItem } from "@/types/library";
 import type { SharehouseNeed } from "@/types/sharehouse";
@@ -24,6 +25,7 @@ import type { Person } from "@/types/crm";
 import type { SecretSantaMappingRow, SecretSantaRound } from "@/types/secretsanta";
 import type { AdminAggregateStats, AdminAssessmentSubmission } from "@/types/admin-assessment";
 import type { OutreachRound, OutreachIdea, VoteTally } from "@/types/outreach";
+import type { AdminBirthdayCard } from "@/types/birthday";
 
 interface Plan {
   id: string;
@@ -69,6 +71,7 @@ interface AdminTabsProps {
   outreachIdeas: (OutreachIdea & { commentCount: number })[];
   outreachTallies: VoteTally[];
   outreachTotalVoters: number;
+  birthdayCards: AdminBirthdayCard[];
 }
 
 const tabs = [
@@ -84,6 +87,7 @@ const tabs = [
   { id: "secretsanta", label: "Secret Santa" },
   { id: "assessment", label: "Leadership Feedback" },
   { id: "outreach", label: "Community Outreach" },
+  { id: "birthdays", label: "Birthday Cards" },
 ] as const;
 
 type TabId = (typeof tabs)[number]["id"];
@@ -110,6 +114,7 @@ export default function AdminTabs({
   outreachIdeas,
   outreachTallies,
   outreachTotalVoters,
+  birthdayCards,
 }: AdminTabsProps) {
   const [activeTab, setActiveTab] = useState<TabId>("stones");
 
@@ -125,6 +130,7 @@ export default function AdminTabs({
     if (id === "sharehouse") return pendingSharehouse;
     if (id === "bulletin") return pendingBulletin;
     if (id === "attributes") return pendingAttributes;
+    if (id === "birthdays") return birthdayCards.reduce((n, c) => n + c.waiting_count, 0);
     return 0;
   };
 
@@ -188,6 +194,7 @@ export default function AdminTabs({
           totalVoters={outreachTotalVoters}
         />
       )}
+      {activeTab === "birthdays" && <AdminBirthdayPanel cards={birthdayCards} />}
     </div>
   );
 }

@@ -52,3 +52,10 @@ export interface Celebrant {
   /** A card started for this birthday already. */
   existing_card: { slug: string; organiser_name: string } | null;
 }
+
+/** A card as the admin panel sees it. */
+export interface AdminBirthdayCard extends BirthdayCard {
+  manage_key: string;
+  approved_count: number;
+  waiting_count: number;
+}
