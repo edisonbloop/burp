@@ -139,8 +139,14 @@ export async function createBirthdayCard(
   }
 }
 
-export async function getBirthdayCard(
-  slug: string
+/** The card plus its approved messages — what the public sees. */
+export async function getBirthdayCard(slug: string) {
+  return loadCard(slug, false);
+}
+
+async function loadCard(
+  slug: string,
+  includePending: boolean
 ): Promise<{ card: BirthdayCard; messages: BirthdayMessage[] } | null> {
   let supabase;
   try {
@@ -156,16 +162,17 @@ export async function getBirthdayCard(
     .maybeSingle();
   if (error || !card) return null;
 
-  const { data: messages } = await supabase
+  let query = supabase
     .from("birthday_card_messages")
     .select("*")
-    .eq("card_id", card.id)
-    .order("created_at", { ascending: true });
+    .eq("card_id", card.id);
+  if (!includePending) query = query.eq("approved", true);
+  const { data: messages } = await query.order("created_at", { ascending: true });
 
   return { card: card as BirthdayCard, messages: (messages ?? []) as BirthdayMessage[] };
 }
 
-/** Returns the card only when the key matches. */
+/** The card with every message, approved or not — only when the key matches. */
 export async function getBirthdayCardForManager(slug: string, key: string) {
   if (!key) return null;
   const supabase = getSupabase();
@@ -176,7 +183,7 @@ export async function getBirthdayCardForManager(slug: string, key: string) {
     .eq("manage_key", key)
     .maybeSingle();
   if (!data) return null;
-  return getBirthdayCard(slug);
+  return loadCard(slug, true);
 }
 
 async function cardIdForKey(slug: string, key: string) {
@@ -212,7 +219,7 @@ export async function signBirthdayCard(
 
     const { error } = await supabase
       .from("birthday_card_messages")
-      .insert({ card_id: card.id, author_name, message, photo_url });
+      .insert({ card_id: card.id, author_name, message, photo_url, approved: false });
     if (error) return { error: error.message };
 
     revalidatePath(`/birthday/${slug}`);
@@ -319,5 +326,30 @@ export async function getCelebrants(
     return { signedIn: true, celebrants };
   } catch {
     return { signedIn: false, celebrants: [] };
+  }
+}
+
+/** Show (or hide again) messages on the card. */
+export async function setBirthdayMessagesApproved(
+  slug: string,
+  key: string,
+  messageIds: string[],
+  approved: boolean
+): Promise<{ error?: string }> {
+  try {
+    const id = await cardIdForKey(slug, key);
+    if (!id) return { error: "This manage link isn't valid." };
+    const ids = messageIds.filter((m) => UUID.test(m));
+    if (!ids.length) return {};
+    const { error } = await getSupabase()
+      .from("birthday_card_messages")
+      .update({ approved })
+      .eq("card_id", id)
+      .in("id", ids);
+    if (error) return { error: error.message };
+    revalidatePath(`/birthday/${slug}`);
+    return {};
+  } catch (e) {
+    return { error: e instanceof Error ? e.message : "Couldn't update that message." };
   }
 }

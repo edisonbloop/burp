@@ -109,7 +109,7 @@ export default function SignCardClient({ card, signers }: { card: BirthdayCard; 
             <p className="text-6xl mb-4">💌</p>
             <h2 className="text-4xl font-bold text-ink mb-3" style={display}>Signed, sealed, delivered</h2>
             <p className="text-stone-mid mb-8 max-w-sm mx-auto">
-              Your message is tucked inside {card.honoree_name}&rsquo;s card. They&rsquo;ll see it when they open it.
+              Your message is with {card.organiser_name}. Once they approve it, it&rsquo;ll be tucked inside {card.honoree_name}&rsquo;s card.
             </p>
             <div className="flex flex-col sm:flex-row gap-3 justify-center">
               <Link href={`/birthday/${card.slug}`} className="px-8 py-3 rounded-full bg-ink text-vellum text-xs font-bold uppercase tracking-widest hover:bg-stone transition-colors" style={accent}>

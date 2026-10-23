@@ -3,7 +3,8 @@
 --
 -- A group birthday card: an organiser creates it (honoree's name + photos),
 -- shares a link, and everyone adds a message (and optionally a photo). The
--- honoree opens an animated card with all the wishes.
+-- organiser approves each message, then the honoree opens an animated card
+-- with all the wishes.
 --
 -- Starting a card needs a signed-in member; signing one only needs the
 -- link, so friends outside BURP can add a message. The organiser manages
@@ -49,6 +50,10 @@ create table if not exists public.birthday_card_messages (
   photo_url text,
   created_at timestamptz not null default now()
 );
+
+-- Messages stay hidden from the card until the organiser approves them.
+alter table public.birthday_card_messages
+  add column if not exists approved boolean not null default false;
 
 create index if not exists idx_birthday_messages_card
   on public.birthday_card_messages (card_id, created_at);

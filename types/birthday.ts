@@ -21,6 +21,8 @@ export interface BirthdayMessage {
   author_name: string;
   message: string;
   photo_url: string | null;
+  /** Hidden from the card until the organiser approves it. */
+  approved: boolean;
   created_at: string;
 }
 

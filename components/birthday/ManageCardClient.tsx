@@ -3,7 +3,7 @@
 import { useState, useTransition } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { deleteBirthdayMessage, updateBirthdayCard } from "@/lib/birthday-actions";
+import { deleteBirthdayMessage, setBirthdayMessagesApproved, updateBirthdayCard } from "@/lib/birthday-actions";
 import type { BirthdayCard, BirthdayCardInput, BirthdayMessage } from "@/types/birthday";
 import CardDetailsFields from "./CardDetailsFields";
 import CardLinks from "./CardLinks";
@@ -34,6 +34,7 @@ export default function ManageCardClient({
   const [open, setOpen] = useState(card.accepting_messages);
   const [busy, setBusy] = useState(false);
   const [status, setStatus] = useState<{ ok?: string; error?: string }>({});
+  const [listError, setListError] = useState("");
   const [pending, startTransition] = useTransition();
 
   function save(e?: React.FormEvent, accepting = open) {
@@ -52,11 +53,23 @@ export default function ManageCardClient({
     save(undefined, next);
   }
 
+  const waiting = messages.filter((m) => !m.approved);
+  const shown = messages.filter((m) => m.approved);
+
+  function setApproved(ids: string[], approved: boolean) {
+    setListError("");
+    startTransition(async () => {
+      const res = await setBirthdayMessagesApproved(card.slug, manageKey, ids, approved);
+      if (res.error) setListError(res.error);
+      else router.refresh();
+    });
+  }
+
   function remove(m: BirthdayMessage) {
     if (!confirm(`Remove ${m.author_name}'s message? This can't be undone.`)) return;
     startTransition(async () => {
       const res = await deleteBirthdayMessage(card.slug, manageKey, m.id);
-      if (res.error) setStatus({ error: res.error });
+      if (res.error) setListError(res.error);
       else router.refresh();
     });
   }
@@ -69,7 +82,7 @@ export default function ManageCardClient({
           {card.honoree_name}&rsquo;s card
         </h1>
         <p className="text-stone-mid">
-          {messages.length} {messages.length === 1 ? "message" : "messages"} so far ·{" "}
+          {shown.length} on the card{waiting.length > 0 && <> · <strong className="text-gold-deep">{waiting.length} waiting for you</strong></>} ·{" "}
           <Link href={`/birthday/${card.slug}`} className="text-gold-deep underline underline-offset-2">open the card</Link>
         </p>
       </header>
@@ -93,37 +106,85 @@ export default function ManageCardClient({
         </button>
       </div>
 
+      {listError && <p className="text-sm text-danger-earthen bg-red-50 border border-red-200 rounded-2xl px-4 py-3">{listError}</p>}
+
       <section>
-        <h2 className="text-3xl font-bold text-ink mb-5" style={display}>Messages</h2>
-        {messages.length === 0 ? (
-          <p className="text-stone-mid bg-parchment-soft border border-dashed border-stone-edge rounded-2xl p-8 text-center">
-            No messages yet — share the signing link to get things going.
+        <div className="flex items-end justify-between gap-4 mb-2">
+          <h2 className="text-3xl font-bold text-ink" style={display}>Waiting for approval</h2>
+          {waiting.length > 1 && (
+            <button
+              type="button"
+              onClick={() => setApproved(waiting.map((m) => m.id), true)}
+              disabled={pending}
+              className="shrink-0 px-4 py-2 rounded-full bg-success-earthen text-white text-[10px] font-bold uppercase tracking-widest hover:opacity-90 transition-opacity disabled:opacity-60"
+              style={accent}
+            >
+              Approve all {waiting.length}
+            </button>
+          )}
+        </div>
+        <p className="text-xs text-stone-mid mb-5">New messages stay hidden until you approve them, so nothing appears on {card.honoree_name}&rsquo;s card without you seeing it first.</p>
+        {waiting.length === 0 ? (
+          <p className="text-stone-mid bg-parchment-soft border border-dashed border-stone-edge rounded-2xl p-6 text-center text-sm">
+            {messages.length === 0 ? "No messages yet — share the signing link to get things going." : "All caught up ✓"}
           </p>
         ) : (
           <ul className="space-y-3">
-            {messages.map((m) => (
-              <li key={m.id} className="flex gap-4 bg-white border border-stone-edge rounded-2xl p-4">
-                {m.photo_url && (
-                  // eslint-disable-next-line @next/next/no-img-element
-                  <img src={m.photo_url} alt="" className="w-16 h-16 rounded-lg object-cover shrink-0" />
-                )}
-                <div className="flex-1 min-w-0">
-                  <p className="font-bold text-ink" style={display}>{m.author_name}</p>
-                  <p className="text-sm text-stone-mid whitespace-pre-line line-clamp-3">{m.message}</p>
-                </div>
+            {waiting.map((m) => (
+              <MessageRow key={m.id} m={m}>
+                <button
+                  type="button"
+                  onClick={() => setApproved([m.id], true)}
+                  disabled={pending}
+                  className="px-4 py-2 rounded-full bg-success-earthen text-white text-[10px] font-bold uppercase tracking-widest hover:opacity-90 transition-opacity disabled:opacity-60"
+                  style={accent}
+                >
+                  Approve
+                </button>
                 <button
                   type="button"
                   onClick={() => remove(m)}
-                  className="self-start text-[10px] font-bold uppercase tracking-widest text-stone-light hover:text-danger-earthen transition-colors"
+                  disabled={pending}
+                  className="px-4 py-2 rounded-full border border-stone-edge text-stone-mid text-[10px] font-bold uppercase tracking-widest hover:border-danger-earthen hover:text-danger-earthen transition-colors"
                   style={accent}
                 >
                   Remove
                 </button>
-              </li>
+              </MessageRow>
             ))}
           </ul>
         )}
       </section>
+
+      {shown.length > 0 && (
+        <section>
+          <h2 className="text-3xl font-bold text-ink mb-5" style={display}>On the card</h2>
+          <ul className="space-y-3">
+            {shown.map((m) => (
+              <MessageRow key={m.id} m={m} clamp>
+                <button
+                  type="button"
+                  onClick={() => setApproved([m.id], false)}
+                  disabled={pending}
+                  className="text-[10px] font-bold uppercase tracking-widest text-stone-light hover:text-ink transition-colors"
+                  style={accent}
+                >
+                  Hide
+                </button>
+                <button
+                  type="button"
+                  onClick={() => remove(m)}
+                  disabled={pending}
+                  className="text-[10px] font-bold uppercase tracking-widest text-stone-light hover:text-danger-earthen transition-colors"
+                  style={accent}
+                >
+                  Remove
+                </button>
+              </MessageRow>
+            ))}
+          </ul>
+        </section>
+      )}
 
       <form onSubmit={save} className="bg-white/70 border border-stone-edge rounded-[2rem] p-6 sm:p-10 shadow-sm">
         <h2 className="text-3xl font-bold text-ink mb-8" style={display}>Card details</h2>
@@ -142,5 +203,21 @@ export default function ManageCardClient({
         </div>
       </form>
     </div>
+  );
+}
+
+function MessageRow({ m, clamp, children }: { m: BirthdayMessage; clamp?: boolean; children: React.ReactNode }) {
+  return (
+    <li className="flex flex-col sm:flex-row gap-4 bg-white border border-stone-edge rounded-2xl p-4">
+      {m.photo_url && (
+        // eslint-disable-next-line @next/next/no-img-element
+        <img src={m.photo_url} alt="" className={`rounded-lg object-cover shrink-0 ${clamp ? "w-16 h-16" : "w-full sm:w-28 h-40 sm:h-28"}`} />
+      )}
+      <div className="flex-1 min-w-0">
+        <p className="font-bold text-ink" style={display}>{m.author_name}</p>
+        <p className={`text-sm text-stone-mid whitespace-pre-line ${clamp ? "line-clamp-3" : ""}`}>{m.message}</p>
+      </div>
+      <div className="flex sm:flex-col gap-2 sm:items-end shrink-0">{children}</div>
+    </li>
   );
 }
