@@ -1,10 +1,10 @@
 /**
  * Shrinks a photo in the browser before upload: longest edge ≤ 1600px, JPEG,
- * stepping quality down until it fits under ~900 KB (server actions cap the
- * request body size).
+ * stepping quality down until it fits under ~700 KB (server actions cap the
+ * request body at 1 MB by default).
  */
 const MAX_EDGE = 1600;
-const TARGET_BYTES = 900 * 1024;
+const TARGET_BYTES = 700 * 1024;
 
 function loadImage(file: File): Promise<HTMLImageElement> {
   return new Promise((resolve, reject) => {

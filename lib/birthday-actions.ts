@@ -13,7 +13,7 @@ import type { BirthdayCard, BirthdayCardInput, BirthdayMessage, BirthdayTheme, C
 
 const THEMES: BirthdayTheme[] = ["gold", "blush", "midnight", "garden"];
 const MAX_CARD_PHOTOS = 12;
-const MAX_PHOTO_BYTES = 950 * 1024; // the browser compresses before upload
+const MAX_PHOTO_BYTES = 750 * 1024; // the browser compresses to ≤700 KB; server actions cap bodies at 1 MB
 const PUBLIC_COLUMNS =
   "id, slug, honoree_name, birthday, turning_age, headline, organiser_name, organiser_note, photo_urls, theme, accepting_messages, created_at";
 
