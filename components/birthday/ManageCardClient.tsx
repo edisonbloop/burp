@@ -127,7 +127,7 @@ export default function ManageCardClient({
 
       <form onSubmit={save} className="bg-white/70 border border-stone-edge rounded-[2rem] p-6 sm:p-10 shadow-sm">
         <h2 className="text-3xl font-bold text-ink mb-8" style={display}>Card details</h2>
-        <CardDetailsFields value={form} onChange={setForm} onBusyChange={setBusy} />
+        <CardDetailsFields value={form} onChange={setForm} onBusyChange={setBusy} slug={card.slug} />
         {status.error && <p className="mt-6 text-sm text-danger-earthen bg-red-50 border border-red-200 rounded-2xl px-4 py-3">{status.error}</p>}
         <div className="mt-8 flex items-center gap-4">
           <button

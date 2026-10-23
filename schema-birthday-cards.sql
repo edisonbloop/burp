@@ -5,8 +5,10 @@
 -- shares a link, and everyone adds a message (and optionally a photo). The
 -- honoree opens an animated card with all the wishes.
 --
--- No sign-in needed. The organiser manages the card with a secret
--- manage_key that only lives in their private manage link. All access goes
+-- Starting a card needs a signed-in member; signing one only needs the
+-- link, so friends outside BURP can add a message. The organiser manages
+-- the card with a secret manage_key that only lives in their private
+-- manage link. All access goes
 -- through server code (service-role key), so RLS is on with no policies.
 
 create extension if not exists "pgcrypto";
@@ -31,6 +33,10 @@ create table if not exists public.birthday_cards (
 -- with known birthdays and spot a card that's already been started.
 alter table public.birthday_cards
   add column if not exists person_id uuid references people(id) on delete set null;
+
+-- Only signed-in members can start a card; remember who did.
+alter table public.birthday_cards
+  add column if not exists created_by uuid references auth.users(id) on delete set null;
 
 create index if not exists idx_birthday_cards_person
   on public.birthday_cards (person_id, created_at);

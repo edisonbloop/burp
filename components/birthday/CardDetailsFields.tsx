@@ -34,6 +34,7 @@ export default function CardDetailsFields({
   onBusyChange,
   celebrants,
   onPickCelebrant,
+  slug,
 }: {
   value: BirthdayCardInput;
   onChange: (v: BirthdayCardInput) => void;
@@ -41,6 +42,8 @@ export default function CardDetailsFields({
   /** Community birthdays to suggest while typing a name (create page only). */
   celebrants?: Celebrant[];
   onPickCelebrant?: (c: Celebrant) => void;
+  /** Existing card being edited — lets the organiser upload without signing in. */
+  slug?: string;
 }) {
   const set = <K extends keyof BirthdayCardInput>(k: K, v: BirthdayCardInput[K]) => onChange({ ...value, [k]: v });
   const [suggesting, setSuggesting] = useState(false);
@@ -136,7 +139,7 @@ export default function CardDetailsFields({
 
       <div>
         <Label hint="up to 12">Photos of them</Label>
-        <PhotoPicker max={12} value={value.photo_urls} onChange={(urls) => set("photo_urls", urls)} onBusyChange={onBusyChange} />
+        <PhotoPicker max={12} value={value.photo_urls} onChange={(urls) => set("photo_urls", urls)} onBusyChange={onBusyChange} slug={slug} />
         <p className="text-[11px] text-stone-light mt-3">The first photo is the cover. Friends can add their own photos when they sign.</p>
       </div>
 

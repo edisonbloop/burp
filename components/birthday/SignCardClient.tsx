@@ -162,7 +162,7 @@ export default function SignCardClient({ card, signers }: { card: BirthdayCard; 
 
             <div>
               <Label hint="optional">Add a photo</Label>
-              <PhotoPicker max={1} value={photo} onChange={setPhoto} onBusyChange={setBusy} />
+              <PhotoPicker max={1} value={photo} onChange={setPhoto} onBusyChange={setBusy} slug={card.slug} />
               <p className="text-[11px] text-stone-light mt-3">A picture of the two of you, a memory, or something that made you think of them.</p>
             </div>
 

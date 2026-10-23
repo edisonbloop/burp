@@ -87,7 +87,8 @@ export default function CreateCardClient() {
     e.preventDefault();
     setError("");
     startTransition(async () => {
-      const res = await createBirthdayCard(form);
+      const { data } = await getSupabaseBrowserClient().auth.getSession();
+      const res = await createBirthdayCard(form, data.session?.access_token ?? null);
       if (!res.slug || !res.manageKey) {
         setError(res.error ?? "Something went wrong.");
         return;
@@ -187,38 +188,54 @@ export default function CreateCardClient() {
         </section>
       )}
 
+      {signedIn === null && <div className="h-96 rounded-[2rem] bg-parchment-soft animate-pulse" aria-label="Loading" />}
+
       {signedIn === false && (
-        <p className="mb-6 text-xs text-stone-mid text-center">
-          <Link href="/signin" className="text-gold-deep underline underline-offset-2">Sign in</Link> to see upcoming community birthdays and fill in names automatically.
-        </p>
+        <div className="text-center bg-white/70 border border-stone-edge rounded-[2rem] p-8 sm:p-12 shadow-sm">
+          <p className="text-5xl mb-4">🎂</p>
+          <h2 className="text-3xl sm:text-4xl font-bold text-ink mb-3" style={display}>Sign in to start a card</h2>
+          <p className="text-stone-mid max-w-sm mx-auto mb-8">
+            Cards are started by BURP members. Once you&rsquo;ve made one, anyone you share the link with can sign it — no account needed.
+          </p>
+          <Link
+            href="/signin?redirect=/birthday"
+            className="inline-block px-10 py-4 rounded-full bg-ink text-vellum text-xs font-bold uppercase tracking-[0.25em] hover:bg-stone transition-colors"
+            style={accent}
+          >
+            Sign in
+          </Link>
+          <p className="text-xs text-stone-light mt-6">Got a link to sign someone&rsquo;s card? Just open it — you don&rsquo;t need to sign in.</p>
+        </div>
       )}
 
-      <form ref={formRef} onSubmit={submit} className="scroll-mt-24 bg-white/70 border border-stone-edge rounded-[2rem] p-6 sm:p-10 shadow-sm">
-        {picked?.existing_card && (
-          <div className="mb-8 flex flex-col sm:flex-row sm:items-center gap-3 bg-gold-wash border border-gold-soft rounded-2xl p-4">
-            <p className="flex-1 text-sm text-ink">
-              <strong>{picked.existing_card.organiser_name}</strong> has already started a card for {picked.first_name}. Add your message to theirs so it&rsquo;s all in one place?
-            </p>
-            <Link
-              href={`/birthday/${picked.existing_card.slug}/sign`}
-              className="shrink-0 px-5 py-2.5 rounded-full bg-ink text-vellum text-[10px] font-bold uppercase tracking-widest hover:bg-stone transition-colors text-center"
-              style={accent}
-            >
-              Sign their card
-            </Link>
-          </div>
-        )}
-        <CardDetailsFields value={form} onChange={setForm} onBusyChange={setBusy} celebrants={celebrants} onPickCelebrant={pickCelebrant} />
-        {error && <p className="mt-6 text-sm text-danger-earthen bg-red-50 border border-red-200 rounded-2xl px-4 py-3">{error}</p>}
-        <button
-          type="submit"
-          disabled={pending || busy}
-          className="mt-8 w-full py-4 rounded-full bg-ink text-vellum text-xs font-bold uppercase tracking-[0.25em] hover:bg-stone transition-colors disabled:opacity-60"
-          style={accent}
-        >
-          {busy ? "Uploading photos…" : pending ? "Sealing the envelope…" : "Create the card ✨"}
-        </button>
-      </form>
+      {signedIn && (
+        <form ref={formRef} onSubmit={submit} className="scroll-mt-24 bg-white/70 border border-stone-edge rounded-[2rem] p-6 sm:p-10 shadow-sm">
+          {picked?.existing_card && (
+            <div className="mb-8 flex flex-col sm:flex-row sm:items-center gap-3 bg-gold-wash border border-gold-soft rounded-2xl p-4">
+              <p className="flex-1 text-sm text-ink">
+                <strong>{picked.existing_card.organiser_name}</strong> has already started a card for {picked.first_name}. Add your message to theirs so it&rsquo;s all in one place?
+              </p>
+              <Link
+                href={`/birthday/${picked.existing_card.slug}/sign`}
+                className="shrink-0 px-5 py-2.5 rounded-full bg-ink text-vellum text-[10px] font-bold uppercase tracking-widest hover:bg-stone transition-colors text-center"
+                style={accent}
+              >
+                Sign their card
+              </Link>
+            </div>
+          )}
+          <CardDetailsFields value={form} onChange={setForm} onBusyChange={setBusy} celebrants={celebrants} onPickCelebrant={pickCelebrant} />
+          {error && <p className="mt-6 text-sm text-danger-earthen bg-red-50 border border-red-200 rounded-2xl px-4 py-3">{error}</p>}
+          <button
+            type="submit"
+            disabled={pending || busy}
+            className="mt-8 w-full py-4 rounded-full bg-ink text-vellum text-xs font-bold uppercase tracking-[0.25em] hover:bg-stone transition-colors disabled:opacity-60"
+            style={accent}
+          >
+            {busy ? "Uploading photos…" : pending ? "Sealing the envelope…" : "Create the card ✨"}
+          </button>
+        </form>
+      )}
     </div>
   );
 }

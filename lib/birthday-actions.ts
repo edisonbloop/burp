@@ -26,6 +26,17 @@ function makeSlug() {
   return Array.from(randomBytes(10), (b) => alphabet[b % alphabet.length]).join("");
 }
 
+/** The signed-in member behind a browser access token, or null. */
+async function memberId(accessToken: string | null | undefined) {
+  if (!accessToken) return null;
+  try {
+    const { data } = await getSupabase().auth.getUser(accessToken);
+    return data.user?.id ?? null;
+  } catch {
+    return null;
+  }
+}
+
 function isOurPhoto(url: string) {
   const base = process.env.NEXT_PUBLIC_SUPABASE_URL;
   return !!base && url.startsWith(`${base}/storage/v1/object/public/birthday/`);
@@ -58,8 +69,25 @@ function validateCard(input: BirthdayCardInput): { data?: Omit<BirthdayCard, "id
   };
 }
 
-/** Upload one (already compressed) photo. Returns its public URL. */
+/**
+ * Upload one (already compressed) photo. Returns its public URL.
+ * Allowed for signed-in members (`token`), or for anyone holding the link to
+ * a card that's still open (`slug`) — that's how non-members sign with a photo.
+ */
 export async function uploadBirthdayPhoto(formData: FormData): Promise<{ url?: string; error?: string }> {
+  const token = formData.get("token");
+  const slug = formData.get("slug");
+  let allowed = !!(await memberId(typeof token === "string" ? token : null));
+  if (!allowed && typeof slug === "string" && slug) {
+    const { data: card } = await getSupabase()
+      .from("birthday_cards")
+      .select("accepting_messages")
+      .eq("slug", slug)
+      .maybeSingle();
+    allowed = !!card?.accepting_messages;
+  }
+  if (!allowed) return { error: "Please sign in to upload photos." };
+
   const file = formData.get("file");
   if (!(file instanceof File)) return { error: "No photo received." };
   if (!/^image\/(jpeg|png|webp)$/.test(file.type)) return { error: "Please choose a JPG, PNG or WebP image." };
@@ -80,8 +108,12 @@ export async function uploadBirthdayPhoto(formData: FormData): Promise<{ url?: s
 }
 
 export async function createBirthdayCard(
-  input: BirthdayCardInput
+  input: BirthdayCardInput,
+  accessToken: string | null
 ): Promise<{ slug?: string; manageKey?: string; error?: string }> {
+  const createdBy = await memberId(accessToken);
+  if (!createdBy) return { error: "Please sign in to start a birthday card." };
+
   const { data, error } = validateCard(input);
   if (!data) return { error };
 
@@ -97,7 +129,7 @@ export async function createBirthdayCard(
       const slug = makeSlug();
       const { error: insertError } = await supabase
         .from("birthday_cards")
-        .insert({ ...data, slug, manage_key: manageKey, ...(personId ? { person_id: personId } : {}) });
+        .insert({ ...data, slug, manage_key: manageKey, created_by: createdBy, ...(personId ? { person_id: personId } : {}) });
       if (!insertError) return { slug, manageKey };
       if (insertError.code !== "23505") return { error: insertError.message };
     }
@@ -241,9 +273,8 @@ export async function getCelebrants(
 ): Promise<{ signedIn: boolean; celebrants: Celebrant[] }> {
   if (!accessToken) return { signedIn: false, celebrants: [] };
   try {
+    if (!(await memberId(accessToken))) return { signedIn: false, celebrants: [] };
     const supabase = getSupabase();
-    const { data: auth } = await supabase.auth.getUser(accessToken);
-    if (!auth.user) return { signedIn: false, celebrants: [] };
 
     const { data: people } = await supabase
       .from("people")

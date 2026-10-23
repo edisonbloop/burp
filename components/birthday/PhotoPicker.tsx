@@ -2,21 +2,27 @@
 
 import { useEffect, useRef, useState } from "react";
 import { uploadBirthdayPhoto } from "@/lib/birthday-actions";
+import { getSupabaseBrowserClient } from "@/lib/supabase-client";
 import { compressImage } from "./compress";
 
 const accent = { fontFamily: "var(--font-accent)" };
 
-/** Pick, compress and upload photos. `max` 1 renders a single-photo picker. */
+/**
+ * Pick, compress and upload photos. `max` 1 renders a single-photo picker.
+ * Uploads need a signed-in member, or `slug` of an open card being signed.
+ */
 export default function PhotoPicker({
   value,
   onChange,
   max,
   onBusyChange,
+  slug,
 }: {
   value: string[];
   onChange: (urls: string[]) => void;
   max: number;
   onBusyChange?: (busy: boolean) => void;
+  slug?: string;
 }) {
   const inputRef = useRef<HTMLInputElement>(null);
   const [pending, setPending] = useState(0);
@@ -41,6 +47,8 @@ export default function PhotoPicker({
       return;
     }
     setPending((n) => n + chosen.length);
+    const { data } = await getSupabaseBrowserClient().auth.getSession();
+    const token = data.session?.access_token;
 
     await Promise.all(
       chosen.map(async (file) => {
@@ -48,6 +56,8 @@ export default function PhotoPicker({
           const small = await compressImage(file);
           const fd = new FormData();
           fd.append("file", small);
+          if (token) fd.append("token", token);
+          if (slug) fd.append("slug", slug);
           const res = await uploadBirthdayPhoto(fd);
           if (res.url) {
             latest.current = [...latest.current, res.url].slice(0, max);
