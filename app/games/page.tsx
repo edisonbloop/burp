@@ -4,6 +4,7 @@ import SiteNav from "@/components/SiteNav";
 import { BIBLE_CHARACTERS } from "@/lib/bible-characters";
 import { BIBLE_QUOTES } from "@/lib/bible-quotes";
 import { TRUE_FALSE_STATEMENTS } from "@/lib/bible-true-false";
+import { ALL_QUESTIONS as ROAD_QUESTIONS } from "@/lib/road-to-jerusalem";
 import { formatDailyDate, getToday } from "@/lib/daily-challenge";
 
 export const metadata: Metadata = {
@@ -12,6 +13,19 @@ export const metadata: Metadata = {
 };
 
 const AVAILABLE = [
+  {
+    href: "/games/road-to-jerusalem",
+    emoji: "🌿",
+    title: "Road to Jerusalem",
+    tagline: "Bethany. Palms. A grain of wheat.",
+    description: "A guided Gospel quiz on Mark 11 & 14, Matthew 21 & 26, Luke 19 and John 12. See the verse and what stands out after every answer.",
+    stat: `${ROAD_QUESTIONS.length}`,
+    statLabel: "questions",
+    color: "bg-[#f3f7ee]",
+    border: "border-[#b5d99a]",
+    titleColor: "text-[#3a5a2a]",
+    badgeColor: "bg-[#5B7A4A] text-white",
+  },
   {
     href: "/games/burp-it-quiz",
     emoji: "📜",
