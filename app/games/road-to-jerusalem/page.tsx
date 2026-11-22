@@ -6,7 +6,7 @@ import { AnimatePresence, motion } from "framer-motion";
 import SiteNav from "@/components/SiteNav";
 import { ALL_QUESTIONS, QUIZ_PARTS, WRAP_UP_PROMPTS } from "@/lib/road-to-jerusalem";
 
-type Phase = "intro" | "part" | "question" | "answered" | "finished";
+type Phase = "intro" | "part" | "think" | "selfcheck" | "question" | "answered" | "finished";
 
 const STORAGE_KEY = "burp_game_road_to_jerusalem";
 const LETTERS = ["A", "B", "C", "D"];
@@ -50,12 +50,19 @@ function shuffledIndexes(n: number) {
 
 const sameSet = (a: number[], b: number[]) => a.length === b.length && a.every((x) => b.includes(x));
 
+/** recall = answered from memory (2 pts), choice = right with options shown (1 pt), miss = 0 */
+type Outcome = "recall" | "choice" | "miss";
+const POINTS: Record<Outcome, number> = { recall: 2, choice: 1, miss: 0 };
+const SQUARE: Record<Outcome, string> = { recall: "🟩", choice: "🟨", miss: "🟥" };
+
 export default function RoadToJerusalemPage() {
   const [phase, setPhase] = useState<Phase>("intro");
   const [index, setIndex] = useState(0);
   const [order, setOrder] = useState<number[]>([]);
   const [selected, setSelected] = useState<number[]>([]);
-  const [results, setResults] = useState<boolean[]>([]);
+  const [guess, setGuess] = useState("");
+  const [viaChoices, setViaChoices] = useState(false);
+  const [results, setResults] = useState<Outcome[]>([]);
   const [streak, setStreak] = useState(0);
   const [bestStreak, setBestStreak] = useState(0);
   const [takeaway, setTakeaway] = useState("");
@@ -63,17 +70,23 @@ export default function RoadToJerusalemPage() {
   const [best, setBest] = useState<number | null>(null);
 
   const total = ALL_QUESTIONS.length;
+  const maxPoints = total * POINTS.recall;
   const current = ALL_QUESTIONS[index];
   const part = QUIZ_PARTS.find((p) => p.id === current.partId)!;
   const isMulti = current.answers.length > 1;
-  const score = results.filter(Boolean).length;
-  const lastCorrect = results[index];
+  const points = results.reduce((sum, o) => sum + (o ? POINTS[o] : 0), 0);
+  const correctCount = results.filter((o) => o && o !== "miss").length;
+  const recallCount = results.filter((o) => o === "recall").length;
+  const lastOutcome = results[index];
+  const answerText = current.answers.map((i) => current.options[i]).join(" + ");
 
   const openQuestion = useCallback((i: number) => {
     setIndex(i);
     setOrder(shuffledIndexes(ALL_QUESTIONS[i].options.length));
     setSelected([]);
-    setPhase("question");
+    setGuess("");
+    setViaChoices(false);
+    setPhase("think");
   }, []);
 
   const start = () => {
@@ -84,17 +97,14 @@ export default function RoadToJerusalemPage() {
     setPhase("part");
   };
 
-  const submit = useCallback(
-    (picks: number[]) => {
-      if (phase !== "question" || picks.length === 0) return;
-      const correct = sameSet(picks, current.answers);
-      setSelected(picks);
+  const record = useCallback(
+    (outcome: Outcome) => {
       setResults((r) => {
         const next = [...r];
-        next[index] = correct;
+        next[index] = outcome;
         return next;
       });
-      if (correct) {
+      if (outcome !== "miss") {
         const s = streak + 1;
         setStreak(s);
         setBestStreak((b) => Math.max(b, s));
@@ -105,7 +115,23 @@ export default function RoadToJerusalemPage() {
       }
       setPhase("answered");
     },
-    [phase, current, index, streak],
+    [index, streak],
+  );
+
+  const showChoices = () => {
+    if (phase !== "think") return;
+    setViaChoices(true);
+    setPhase("question");
+  };
+  const revealRecall = () => phase === "think" && setPhase("selfcheck");
+
+  const submit = useCallback(
+    (picks: number[]) => {
+      if (phase !== "question" || picks.length === 0) return;
+      setSelected(picks);
+      record(sameSet(picks, current.answers) ? "choice" : "miss");
+    },
+    [phase, current, record],
   );
 
   const pick = useCallback(
@@ -124,12 +150,13 @@ export default function RoadToJerusalemPage() {
     if (index + 1 >= total) {
       try {
         const saved = JSON.parse(localStorage.getItem(STORAGE_KEY) ?? "{}");
-        const newBest = Math.max(score, saved.best ?? 0);
+        const prevBest = typeof saved.bestPoints === "number" ? saved.bestPoints : 0;
+        const newBest = Math.max(points, prevBest);
         setBest(newBest);
         if (typeof saved.takeaway === "string") setTakeaway(saved.takeaway);
         localStorage.setItem(
           STORAGE_KEY,
-          JSON.stringify({ ...saved, best: newBest, gamesPlayed: (saved.gamesPlayed ?? 0) + 1, lastPlayed: new Date().toISOString() }),
+          JSON.stringify({ ...saved, bestPoints: newBest, gamesPlayed: (saved.gamesPlayed ?? 0) + 1, lastPlayed: new Date().toISOString() }),
         );
       } catch {
         /* storage unavailable */
@@ -145,14 +172,21 @@ export default function RoadToJerusalemPage() {
     } else {
       openQuestion(index + 1);
     }
-  }, [index, total, current, openQuestion, score]);
+  }, [index, total, current, openQuestion, points]);
 
-  // Keyboard: 1–4 / A–D to pick, Enter to check or continue
+  // Keyboard: Enter = "I know it" / continue, C = show choices, 1–4 / A–D = pick, Y / N = self-mark
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
-      if ((e.target as HTMLElement)?.tagName === "TEXTAREA") return;
+      const tag = (e.target as HTMLElement)?.tagName;
+      if (tag === "TEXTAREA" || tag === "INPUT") return;
       const k = e.key.toLowerCase();
-      if (phase === "question") {
+      if (phase === "think") {
+        if (k === "enter") revealRecall();
+        if (k === "c") showChoices();
+      } else if (phase === "selfcheck") {
+        if (k === "y") record("recall");
+        if (k === "n") record("miss");
+      } else if (phase === "question") {
         const n = "1234".indexOf(k) >= 0 ? "1234".indexOf(k) : "abcd".indexOf(k);
         if (n >= 0 && n < order.length) pick(order[n]);
         if (k === "enter" && isMulti) submit(selected);
@@ -178,10 +212,11 @@ export default function RoadToJerusalemPage() {
 
   const share = async () => {
     const squares = QUIZ_PARTS.map((p) =>
-      p.questions.map((q) => (results[ALL_QUESTIONS.findIndex((x) => x.id === q.id)] ? "🟩" : "🟥")).join(""),
+      p.questions.map((q) => SQUARE[results[ALL_QUESTIONS.findIndex((x) => x.id === q.id)] ?? "miss"]).join(""),
     ).join(" ");
     const text = [
-      `🌿 Road to Jerusalem Quiz: ${score}/${total}`,
+      `🌿 Road to Jerusalem Quiz: ${points}/${maxPoints} pts`,
+      `${recallCount} from memory · ${correctCount}/${total} correct`,
       squares,
       takeaway.trim() ? `\nWhat stood out to me: “${takeaway.trim()}”` : "",
       `\n${window.location.href}`,
@@ -241,6 +276,19 @@ export default function RoadToJerusalemPage() {
             ))}
           </div>
 
+          <div className="grid sm:grid-cols-2 gap-3 w-full mb-10 text-left">
+            <div className="bg-[#f0f7eb] border border-[#b5d99a] rounded-2xl px-5 py-4">
+              <p className="text-2xl mb-1">🧠</p>
+              <p className="font-bold text-[#3a5a2a]" style={display}>Answer from memory · 2 pts</p>
+              <p className="text-sm text-stone-mid">Say it, think it or type it, then check yourself against the verse.</p>
+            </div>
+            <div className="bg-gold-wash border border-gold-soft rounded-2xl px-5 py-4">
+              <p className="text-2xl mb-1">🔤</p>
+              <p className="font-bold text-gold-deep" style={display}>Need a hint? · 1 pt</p>
+              <p className="text-sm text-stone-mid">Stuck? Reveal four choices and pick the right one.</p>
+            </div>
+          </div>
+
           <button
             onClick={start}
             className="px-10 py-4 rounded-full bg-ink text-vellum text-xs font-bold uppercase tracking-widest hover:bg-stone transition-colors"
@@ -249,7 +297,7 @@ export default function RoadToJerusalemPage() {
             Begin the Journey →
           </button>
           <p className="text-xs text-stone-light mt-4">
-            {total} questions · see the verse and a takeaway after each one
+            {total} questions · {maxPoints} points to play for · see the verse after each one
           </p>
         </div>
       </Shell>
@@ -259,7 +307,7 @@ export default function RoadToJerusalemPage() {
   // -- Part title card -----------------------------------------------------
   if (phase === "part") {
     return (
-      <Shell progress={index / total} index={index} total={total} score={score} streak={streak}>
+      <Shell progress={index / total} index={index} total={total} score={points} streak={streak}>
         <div className="flex-1 flex items-center justify-center px-6 py-14">
           <motion.div
             key={part.id}
@@ -296,7 +344,7 @@ export default function RoadToJerusalemPage() {
 
   // -- Finished ------------------------------------------------------------
   if (phase === "finished") {
-    const pct = Math.round((score / total) * 100);
+    const pct = Math.round((points / maxPoints) * 100);
     const [medal, verdict] =
       pct === 100
         ? ["🏆", "Flawless. You read every word."]
@@ -321,10 +369,13 @@ export default function RoadToJerusalemPage() {
               {medal}
             </motion.span>
             <h1 className="text-5xl font-bold text-ink mb-2" style={display}>
-              {score} / {total}
+              {points} <span className="text-2xl text-stone-light">/ {maxPoints} pts</span>
             </h1>
+            <p className="text-sm text-stone-mid mb-3" style={accent}>
+              {correctCount}/{total} correct · {recallCount} from memory
+            </p>
             <p className="text-stone-mid text-lg">{verdict}</p>
-            {best !== null && best > score && <p className="text-xs text-stone-light mt-1">Your best: {best}/{total}</p>}
+            {best !== null && best > points && <p className="text-xs text-stone-light mt-1">Your best: {best}/{maxPoints} pts</p>}
             {bestStreak > 2 && (
               <p className="text-sm text-gold-deep font-bold mt-2">Best streak: {bestStreak} 🔥</p>
             )}
@@ -334,7 +385,7 @@ export default function RoadToJerusalemPage() {
           <div className="grid gap-3 mb-10">
             {QUIZ_PARTS.map((p) => {
               const idxs = p.questions.map((q) => ALL_QUESTIONS.findIndex((x) => x.id === q.id));
-              const got = idxs.filter((i) => results[i]).length;
+              const got = idxs.reduce((sum, i) => sum + (results[i] ? POINTS[results[i]] : 0), 0);
               return (
                 <div key={p.id} className="flex items-center gap-4 bg-parchment-soft border border-stone-edge rounded-2xl px-5 py-4">
                   <span className="text-2xl">{p.emoji}</span>
@@ -347,17 +398,24 @@ export default function RoadToJerusalemPage() {
                         <span
                           key={i}
                           title={ALL_QUESTIONS[i].title}
-                          className={`h-2.5 flex-1 max-w-8 rounded-full ${results[i] ? "bg-[#5B7A4A]" : "bg-[#d9a99f]"}`}
+                          className={`h-2.5 flex-1 max-w-8 rounded-full ${
+                            results[i] === "recall" ? "bg-[#5B7A4A]" : results[i] === "choice" ? "bg-gold" : "bg-[#d9a99f]"
+                          }`}
                         />
                       ))}
                     </div>
                   </div>
                   <span className="text-lg font-bold text-ink" style={display}>
-                    {got}/{idxs.length}
+                    {got}/{idxs.length * POINTS.recall}
                   </span>
                 </div>
               );
             })}
+            <div className="flex flex-wrap justify-center gap-x-5 gap-y-1 text-xs text-stone-light pt-1">
+              <span><span className="inline-block w-2.5 h-2.5 rounded-full bg-[#5B7A4A] mr-1.5 align-middle" />From memory</span>
+              <span><span className="inline-block w-2.5 h-2.5 rounded-full bg-gold mr-1.5 align-middle" />With choices</span>
+              <span><span className="inline-block w-2.5 h-2.5 rounded-full bg-[#d9a99f] mr-1.5 align-middle" />Missed</span>
+            </div>
           </div>
 
           {/* Reflection */}
@@ -426,7 +484,7 @@ export default function RoadToJerusalemPage() {
   const progress = (index + (answered ? 1 : 0)) / total;
 
   return (
-    <Shell progress={progress} index={index} total={total} score={score} streak={streak} partLabel={`${part.emoji} ${part.title}`}>
+    <Shell progress={progress} index={index} total={total} score={points} streak={streak} partLabel={`${part.emoji} ${part.title}`}>
       <div className="flex-1 flex flex-col items-center px-5 py-8 max-w-xl mx-auto w-full">
         <AnimatePresence mode="wait">
           <motion.div
@@ -445,14 +503,93 @@ export default function RoadToJerusalemPage() {
               <p className="text-xl sm:text-2xl text-ink leading-snug" style={display}>
                 {current.question}
               </p>
-              {isMulti && !answered && (
+              {isMulti && phase === "question" && (
                 <p className="mt-3 inline-block text-[10px] font-bold uppercase tracking-widest px-2.5 py-1 rounded-full bg-gold-wash text-gold-deep border border-gold-soft" style={accent}>
                   Select all that apply
                 </p>
               )}
             </div>
 
+            {/* Think first */}
+            {phase === "think" && (
+              <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} className="w-full">
+                <p className="text-center text-sm text-stone-mid mb-3">
+                  🧠 Answer from memory first.
+                  {isMulti && <span className="block text-xs text-stone-light mt-0.5">This answer has more than one part.</span>}
+                </p>
+                <input
+                  value={guess}
+                  onChange={(e) => setGuess(e.target.value)}
+                  onKeyDown={(e) => e.key === "Enter" && revealRecall()}
+                  placeholder="Type your answer (optional)"
+                  aria-label="Your answer"
+                  className="w-full rounded-2xl bg-white border-2 border-stone-edge px-4 py-3.5 text-ink placeholder:text-stone-light focus:outline-none focus:border-gold mb-3"
+                  style={display}
+                />
+                <div className="grid sm:grid-cols-2 gap-3">
+                  <button
+                    onClick={revealRecall}
+                    className="px-5 py-3.5 rounded-2xl bg-ink text-vellum text-xs font-bold uppercase tracking-widest hover:bg-stone transition-colors"
+                    style={accent}
+                  >
+                    Reveal answer · 2 pts
+                  </button>
+                  <button
+                    onClick={showChoices}
+                    className="px-5 py-3.5 rounded-2xl border-2 border-gold-soft bg-gold-wash text-gold-deep text-xs font-bold uppercase tracking-widest hover:border-gold transition-colors"
+                    style={accent}
+                  >
+                    Show choices · 1 pt
+                  </button>
+                </div>
+              </motion.div>
+            )}
+
+            {/* The answer, for players who went from memory */}
+            {(phase === "selfcheck" || (answered && !viaChoices)) && (
+              <motion.div initial={{ opacity: 0, scale: 0.97 }} animate={{ opacity: 1, scale: 1 }} className="w-full mb-6">
+                {guess.trim() && (
+                  <div className="bg-white border border-stone-edge rounded-2xl px-5 py-3 mb-3">
+                    <p className="text-[10px] font-bold uppercase tracking-widest text-stone-light mb-0.5" style={accent}>
+                      You said
+                    </p>
+                    <p className="text-ink" style={display}>{guess.trim()}</p>
+                  </div>
+                )}
+                <div className="bg-[#f0f7eb] border-2 border-[#5B7A4A] rounded-2xl px-5 py-4">
+                  <p className="text-[10px] font-bold uppercase tracking-widest text-[#5B7A4A] mb-0.5" style={accent}>
+                    The answer
+                  </p>
+                  <p className="text-lg font-bold text-[#3a5a2a] leading-snug" style={display}>{answerText}</p>
+                </div>
+              </motion.div>
+            )}
+
+            {phase === "selfcheck" && (
+              <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }} className="w-full">
+                <p className="text-center font-bold text-ink mb-1" style={display}>Did you get it?</p>
+                <p className="text-center text-xs text-stone-light mb-4">Be honest. If you had the heart of it, it counts.</p>
+                <div className="grid grid-cols-2 gap-3">
+                  <button
+                    onClick={() => record("recall")}
+                    className="px-5 py-3.5 rounded-2xl bg-[#5B7A4A] text-white text-xs font-bold uppercase tracking-widest hover:bg-[#4a6a3a] transition-colors"
+                    style={accent}
+                  >
+                    ✓ Got it · +2
+                  </button>
+                  <button
+                    onClick={() => record("miss")}
+                    className="px-5 py-3.5 rounded-2xl border-2 border-stone-edge bg-white text-stone-mid text-xs font-bold uppercase tracking-widest hover:border-red-300 hover:text-red-700 transition-colors"
+                    style={accent}
+                  >
+                    ✗ Missed it
+                  </button>
+                </div>
+              </motion.div>
+            )}
+
             {/* Options */}
+            {viaChoices && (
             <div className="grid gap-3 w-full mb-6">
               {order.map((optIdx, pos) => {
                 const isAnswer = current.answers.includes(optIdx);
@@ -503,8 +640,9 @@ export default function RoadToJerusalemPage() {
                 );
               })}
             </div>
+            )}
 
-            {isMulti && !answered && (
+            {isMulti && phase === "question" && (
               <button
                 onClick={() => submit(selected)}
                 disabled={selected.length === 0}
@@ -518,14 +656,12 @@ export default function RoadToJerusalemPage() {
             {/* Reveal */}
             {answered && (
               <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.15 }} className="w-full">
-                <p className={`text-center text-lg font-bold mb-4 ${lastCorrect ? "text-[#5B7A4A]" : "text-[#9C3A2A]"}`} style={display}>
-                  {lastCorrect
-                    ? streak >= 3
-                      ? `Correct! ${streak} in a row 🔥`
-                      : "Correct!"
-                    : isMulti
+                <p className={`text-center text-lg font-bold mb-4 ${lastOutcome === "miss" ? "text-[#9C3A2A]" : "text-[#5B7A4A]"}`} style={display}>
+                  {lastOutcome === "miss"
+                    ? viaChoices && isMulti
                       ? "Not quite. Look at the full answer."
-                      : "Not quite."}
+                      : "Not this time. Here's the verse."
+                    : `${lastOutcome === "recall" ? "From memory! +2" : "Correct! +1"}${streak >= 3 ? ` · ${streak} in a row 🔥` : ""}`}
                 </p>
 
                 <blockquote className="border-l-4 border-gold bg-white rounded-r-2xl px-5 py-4 mb-3">

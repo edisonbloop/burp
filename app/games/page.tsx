@@ -18,7 +18,7 @@ const AVAILABLE = [
     emoji: "🌿",
     title: "Road to Jerusalem",
     tagline: "Bethany. Palms. A grain of wheat.",
-    description: "A guided Gospel quiz on Mark 11 & 14, Matthew 21 & 26, Luke 19 and John 12. See the verse and what stands out after every answer.",
+    description: "A Gospel quiz on Mark 11 & 14, Matthew 21 & 26, Luke 19 and John 12. Answer from memory for 2 points, or reveal the choices for 1.",
     stat: `${ROAD_QUESTIONS.length}`,
     statLabel: "questions",
     color: "bg-[#f3f7ee]",
