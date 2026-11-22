@@ -1,4 +1,9 @@
-export type BirthdayTheme = "gold" | "blush" | "midnight" | "garden";
+export const BIRTHDAY_THEME_IDS = [
+  "gold", "blush", "midnight", "garden",
+  "sunset", "ocean", "lavender", "candy", "tropical", "kente", "royal", "emerald", "noir",
+] as const;
+
+export type BirthdayTheme = (typeof BIRTHDAY_THEME_IDS)[number];
 
 export interface BirthdayCard {
   id: string;

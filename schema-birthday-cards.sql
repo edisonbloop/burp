@@ -25,7 +25,7 @@ create table if not exists public.birthday_cards (
   organiser_name text not null,
   organiser_note text,                    -- the organiser's own message, shown first
   photo_urls text[] not null default '{}',-- photos of the honoree (max 12)
-  theme text not null default 'gold',     -- 'gold' | 'blush' | 'midnight' | 'garden'
+  theme text not null default 'gold',     -- see BIRTHDAY_THEME_IDS in types/birthday.ts
   accepting_messages boolean not null default true,
   created_at timestamptz not null default now()
 );

@@ -9,7 +9,7 @@ import Cake from "./Cake";
 import Confetti, { type ConfettiHandle } from "./Confetti";
 import Envelope, { Sparkles } from "./Envelope";
 import MessageNote from "./MessageNote";
-import { THEMES } from "./themes";
+import { THEMES, foilText, themeBackground } from "./themes";
 import { playBlow, playCheer, playChime, playPop, playSong, playWhoosh, setMuted, stopSong, unlockAudio } from "./sound";
 
 const accent = { fontFamily: "var(--font-accent)" };
@@ -103,7 +103,7 @@ export default function BirthdayCardView({
   }
 
   return (
-    <div className="min-h-screen relative" style={{ background: theme.bg, color: theme.ink }}>
+    <div className="min-h-screen relative" style={{ background: themeBackground(theme), backgroundAttachment: "fixed", color: theme.ink }}>
       <Confetti ref={confetti} colors={theme.confetti} />
 
       <AnimatePresence>
@@ -143,7 +143,7 @@ export default function BirthdayCardView({
 
       {/* ── Hero ─────────────────────────────────────────────── */}
       <section className="relative min-h-[100svh] flex flex-col items-center justify-center px-6 py-24 overflow-hidden" style={{ color: theme.ink }}>
-        {theme.dark && <Sparkles color={theme.accentSoft} count={40} />}
+        <div className={theme.dark ? "" : "opacity-60"}><Sparkles color={theme.dark ? theme.accentSoft : theme.accent} motif={theme.motif} count={theme.dark ? 40 : 22} /></div>
         <Balloons
           colors={theme.balloons}
           onPop={(x, y) => {
@@ -202,7 +202,10 @@ export default function BirthdayCardView({
               <motion.span
                 key={i}
                 aria-hidden
-                className="inline-block"
+                className={`inline-block ${theme.foil ? "pr-[0.04em]" : ""}`}
+                // Foil goes on each letter: background-clip:text on the parent
+                // doesn't survive the letters' own transforms.
+                style={foilText(theme)}
                 initial={{ opacity: 0, y: 60, rotate: -12 }}
                 animate={stage === "open" ? { opacity: 1, y: 0, rotate: 0 } : {}}
                 transition={{ type: "spring", stiffness: 180, damping: 12, delay: 0.7 + i * 0.06 }}
@@ -327,7 +330,7 @@ export default function BirthdayCardView({
 
       {/* ── Finale ───────────────────────────────────────────── */}
       <section className="relative px-6 pt-16 pb-28 text-center overflow-hidden">
-        {theme.dark && <Sparkles color={theme.accent} count={18} />}
+        <div className={theme.dark ? "" : "opacity-50"}><Sparkles color={theme.accent} motif={theme.motif} count={18} /></div>
         <p className="text-[10px] font-bold tracking-[0.35em] uppercase mb-5" style={{ ...accent, color: theme.accent }}>With love from</p>
         <p className="max-w-3xl mx-auto text-2xl sm:text-4xl italic leading-snug mb-12" style={display}>
           {uniquePeople.map((p, i) => (
@@ -345,7 +348,7 @@ export default function BirthdayCardView({
             type="button"
             onClick={replay}
             className="px-8 py-3 rounded-full text-[11px] font-bold uppercase tracking-[0.2em] shadow-lg hover:-translate-y-0.5 transition-transform"
-            style={{ ...accent, background: theme.accent, color: theme.dark ? "#141B36" : "#fff" }}
+            style={{ ...accent, background: theme.accent, color: theme.onAccent }}
           >
             ↺ Open it again
           </button>

@@ -4,7 +4,7 @@ import { randomBytes } from "crypto";
 import { revalidatePath } from "next/cache";
 import { requireAdminSession } from "./admin-session";
 import { getSupabase } from "./supabase";
-import type { AdminBirthdayCard, BirthdayCard, BirthdayCardInput, BirthdayMessage, BirthdayTheme, Celebrant } from "@/types/birthday";
+import { BIRTHDAY_THEME_IDS, type AdminBirthdayCard, type BirthdayCard, type BirthdayCardInput, type BirthdayMessage, type Celebrant } from "@/types/birthday";
 
 /**
  * Birthday cards — a group card anyone can sign, no sign-in required.
@@ -12,7 +12,6 @@ import type { AdminBirthdayCard, BirthdayCard, BirthdayCardInput, BirthdayMessag
  * every change to a card is checked against it here.
  */
 
-const THEMES: BirthdayTheme[] = ["gold", "blush", "midnight", "garden"];
 const MAX_CARD_PHOTOS = 12;
 const MAX_PHOTO_BYTES = 750 * 1024; // the browser compresses to ≤700 KB; server actions cap bodies at 1 MB
 const PUBLIC_COLUMNS =
@@ -65,7 +64,7 @@ function validateCard(input: BirthdayCardInput): { data?: Omit<BirthdayCard, "id
       headline: clean(input.headline, 80) || null,
       organiser_note: clean(input.organiser_note, 1500) || null,
       photo_urls,
-      theme: THEMES.includes(input.theme) ? input.theme : "gold",
+      theme: BIRTHDAY_THEME_IDS.includes(input.theme) ? input.theme : "gold",
     },
   };
 }

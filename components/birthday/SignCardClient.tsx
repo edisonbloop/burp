@@ -9,7 +9,7 @@ import Confetti, { type ConfettiHandle } from "./Confetti";
 import { Label, inputCls } from "./CardDetailsFields";
 import MessageIdeas from "./MessageIdeas";
 import PhotoPicker from "./PhotoPicker";
-import { THEMES } from "./themes";
+import { THEMES, themeBackground } from "./themes";
 import { playChime } from "./sound";
 
 const accent = { fontFamily: "var(--font-accent)" };
@@ -68,7 +68,7 @@ export default function SignCardClient({ card, signers }: { card: BirthdayCard; 
     <>
       <Confetti ref={confetti} colors={theme.confetti} />
 
-      <section className="relative overflow-hidden" style={{ background: theme.bg, color: theme.ink }}>
+      <section className="relative overflow-hidden" style={{ background: themeBackground(theme), color: theme.ink }}>
         <div className="relative max-w-3xl mx-auto px-6 py-14 sm:py-20 flex flex-col sm:flex-row items-center gap-8 sm:gap-12">
           {card.photo_urls[0] && (
             <motion.div

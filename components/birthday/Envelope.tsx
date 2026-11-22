@@ -1,7 +1,7 @@
 "use client";
 
 import { motion } from "framer-motion";
-import type { ThemeSpec } from "./themes";
+import { foilText, themeBackground, type Motif, type ThemeSpec } from "./themes";
 
 const accent = { fontFamily: "var(--font-accent)" };
 const display = { fontFamily: "var(--font-display)" };
@@ -30,10 +30,10 @@ export default function Envelope({
   return (
     <motion.div
       className="fixed inset-0 z-50 flex flex-col items-center justify-center px-6 overflow-hidden"
-      style={{ background: theme.bg, color: theme.ink }}
+      style={{ background: themeBackground(theme), color: theme.ink }}
       exit={{ opacity: 0, transition: { duration: 0.6 } }}
     >
-      <Sparkles color={theme.accent} />
+      <Sparkles color={theme.accent} motif={theme.motif} />
 
       <motion.div
         initial={{ opacity: 0, y: 16 }}
@@ -44,7 +44,7 @@ export default function Envelope({
         <p className="text-[10px] sm:text-xs font-bold tracking-[0.35em] uppercase mb-3" style={{ ...accent, color: theme.accent }}>
           Something special for
         </p>
-        <h1 className="text-5xl sm:text-7xl font-semibold italic leading-none" style={display}>{name}</h1>
+        <h1 className="text-5xl sm:text-7xl font-semibold italic leading-none pb-2" style={{ ...display, ...foilText(theme) }}>{name}</h1>
       </motion.div>
 
       <motion.button
@@ -132,19 +132,49 @@ export default function Envelope({
   );
 }
 
-/** Deterministic twinkles (no hydration mismatch). */
-export function Sparkles({ color, count = 28 }: { color: string; count?: number }) {
+const GLYPHS: Partial<Record<Motif, string[]>> = {
+  sparkles: ["✦", "✧"],
+  stars: ["★", "✦", "✧"],
+  hearts: ["♥", "♡"],
+  petals: ["✿", "❀", "✾"],
+  diamonds: ["◆", "◇"],
+};
+
+/** Deterministic twinkles in the theme's motif (no hydration mismatch). */
+export function Sparkles({ color, motif = "dots", count = 28 }: { color: string; motif?: Motif; count?: number }) {
+  const glyphs = GLYPHS[motif];
   return (
-    <div aria-hidden className="absolute inset-0 pointer-events-none">
+    <div aria-hidden className="absolute inset-0 pointer-events-none overflow-hidden">
       {Array.from({ length: count }).map((_, i) => {
         const x = (i * 61) % 100;
         const y = (i * 37 + 11) % 100;
         const s = 3 + ((i * 7) % 5);
+        const place = { left: `${x}%`, top: `${y}%`, animationDelay: `${(i % 9) * -0.37}s` };
+        if (glyphs) {
+          return (
+            <span
+              key={i}
+              className="absolute leading-none animate-[bday-twinkle_3s_ease-in-out_infinite]"
+              style={{ ...place, color, fontSize: s * 3 + 2, textShadow: `0 0 ${s * 2}px ${color}` }}
+            >
+              {glyphs[i % glyphs.length]}
+            </span>
+          );
+        }
+        if (motif === "bubbles") {
+          return (
+            <span
+              key={i}
+              className="absolute rounded-full animate-[bday-twinkle_4s_ease-in-out_infinite]"
+              style={{ ...place, width: s * 4, height: s * 4, border: `1.5px solid ${color}`, background: `radial-gradient(circle at 30% 30%, rgba(255,255,255,0.7), transparent 45%)` }}
+            />
+          );
+        }
         return (
           <span
             key={i}
             className="absolute rounded-full animate-[bday-twinkle_3s_ease-in-out_infinite]"
-            style={{ left: `${x}%`, top: `${y}%`, width: s, height: s, background: color, animationDelay: `${(i % 9) * -0.37}s`, boxShadow: `0 0 ${s * 2}px ${color}` }}
+            style={{ ...place, width: s, height: s, background: color, boxShadow: `0 0 ${s * 2}px ${color}` }}
           />
         );
       })}

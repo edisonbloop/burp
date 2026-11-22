@@ -361,6 +361,10 @@ html { scroll-behavior: smooth; }
   0%, 100% { opacity: 0.15; transform: scale(0.7); }
   50% { opacity: 1; transform: scale(1); }
 }
+@keyframes bday-foil {
+  0%, 100% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+}
 @keyframes bday-seal-pulse {
   0%, 100% { box-shadow: 0 0 0 0 rgba(255, 255, 255, 0.55); }
   50% { box-shadow: 0 0 0 14px rgba(255, 255, 255, 0); }

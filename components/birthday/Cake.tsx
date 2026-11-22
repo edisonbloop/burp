@@ -140,7 +140,7 @@ export default function Cake({
               type="button"
               onClick={blow}
               className="px-7 py-3 rounded-full text-[11px] font-bold uppercase tracking-[0.2em] shadow-lg hover:-translate-y-0.5 transition-transform"
-              style={{ ...accent, background: theme.accent, color: theme.dark ? "#141B36" : "#fff" }}
+              style={{ ...accent, background: theme.accent, color: theme.onAccent }}
             >
               Make a wish &amp; blow
             </button>

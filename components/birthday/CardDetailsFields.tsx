@@ -4,7 +4,8 @@ import { useState } from "react";
 import type { BirthdayCardInput, Celebrant } from "@/types/birthday";
 import MessageIdeas from "./MessageIdeas";
 import PhotoPicker from "./PhotoPicker";
-import { THEME_LIST } from "./themes";
+import { Sparkles } from "./Envelope";
+import { THEME_LIST, foilText, themeBackground } from "./themes";
 
 const accent = { fontFamily: "var(--font-accent)" };
 const display = { fontFamily: "var(--font-display)" };
@@ -144,39 +145,51 @@ export default function CardDetailsFields({
       </div>
 
       <div>
-        <Label>Pick a look</Label>
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+        <Label hint={`${THEME_LIST.length} looks · tap Preview to try one`}>Pick a look</Label>
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
           {THEME_LIST.map((t) => {
             const active = value.theme === t.id;
+            const previewName = value.honoree_name.trim() || "Grace";
             return (
-              <button
+              <div
                 key={t.id}
-                type="button"
-                onClick={() => set("theme", t.id)}
-                aria-pressed={active}
-                className={`group text-left rounded-2xl overflow-hidden border-2 transition-all ${active ? "border-gold shadow-lg -translate-y-0.5" : "border-stone-edge hover:border-gold-soft"}`}
+                className={`relative rounded-2xl overflow-hidden border-2 transition-all ${active ? "border-gold shadow-lg -translate-y-0.5" : "border-stone-edge hover:border-gold-soft"}`}
               >
-                <div className="relative h-20 flex items-center justify-center" style={{ background: t.bg }}>
-                  {/* mini envelope */}
-                  <div className="relative w-14 h-9 rounded-[3px] shadow" style={{ background: t.envelope }}>
-                    <div
-                      className="absolute inset-x-0 top-0 h-5"
-                      style={{ background: t.envelopeFlap, clipPath: "polygon(0 0, 100% 0, 50% 100%)" }}
-                    />
-                    <div className="absolute left-1/2 top-3 -translate-x-1/2 w-3 h-3 rounded-full" style={{ background: t.accent }} />
+                <button type="button" onClick={() => set("theme", t.id)} aria-pressed={active} className="block w-full text-left">
+                  <div className="relative h-24 flex flex-col items-center justify-center gap-1.5 overflow-hidden" style={{ background: themeBackground(t) }}>
+                    <Sparkles color={t.dark ? t.accentSoft : t.accent} motif={t.motif} count={7} />
+                    <span className="relative text-lg italic font-semibold leading-none" style={{ ...display, color: t.ink, ...foilText(t) }}>
+                      {previewName.split(/\s+/)[0]}
+                    </span>
+                    {/* mini envelope */}
+                    <div className="relative w-12 h-8 rounded-[3px] shadow" style={{ background: t.envelope }}>
+                      <div className="absolute inset-x-0 top-0 h-4" style={{ background: t.envelopeFlap, clipPath: "polygon(0 0, 100% 0, 50% 100%)" }} />
+                      <div className="absolute left-1/2 top-2.5 -translate-x-1/2 w-2.5 h-2.5 rounded-full" style={{ background: t.accent }} />
+                    </div>
+                    <div className="absolute bottom-1.5 right-2 flex gap-0.5">
+                      {t.confetti.slice(0, 4).map((c) => (
+                        <span key={c} className="w-1.5 h-1.5 rounded-full" style={{ background: c }} />
+                      ))}
+                    </div>
+                    {active && (
+                      <span className="absolute top-1.5 right-2 w-5 h-5 rounded-full bg-gold text-white text-[10px] flex items-center justify-center">✓</span>
+                    )}
                   </div>
-                  <div className="absolute bottom-1.5 right-2 flex gap-0.5">
-                    {t.confetti.slice(0, 4).map((c) => (
-                      <span key={c} className="w-1.5 h-1.5 rounded-full" style={{ background: c }} />
-                    ))}
+                  <div className="px-3 py-2 bg-white">
+                    <p className="text-sm font-bold text-ink leading-tight" style={display}>{t.label}</p>
+                    <p className="text-[10px] text-stone-light">{t.blurb}</p>
                   </div>
-                  {active && <span className="absolute top-1.5 right-2 text-xs">✓</span>}
-                </div>
-                <div className="px-3 py-2 bg-white">
-                  <p className="text-sm font-bold text-ink leading-tight" style={display}>{t.label}</p>
-                  <p className="text-[10px] text-stone-light">{t.blurb}</p>
-                </div>
-              </button>
+                </button>
+                <a
+                  href={`/birthday/preview?theme=${t.id}&name=${encodeURIComponent(previewName)}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="absolute top-1.5 left-1.5 px-2 py-0.5 rounded-full bg-white/85 backdrop-blur text-[9px] font-bold uppercase tracking-widest text-ink shadow-sm hover:bg-white transition-colors"
+                  style={{ fontFamily: "var(--font-accent)" }}
+                >
+                  Preview ↗
+                </a>
+              </div>
             );
           })}
         </div>
