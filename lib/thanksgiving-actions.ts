@@ -109,7 +109,9 @@ export async function getThanksgivingStatus(): Promise<{ open: boolean; count: n
   }
 }
 
-export async function rsvpThanksgiving(input: { name: string; dish?: string }): Promise<{ token?: string; error?: string }> {
+export async function rsvpThanksgiving(
+  input: { name: string; dish?: string }
+): Promise<{ token?: string; me?: MyThanksgivingRsvp; error?: string }> {
   try {
     const name = clean(input.name, 40);
     const dish = clean(input.dish, 80) || null;
@@ -131,15 +133,21 @@ export async function rsvpThanksgiving(input: { name: string; dish?: string }): 
       return { error: "Couldn't save your RSVP. Please try again." };
     }
 
-    await matchWaiting();
-    revalidatePath("/admin");
-    return { token };
+    // Return their match in the same call: a second action straight after this
+    // one (or a revalidatePath refresh) left the page stuck on "Loading…".
+    const me = await loadMe(token);
+    return me ? { token, me } : { token };
   } catch {
     return { error: "Couldn't save your RSVP. Please try again." };
   }
 }
 
 export async function getMyThanksgivingRsvp(token: string): Promise<MyThanksgivingRsvp | null> {
+  return loadMe(token);
+}
+
+/** A guest's own view, matching them first if they're still waiting. */
+async function loadMe(token: string): Promise<MyThanksgivingRsvp | null> {
   try {
     if (!token || token.length > 64) return null;
     const supabase = getSupabase();
@@ -183,7 +191,6 @@ export async function saveMyThanksgivingNote(token: string, note: string): Promi
 
     const { error } = await supabase.from(TABLE).update({ note: text, note_updated_at: new Date().toISOString() }).eq("id", me.id);
     if (error) return { error: "Couldn't save your note. Please try again." };
-    revalidatePath("/admin");
     return {};
   } catch {
     return { error: "Couldn't save your note. Please try again." };

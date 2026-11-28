@@ -79,10 +79,12 @@ export default function ThanksgivingClient({ initialOpen, initialCount }: { init
     };
   }, [token, me?.target_name, load]);
 
-  function onRsvped(t: string) {
+  function onRsvped(t: string, data?: MyThanksgivingRsvp) {
     window.history.replaceState(null, "", `/thanksgiving?me=${t}`);
-    setLoading(true);
-    load(t);
+    storeToken(t);
+    setToken(t);
+    if (data) setMe(data);
+    else load(t);
   }
 
   function notMe() {
@@ -101,7 +103,15 @@ export default function ThanksgivingClient({ initialOpen, initialCount }: { init
 
 /* ── Step 1: RSVP ───────────────────────────────────────────────────────── */
 
-function RsvpForm({ open, count, onDone }: { open: boolean; count: number; onDone: (token: string) => void }) {
+function RsvpForm({
+  open,
+  count,
+  onDone,
+}: {
+  open: boolean;
+  count: number;
+  onDone: (token: string, me?: MyThanksgivingRsvp) => void;
+}) {
   const [name, setName] = useState("");
   const [dish, setDish] = useState("");
   const [error, setError] = useState("");
@@ -126,7 +136,7 @@ function RsvpForm({ open, count, onDone }: { open: boolean; count: number; onDon
     start(async () => {
       const res = await rsvpThanksgiving({ name, dish });
       if (res.error || !res.token) setError(res.error ?? "Something went wrong.");
-      else onDone(res.token);
+      else onDone(res.token, res.me);
     });
   }
 
