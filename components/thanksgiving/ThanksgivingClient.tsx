@@ -8,6 +8,7 @@ import {
 } from "@/lib/thanksgiving-actions";
 import { THANKSGIVING_NOTE_MAX, type MyThanksgivingRsvp } from "@/types/thanksgiving";
 import { PlaceCardBack } from "./PlaceCard";
+import { MIN_GUESTS_TO_MATCH } from "@/lib/thanksgiving-match";
 
 const STORE = "burp-thanksgiving-token";
 const accent = { fontFamily: "var(--font-accent)" };
@@ -252,8 +253,11 @@ function MyMatch({
             You’re one of the first!
           </p>
           <p className="text-sm text-stone-mid leading-relaxed">
-            We’ll give you someone to write about as soon as the next person RSVPs. Keep this page open, or come back with
-            your link below.
+            We’ll give you someone to write about once {MIN_GUESTS_TO_MATCH} people have RSVP’d, so nobody can guess who wrote
+            their note. Keep this page open, or come back later with your link below.
+          </p>
+          <p className="text-xs font-semibold text-gold-deep">
+            {Math.min(me.guest_count, MIN_GUESTS_TO_MATCH)} of {MIN_GUESTS_TO_MATCH} so far
           </p>
           <button onClick={onRefresh} className="text-sm font-semibold text-gold-deep hover:text-gold underline underline-offset-4">
             Check again
