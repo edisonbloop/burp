@@ -12,6 +12,7 @@ import { getLatestRound, adminGetRoundOverview } from "@/lib/secretsanta-actions
 import { getAdminAssessmentResults } from "@/lib/admin-assessment-actions";
 import { getActiveRound as getActiveOutreachRound, adminGetRoundOverview as adminGetOutreachOverview } from "@/lib/outreach-actions";
 import { adminGetBirthdayCards } from "@/lib/birthday-actions";
+import { adminGetThanksgiving } from "@/lib/thanksgiving-actions";
 import AdminLogin from "./AdminLogin";
 import AdminTabs from "./AdminTabs";
 import PageHeader from "@/components/PageHeader";
@@ -69,6 +70,7 @@ export default async function AdminPage() {
     assessmentResults,
     outreachRound,
     birthdayCards,
+    thanksgiving,
   ] = await Promise.all([
     getAdminStones(),
     getPlansWithDiscussions(),
@@ -85,6 +87,7 @@ export default async function AdminPage() {
     getAdminAssessmentResults(),
     getActiveOutreachRound(),
     adminGetBirthdayCards(),
+    adminGetThanksgiving(),
   ]);
 
   const secretSantaOverview = secretSantaRound
@@ -139,6 +142,7 @@ export default async function AdminPage() {
             { label: "Outreach Ideas", value: outreachOverview.ideas.length },
             { label: "Outreach Voters", value: outreachOverview.totalVoters },
             { label: "Birthday Cards", value: birthdayCards.length },
+            { label: "Thanksgiving RSVPs", value: thanksgiving.rsvps.length },
           ].map(({ label, value, highlight }) => (
             <div
               key={label}
@@ -185,6 +189,8 @@ export default async function AdminPage() {
           outreachTallies={outreachOverview.tallies}
           outreachTotalVoters={outreachOverview.totalVoters}
           birthdayCards={birthdayCards}
+          thanksgivingRsvps={thanksgiving.rsvps}
+          thanksgivingOpen={thanksgiving.open}
         />
       </div>
     </div>

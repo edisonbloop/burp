@@ -14,6 +14,7 @@ import AdminSecretSantaPanel from "@/components/AdminSecretSantaPanel";
 import AdminAssessmentResults from "@/components/AdminAssessmentResults";
 import AdminOutreachPanel from "@/components/AdminOutreachPanel";
 import AdminBirthdayPanel from "@/components/AdminBirthdayPanel";
+import AdminThanksgivingPanel from "@/components/AdminThanksgivingPanel";
 import type { Stone } from "@/types/stones";
 import type { LibraryItem } from "@/types/library";
 import type { SharehouseNeed } from "@/types/sharehouse";
@@ -26,6 +27,7 @@ import type { SecretSantaMappingRow, SecretSantaRound } from "@/types/secretsant
 import type { AdminAggregateStats, AdminAssessmentSubmission } from "@/types/admin-assessment";
 import type { OutreachRound, OutreachIdea, VoteTally } from "@/types/outreach";
 import type { AdminBirthdayCard } from "@/types/birthday";
+import type { AdminThanksgivingRsvp } from "@/types/thanksgiving";
 
 interface Plan {
   id: string;
@@ -72,6 +74,8 @@ interface AdminTabsProps {
   outreachTallies: VoteTally[];
   outreachTotalVoters: number;
   birthdayCards: AdminBirthdayCard[];
+  thanksgivingRsvps: AdminThanksgivingRsvp[];
+  thanksgivingOpen: boolean;
 }
 
 const tabs = [
@@ -88,6 +92,7 @@ const tabs = [
   { id: "assessment", label: "Leadership Feedback" },
   { id: "outreach", label: "Community Outreach" },
   { id: "birthdays", label: "Birthday Cards" },
+  { id: "thanksgiving", label: "Thanksgiving" },
 ] as const;
 
 type TabId = (typeof tabs)[number]["id"];
@@ -115,6 +120,8 @@ export default function AdminTabs({
   outreachTallies,
   outreachTotalVoters,
   birthdayCards,
+  thanksgivingRsvps,
+  thanksgivingOpen,
 }: AdminTabsProps) {
   const [activeTab, setActiveTab] = useState<TabId>("stones");
 
@@ -195,6 +202,7 @@ export default function AdminTabs({
         />
       )}
       {activeTab === "birthdays" && <AdminBirthdayPanel cards={birthdayCards} />}
+      {activeTab === "thanksgiving" && <AdminThanksgivingPanel rsvps={thanksgivingRsvps} open={thanksgivingOpen} />}
     </div>
   );
 }
